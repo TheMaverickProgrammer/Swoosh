@@ -7,6 +7,7 @@
 #include "DemoScene.h"
 #include "WhiteWashFade.h"
 #include "SlideIn.h"
+#include "BlendFadeIn.h"
 #include <iostream>
 
 class MainMenuScene : public Activity {
@@ -67,8 +68,12 @@ public:
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
       controller.Push(ActivityController::Segue<WhiteWashFade>::To<DemoScene>());
-    } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-      controller.Push(ActivityController::Segue<SlideIn>::To<DemoScene>());
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
+      controller.Push(ActivityController::Segue<SlideIn, Duration<&sf::seconds, 7>>::To<DemoScene>());
+    } 
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+      controller.Push(ActivityController::Segue<BlendFadeIn, Duration<&sf::seconds, 2>>::To<DemoScene>());
     }
   }
 

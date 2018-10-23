@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="Activity.h" />
     <ClInclude Include="ActivityController.h" />
+    <ClInclude Include="BlendFadeIn.h" />
     <ClInclude Include="DemoScene.h" />
     <ClInclude Include="EaseFunctions.h" />
     <ClInclude Include="MainMenuScene.h" />

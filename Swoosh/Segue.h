@@ -3,11 +3,23 @@
 #include "Timer.h"
 #include <SFML/Graphics.hpp>
 
-template<sf::Time(*s)(int val), int val = 0>
+template<sf::Time(*s)(float val), int val = 0>
 struct Duration
 {
   static sf::Time value() { return (*s)(val); }
 };
+
+/*template<sf::Time(*s)(sf::Int32 val), sf::Int32 val = 0>
+struct Duration
+{
+  static sf::Time value() { return (*s)(val); }
+};
+
+template<sf::Time(*s)(sf::Int64 val), sf::Int64 val = 0>
+struct Duration
+{
+  static sf::Time value() { return (*s)(val); }
+};*/
 
 class Segue : public Activity {
   friend class ActivityController;

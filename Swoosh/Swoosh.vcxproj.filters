@@ -63,6 +63,9 @@
     <ClInclude Include="SlideIn.h">
       <Filter>Source Files\Examples\Segues</Filter>
     </ClInclude>
+    <ClInclude Include="BlendFadeIn.h">
+      <Filter>Source Files\Examples\Segues</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

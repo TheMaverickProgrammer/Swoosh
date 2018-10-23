@@ -38,7 +38,7 @@ public:
     return handle;
   }
 
-  template<typename T, typename DurationType = Duration<&sf::milliseconds, 500>>
+  template<typename T, typename DurationType = Duration<&sf::seconds, 3>>
   class Segue{
   public:
     template<typename U, typename... Args>
