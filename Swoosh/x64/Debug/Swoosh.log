@@ -1,0 +1,43 @@
+﻿  Example.cpp
+c:\users\bountyhunter\code\swoosh\swoosh\segue.h(23): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\whitewashfade.h(18): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
+          and
+          [
+              T=float
+          ]
+c:\users\bountyhunter\code\swoosh\swoosh\whitewashfade.h(19): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(45): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(48): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(52): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(72): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
+          and
+          [
+              T=float
+          ]
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(73): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Swoosh.vcxproj -> C:\Users\Bountyhunter\Code\Swoosh\x64\Debug\Swoosh.exe
