@@ -4,6 +4,8 @@
 #include "TextureLoader.h"
 #include "Particle.h"
 
+#include <iostream>
+
 class DemoScene : public Activity {
 private:
   sf::Texture* bgTexture;
@@ -13,16 +15,18 @@ private:
   sf::Text   menuText;
 
 public:
-  DemoScene(ActivityController& controller) : Activity(controller) { ; }
-
-  virtual void OnStart() {
+  DemoScene(ActivityController& controller) : Activity(controller) { 
     bgTexture = LoadTexture("resources/bg.png");
     bg = sf::Sprite(*bgTexture);
 
     menuFont.loadFromFile("resources/commando.ttf");
     menuText.setFont(menuFont);
 
-    menuText.setFillColor(sf::Color::Red);
+    menuText.setFillColor(sf::Color::Red); 
+  }
+
+  virtual void OnStart() {
+    std::cout << "DemoScene OnStart called" << std::endl;
   }
 
   virtual void OnUpdate(double elapsed) {
@@ -32,10 +36,12 @@ public:
   }
 
   virtual void OnLeave() {
+    std::cout << "DemoScene OnLeave called" << std::endl;
 
   }
 
   virtual void OnResume() {
+    std::cout << "DemoScene OnResume called" << std::endl;
 
   }
 
@@ -48,8 +54,8 @@ public:
   }
 
   virtual void OnEnd() {
-    delete bgTexture;
+    std::cout << "DemoScene OnEnd called" << std::endl;
   }
 
-  virtual ~DemoScene() { ; }
+  virtual ~DemoScene() { delete bgTexture;; }
 };

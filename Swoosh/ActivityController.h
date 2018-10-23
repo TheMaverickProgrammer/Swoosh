@@ -27,7 +27,6 @@ public:
   ~ActivityController() {
     while (!activities.empty()) {
       Activity* activity = activities.top();
-      activity->OnEnd();
       delete activity;
       activities.pop();
     }
@@ -84,12 +83,14 @@ public:
     callback(*this);
   }
 
-  void QueuePop() {
+  const bool QueuePop() {
     bool hasMore = (activities.size() > 0);
 
-    if (!hasMore) return;
+    if (!hasMore || hasSegue) return false;
 
     willLeave = true;
+
+    return willLeave;
   }
 
   void Update(double elapsed) {
@@ -103,7 +104,7 @@ public:
 
     if (activities.size() == 0)
       return;
-
+    
     activities.top()->OnUpdate(elapsed);
 
     if (hasSegue) {
@@ -128,9 +129,6 @@ public:
     // drawbuffer on top of the scene
     handle.draw(post);
 
-    // show final result
-    handle.display();
-
     // Prepare buffer for next cycle
     surface->clear(sf::Color::Transparent);
   }
@@ -146,12 +144,13 @@ private:
 
   void Pop() {
     Activity* activity = activities.top();
-
-    if (dynamic_cast<::Segue*>(activity))
-      return;
-
+    activity->OnLeave();
     activity->OnEnd();
     activities.pop();
+
+    if (activities.size() > 0)
+      activities.top()->OnResume();
+
     delete activity;
   }
 }; 

@@ -160,8 +160,10 @@
     <ClInclude Include="Activity.h" />
     <ClInclude Include="ActivityController.h" />
     <ClInclude Include="DemoScene.h" />
+    <ClInclude Include="EaseFunctions.h" />
     <ClInclude Include="MainMenuScene.h" />
     <ClInclude Include="Particle.h" />
+    <ClInclude Include="SlideIn.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="pch.h" />

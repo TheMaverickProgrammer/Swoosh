@@ -1,13 +1,13 @@
 #pragma once
 #include "Segue.h"
+#include "EaseFunctions.h"
 
 class WhiteWashFade : public Segue {
 public:
   virtual void OnDraw(sf::RenderTexture& surface) {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
-    double x = elapsed / duration;
-    double alpha = 1 - (x * x);
+    double alpha = ease::wideParabola(elapsed, duration, 1);
 
     if (elapsed <= duration * 0.5)
       this->DrawLastActivity(surface);
