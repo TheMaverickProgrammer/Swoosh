@@ -3,6 +3,7 @@ SFML Activity and Segue Mini Library
 
 # Technology
 SFML 2.5
+
 C++14
 
 ## Optional
