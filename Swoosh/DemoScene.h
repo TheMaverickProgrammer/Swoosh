@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+using namespace swoosh;
+
 class DemoScene : public Activity {
 private:
   sf::Texture* bgTexture;
@@ -27,35 +29,35 @@ public:
     menuText.setFillColor(sf::Color::Red); 
   }
 
-  virtual void OnStart() {
+  virtual void onStart() {
     std::cout << "DemoScene OnStart called" << std::endl;
   }
 
-  virtual void OnUpdate(double elapsed) {
+  virtual void onUpdate(double elapsed) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-      controller.QueuePop<ActivityController::Segue<SlideIn>>();
+      controller.queuePop<ActivityController::Segue<SlideIn>>();
     }
   }
 
-  virtual void OnLeave() {
+  virtual void onLeave() {
     std::cout << "DemoScene OnLeave called" << std::endl;
 
   }
 
-  virtual void OnExit() {
+  virtual void onExit() {
     std::cout << "DemoScene OnExit called" << std::endl;
   }
 
-  virtual void OnEnter() {
+  virtual void onEnter() {
     std::cout << "DemoScene OnEnter called" << std::endl;
   }
 
-  virtual void OnResume() {
+  virtual void onResume() {
     std::cout << "DemoScene OnResume called" << std::endl;
 
   }
 
-  virtual void OnDraw(sf::RenderTexture& surface) {
+  virtual void onDraw(sf::RenderTexture& surface) {
     surface.draw(bg);
 
     menuText.setPosition(sf::Vector2f(200, 100));
@@ -63,7 +65,7 @@ public:
     surface.draw(menuText);
   }
 
-  virtual void OnEnd() {
+  virtual void onEnd() {
     std::cout << "DemoScene OnEnd called" << std::endl;
   }
 

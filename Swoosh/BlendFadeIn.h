@@ -2,18 +2,20 @@
 #include "Segue.h"
 #include "EaseFunctions.h"
 
+using namespace swoosh;
+
 class BlendFadeIn : public Segue {
 private:
   sf::Texture* temp;
   int direction = 0;
 
 public:
-  virtual void OnDraw(sf::RenderTexture& surface) {
+  virtual void onDraw(sf::RenderTexture& surface) {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1);
 
-    this->DrawLastActivity(surface);
+    this->drawLastActivity(surface);
 
     surface.display(); // flip and ready the buffer
 
@@ -24,7 +26,7 @@ public:
 
     surface.clear();
 
-    this->DrawNextActivity(surface);
+    this->drawNextActivity(surface);
 
     surface.display(); // flip and ready the buffer
     sf::Sprite right(surface.getTexture());

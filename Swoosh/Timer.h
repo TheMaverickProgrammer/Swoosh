@@ -1,44 +1,46 @@
 #pragma once
 #include <SFML/System.hpp>
 
-class Timer {
-  sf::Clock clock;
-  float elapsed;
-  bool isPaused;
+namespace swoosh {
+  class Timer {
+    sf::Clock clock;
+    float elapsed;
+    bool paused;
 
-public:
-  Timer() {
-    isPaused = true;
-    elapsed = 0;
-    clock.restart();
-  }
-
-  void Reset() {
-    clock.restart();
-    elapsed = 0;
-    isPaused = false;
-  }
-
-  void Start() {
-    if (isPaused) {
+  public:
+    Timer() {
+      paused = true;
+      elapsed = 0;
       clock.restart();
     }
-    isPaused = false;
-  }
 
-  void Pause() {
-    if (!isPaused) {
-      elapsed += clock.getElapsedTime().asMilliseconds();
+    void reset() {
+      clock.restart();
+      elapsed = 0;
+      paused = false;
     }
-    isPaused = true;
-  }
 
-  bool IsPaused() { return isPaused; }
-
-  float GetElapsed() {
-    if (!isPaused) {
-      return elapsed + clock.getElapsedTime().asMilliseconds();
+    void start() {
+      if (paused) {
+        clock.restart();
+      }
+      paused = false;
     }
-    return elapsed;
-  }
-};
+
+    void pause() {
+      if (!paused) {
+        elapsed += clock.getElapsedTime().asMilliseconds();
+      }
+      paused = true;
+    }
+
+    bool isPaused() { return paused; }
+
+    sf::Time getElapsed() {
+      if (!paused) {
+        return sf::milliseconds(elapsed + clock.getElapsedTime().asMilliseconds());
+      }
+      return sf::milliseconds(elapsed);
+    }
+  };
+}

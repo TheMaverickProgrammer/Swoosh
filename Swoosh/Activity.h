@@ -7,23 +7,25 @@ namespace sf {
   class RenderTexture;
 }
 
-class ActivityController;
+namespace swoosh {
+  class ActivityController;
 
-class Activity {
-  friend class Segue;
+  class Activity {
+    friend class Segue;
 
-protected:
-  ActivityController& controller;
-public:
-  Activity() = delete;
-  Activity(ActivityController& controller) : controller(controller) { ; }
-  virtual void OnStart() = 0;
-  virtual void OnUpdate(double elapsed) = 0;
-  virtual void OnLeave() = 0;
-  virtual void OnExit() = 0;
-  virtual void OnEnter() = 0;
-  virtual void OnResume() = 0;
-  virtual void OnDraw(sf::RenderTexture& surface) = 0;
-  virtual void OnEnd() = 0;
-  virtual ~Activity() { ; }
-};
+  protected:
+    ActivityController& controller;
+  public:
+    Activity() = delete;
+    Activity(ActivityController& controller) : controller(controller) { ; }
+    virtual void onStart() = 0;
+    virtual void onUpdate(double elapsed) = 0;
+    virtual void onLeave() = 0;
+    virtual void onExit() = 0;
+    virtual void onEnter() = 0;
+    virtual void onResume() = 0;
+    virtual void onDraw(sf::RenderTexture& surface) = 0;
+    virtual void onEnd() = 0;
+    virtual ~Activity() { ; }
+  };
+}

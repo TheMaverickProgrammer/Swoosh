@@ -1,8 +1,9 @@
 ﻿  Example.cpp
-c:\users\bountyhunter\code\swoosh\swoosh\segue.h(35): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
-c:\users\bountyhunter\code\swoosh\swoosh\slidein.h(33): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\swoosh\slidein.h(42): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\swoosh\whitewashfade.h(18): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\timer.h(41): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\timer.h(43): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\slidein.h(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\slidein.h(44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\whitewashfade.h(20): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
@@ -11,9 +12,9 @@ c:\users\bountyhunter\code\swoosh\swoosh\whitewashfade.h(18): warning C4244: 'ar
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\swoosh\whitewashfade.h(19): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
-c:\users\bountyhunter\code\swoosh\swoosh\blendfadein.h(32): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
-c:\users\bountyhunter\code\swoosh\swoosh\blendfadein.h(33): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\whitewashfade.h(21): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\blendfadein.h(34): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\blendfadein.h(35): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
 c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(52): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [

@@ -40,11 +40,11 @@ public:
     menuText.setFillColor(sf::Color::Red); 
   }
 
-  virtual void OnStart() {
+  virtual void onStart() {
     std::cout << "MainMenuScene OnStart called" << std::endl;
   }
 
-  virtual void OnUpdate(double elapsed) {
+  virtual void onUpdate(double elapsed) {
     int i = 0;
     for (auto ptr : particles) {
       particle& p = *ptr;
@@ -67,30 +67,30 @@ public:
     cursor.setPosition(sf::Vector2f(sf::Mouse::getPosition(controller.getWindow()).x, sf::Mouse::getPosition(controller.getWindow()).y));
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-      controller.Push<ActivityController::Segue<WhiteWashFade>::To<DemoScene>>();
+      controller.push<ActivityController::Segue<WhiteWashFade, Duration<&sf::seconds, 1>>::To<DemoScene>>();
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-      controller.Push<ActivityController::Segue<SlideIn, Duration<&sf::seconds, 3>>::To<DemoScene>>();
+      controller.push<ActivityController::Segue<SlideIn, Duration<&sf::seconds, 1>>::To<DemoScene>>();
     } 
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-      controller.Push<ActivityController::Segue<BlendFadeIn, Duration<&sf::seconds, 2>>::To<DemoScene>>();
+      controller.push<ActivityController::Segue<BlendFadeIn, Duration<&sf::seconds, 2>>::To<DemoScene>>();
     }
   }
 
-  virtual void OnLeave() {
+  virtual void onLeave() {
     std::cout << "MainMenuScene OnLeave called" << std::endl;
   }
 
-  virtual void OnExit() {
+  virtual void onExit() {
     std::cout << "MainMenuScene OnExit called" << std::endl;
   }
 
-  virtual void OnEnter() {
+  virtual void onEnter() {
     std::cout << "MainMenuScene OnEnter called" << std::endl;
   }
 
 
-  virtual void OnResume() {
+  virtual void onResume() {
     std::cout << "MainMenuScene OnResume called" << std::endl;
 
     for (int i = 100; i > 0; i--) {
@@ -111,7 +111,7 @@ public:
     }
   }
 
-  virtual void OnDraw(sf::RenderTexture& surface) {
+  virtual void onDraw(sf::RenderTexture& surface) {
     surface.draw(bg);
 
     menuText.setPosition(sf::Vector2f(200, 100));
@@ -137,7 +137,7 @@ public:
     surface.draw(cursor);
   }
 
-  virtual void OnEnd() {
+  virtual void onEnd() {
     std::cout << "MainMenuScene OnEnd called" << std::endl;
 
     while (!particles.empty()) {

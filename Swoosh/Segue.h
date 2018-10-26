@@ -3,62 +3,64 @@
 #include "Timer.h"
 #include <SFML/Graphics.hpp>
 
-template<sf::Time(*s)(float val), int val = 0>
-struct Duration
-{
-  static sf::Time value() { return (*s)(val); }
-};
+namespace swoosh {
+  template<sf::Time(*s)(float val), int val = 0>
+  struct Duration
+  {
+    static sf::Time value() { return (*s)(val); }
+  };
 
-/*template<sf::Time(*s)(sf::Int32 val), sf::Int32 val = 0>
-struct Duration
-{
-  static sf::Time value() { return (*s)(val); }
-};
+  /*template<sf::Time(*s)(sf::Int32 val), int val = 0>
+  struct Duration
+  {
+    static sf::Time value() { return (*s)((sf::Int32)(val)); }
+  };
 
-template<sf::Time(*s)(sf::Int64 val), sf::Int64 val = 0>
-struct Duration
-{
-  static sf::Time value() { return (*s)(val); }
-};*/
+  template<sf::Time(*s)(sf::Int64 val), int val = 0>
+  struct Duration
+  {
+    static sf::Time value() { return (*s)(val); }
+  };*/
 
-class Segue : public Activity {
-  friend class ActivityController;
+  class Segue : public Activity {
+    friend class ActivityController;
 
-private:
-  Activity* last;
-  Activity* next;
-  sf::Time duration;
-  Timer timer;
+  private:
+    Activity* last;
+    Activity* next;
+    sf::Time duration;
+    Timer timer;
 
-protected:
-  const sf::Time getDuration() { return duration; }
-  const sf::Time getElapsed() { return sf::milliseconds(timer.GetElapsed()); }
-  
-  void DrawLastActivity(sf::RenderTexture& surface) {
-    if(last)
-      last->OnDraw(surface);
-  }
+  protected:
+    const sf::Time getDuration() { return duration; }
+    const sf::Time getElapsed() { return timer.getElapsed(); }
 
-  void DrawNextActivity(sf::RenderTexture& surface) {
-    next->OnDraw(surface);
-  }
+    void drawLastActivity(sf::RenderTexture& surface) {
+      if (last)
+        last->onDraw(surface);
+    }
 
-public:
-  virtual void OnStart() final { next->OnEnter();  last->OnLeave(); timer.Reset(); }
+    void drawNextActivity(sf::RenderTexture& surface) {
+      next->onDraw(surface);
+    }
 
-  virtual void OnUpdate(double elapsed) final {
-    if (last) last->OnUpdate(elapsed);
-    next->OnUpdate(elapsed);
-  }
+  public:
+    virtual void onStart() final { next->onEnter();  last->onLeave(); timer.reset(); }
 
-  virtual void OnLeave() final { timer.Pause(); }
-  virtual void OnExit() final { ; }
-  virtual void OnEnter() final { ; }
-  virtual void OnResume() final { timer.Start(); }
-  virtual void OnDraw(sf::RenderTexture& surface) = 0;
-  virtual void OnEnd() final { last->OnExit(); }
+    virtual void onUpdate(double elapsed) final {
+      if (last) last->onUpdate(elapsed);
+      next->onUpdate(elapsed);
+    }
 
-  Segue() = delete;
-  Segue(sf::Time duration, Activity* last, Activity* next) : duration(duration), last(last), next(next), Activity(next->controller) { /* ... */ }
-  virtual ~Segue() { }
-};
+    virtual void onLeave() final { timer.pause(); }
+    virtual void onExit() final { ; }
+    virtual void onEnter() final { ; }
+    virtual void onResume() final { timer.start(); }
+    virtual void onDraw(sf::RenderTexture& surface) = 0;
+    virtual void onEnd() final { last->onExit(); }
+
+    Segue() = delete;
+    Segue(sf::Time duration, Activity* last, Activity* next) : duration(duration), last(last), next(next), Activity(next->controller) { /* ... */ }
+    virtual ~Segue() { }
+  };
+}

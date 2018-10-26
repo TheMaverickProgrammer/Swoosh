@@ -2,17 +2,19 @@
 #include "Segue.h"
 #include "EaseFunctions.h"
 
+using namespace swoosh;
+
 class WhiteWashFade : public Segue {
 public:
-  virtual void OnDraw(sf::RenderTexture& surface) {
+  virtual void onDraw(sf::RenderTexture& surface) {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1);
 
     if (elapsed <= duration * 0.5)
-      this->DrawLastActivity(surface);
+      this->drawLastActivity(surface);
     else
-      this->DrawNextActivity(surface);
+      this->drawNextActivity(surface);
 
     sf::RectangleShape whiteout;
     whiteout.setSize(sf::Vector2f(controller.getWindow().getSize().x, controller.getWindow().getSize().y));
