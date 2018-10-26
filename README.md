@@ -188,11 +188,14 @@ Segues are made up of two Activities: the last and the next. For most segues you
 
 Both draw their respective activity's contents to a sf::RenderTexture that can be used later. Read on below for an example.
 
+[This example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/Swoosh/SlideIn.h) Segue will slide a new screen in while pushing the last scene out. Really cool!
+
 ## Segue's & Activity States
-It's important to note that Segue's are responsible for triggering 5 of the 7 states in your activities.
+It's important to note that Segue's are responsible for triggering 6 of the 7 states in your activities.
 
 * OnLeave -> the last scene has lost focus
 * OnExit  -> the last scene when the segue ends
+* OnEnd   -> the last scene when the segue ends after a _Pop_ intent
 * OnEnter -> the **next** scene when the segue begins
 * OnResume -> the **next** scene when the segue ends after a _Pop_ intent
 
@@ -201,68 +204,6 @@ _OR_
 * OnStart -> the **next** scene when the segue ends after a _Push_ intent
 
 It might help to remember that when a segue begins, the current activity is leaving and the other is entering. When the segue ends, the current activity exits and the other begins.
-
-This example Segue will slide a new screen in while pushing the last scene out. Really cool!
-
-```
-#pragma once
-#include "Segue.h"
-#include "EaseFunctions.h"
-
-class SlideIn : public Segue {
-private:
-  sf::Texture* temp;
-  int direction = 0;
-
-public:
-  virtual void OnDraw(sf::RenderTexture& surface) {
-    double elapsed = getElapsed().asMilliseconds();
-    double duration = getDuration().asMilliseconds();
-    double alpha = ease::linear(elapsed, duration, 1);
-
-    this->DrawLastActivity(surface);
-
-    surface.display(); // flip and ready the buffer
-
-    if (temp) delete temp;
-    temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
-
-    sf::Sprite left(*temp); 
-
-    int lr = 0;
-    int ud = 0;
-
-    if (direction == 0) lr = -1;
-    if (direction == 1) ud = -1;
-    if (direction == 2) lr = 1;
-    if (direction == 3) ud = 1;
-
-    left.setPosition(lr * alpha * left.getTexture()->getSize().x, ud * alpha * left.getTexture()->getSize().y);
-
-    surface.clear();
-
-    this->DrawNextActivity(surface);
-
-    surface.display(); // flip and ready the buffer
-    sf::Sprite right(surface.getTexture());
-
-    right.setPosition(-lr * (1-alpha) * right.getTexture()->getSize().x, -ud * (1-alpha) * right.getTexture()->getSize().y);
-
-    controller.getWindow().draw(left);
-    controller.getWindow().draw(right);
-
-    surface.clear(sf::Color::Transparent);
-  }
-
-  SlideIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) { 
-    /* ... */ 
-    temp = nullptr;
-    direction = rand() % 4; // Choose a random direction
-  }
-
-  virtual ~SlideIn() { ; }
-};
-```
 
 # Integrating Swoosh into your SFML application
 Adding Swoosh, the acitivity and segue mini library into a fresh SFML application is very simple. See [Example.cpp](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/Swoosh/Example.cpp)
