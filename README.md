@@ -25,12 +25,12 @@ For example
 
 ```
 ActivityController controller;
-controller.Push<MainMenuScene>();
+controller.push<MainMenuScene>();
 
 ...
 
 // User selects settings
-controller.Push<ActivityController::Segue<SlideInLeft>::To<AppSettingsScene>();
+controller.push<ActivityController::Segue<SlideInLeft>::To<AppSettingsScene>();
 ```
 
 The syntax is human readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: writing the application!
@@ -42,7 +42,7 @@ This may be too fast or too slow for your needs. The `Duration` class takes two 
 For example
 
 ```
-controller.Push<ActivityController::Segue<FadeIn, Duration<&sf::seconds, 5>>::To<DramaticIntroScene>();
+controller.push<ActivityController::Segue<FadeIn, Duration<&sf::seconds, 5>>::To<DramaticIntroScene>();
 ```
 
 ## Supplying Additional Arguments
@@ -50,14 +50,14 @@ Your activity classes may be dependant on external information like loading your
 
 ```
 SaveInfo = info = LoadSaveFile(selectedProfile);
-controller.Push<SuperJumpManLevel1>({info.getLives(), info.getCoins(), info.getMapData()});
+controller.push<SuperJumpManLevel1>({info.getLives(), info.getCoins(), info.getMapData()});
 ```
 
 This is the same for segues
 
 ```
 FinancialInfo* data = loadFinancialResult(calender.getDate());
-controller.Push<ActivityController::Segue<CheckerboardEffect, Duration<&sf::seconds, 3>>::To<FinancialReport>(data);
+controller.push<ActivityController::Segue<CheckerboardEffect, Duration<&sf::seconds, 3>>::To<FinancialReport>(data);
 ```
 
 # Leaving Activities
@@ -66,17 +66,17 @@ Make sure your activity controller calls are in an Activity's `OnUpdate(double e
 
 ## Push
 ```
-controller.Push<MyScene>();
-controller.Push<ActivityController::Segue<FadeIn>::To<MyScene>>();
+controller.push<MyScene>();
+controller.push<ActivityController::Segue<FadeIn>::To<MyScene>>();
 ```
 
 ## Pop
 Pushed activities are added to the stack immediately. However there are steps involved in the controller's update loop that do not make this
-safe to do for _pop_. Instead, the function `QueuePop()` is supplied, signalling the controller to pop as soon as it can.
+safe to do for _pop_. Instead, the function `queuePop()` is supplied, signalling the controller to pop as soon as it can.
 
 ```
-controller.QueuePop(); 
-controller.QueuePop<ActivityController::Segue<SlideIn>>();
+controller.queuePop(); 
+controller.queuePop<ActivityController::Segue<SlideIn>>();
 ```
 
 # Writing Activities
@@ -111,32 +111,32 @@ public:
     menuText.setFillColor(sf::Color::Red); 
   }
 
-  virtual void OnStart() {
+  virtual void onStart() {
     std::cout << "DemoScene OnStart called" << std::endl;
   }
 
-  virtual void OnUpdate(double elapsed) {
+  virtual void onUpdate(double elapsed) {
   }
 
-  virtual void OnLeave() {
+  virtual void onLeave() {
     std::cout << "DemoScene OnLeave called" << std::endl;
 
   }
 
-  virtual void OnExit() {
+  virtual void onExit() {
     std::cout << "DemoScene OnExit called" << std::endl;
   }
 
-  virtual void OnEnter() {
+  virtual void onEnter() {
     std::cout << "DemoScene OnEnter called" << std::endl;
   }
 
-  virtual void OnResume() {
+  virtual void onResume() {
     std::cout << "DemoScene OnResume called" << std::endl;
 
   }
 
-  virtual void OnDraw(sf::RenderTexture& surface) {
+  virtual void OoDraw(sf::RenderTexture& surface) {
     surface.draw(bg);
 
     menuText.setPosition(sf::Vector2f(200, 100));
@@ -144,7 +144,7 @@ public:
     surface.draw(menuText);
   }
 
-  virtual void OnEnd() {
+  virtual void onEnd() {
     std::cout << "DemoScene OnEnd called" << std::endl;
   }
 
@@ -183,8 +183,8 @@ Sometimes you may need to step over the render surface and draw directly to the 
 ## Drawing To The Screen
 Segues are made up of two Activities: the last and the next. For most segues you need to draw one and then the other with some applied effect.
 
-* `DrawNextActivity(sf::RenderTexture& surface);` 
-* `DrawLastActivity(sf::RenderTexture& surface);`
+* `drawNextActivity(sf::RenderTexture& surface);` 
+* `drawLastActivity(sf::RenderTexture& surface);`
 
 Both draw their respective activity's contents to a sf::RenderTexture that can be used later. Read on below for an example.
 
@@ -193,15 +193,15 @@ Both draw their respective activity's contents to a sf::RenderTexture that can b
 ## Segue's & Activity States
 It's important to note that Segue's are responsible for triggering 6 of the 7 states in your activities.
 
-* OnLeave -> the last scene has lost focus
-* OnExit  -> the last scene when the segue ends
-* OnEnd   -> the last scene when the segue ends after a _Pop_ intent
-* OnEnter -> the **next** scene when the segue begins
-* OnResume -> the **next** scene when the segue ends after a _Pop_ intent
+* onLeave -> the last scene has lost focus
+* onExit  -> the last scene when the segue ends
+* onEnd   -> the last scene when the segue ends after a _Pop_ intent
+* onEnter -> the **next** scene when the segue begins
+* onResume -> the **next** scene when the segue ends after a _Pop_ intent
 
 _OR_
 
-* OnStart -> the **next** scene when the segue ends after a _Push_ intent
+* onStart -> the **next** scene when the segue ends after a _Push_ intent
 
 It might help to remember that when a segue begins, the current activity is leaving and the other is entering. When the segue ends, the current activity exits and the other begins.
 
