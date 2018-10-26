@@ -16,7 +16,7 @@ Includes visual studio project but will work on other operating systems as long 
 When creating polished applications it should not be a concern to the user to handle the memory for a scene or video game level. 
 These activities are just shells around the incoming or outgoing data in visual form; a container for the important stuff that shows up 
 on the target device's screen. The biggest goal when designing this software was allowing user's to write complex transitions as simple as possible 
-and have syntax to perform that action be human readble.
+and have the syntax to perform said action be human readable.
 
 # Syntax
 Swoosh addresses these issues by wrapping push and pop calls with templated types that expect either a class derived from `Activity` for screens or `Segue` for transition effects.
