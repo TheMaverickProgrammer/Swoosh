@@ -160,6 +160,48 @@ This fact inspired Swoosh to be dependant on a timer. When the timer is up the S
 added on top of the stack. The time elapsed and total time alloted can be retrieved in the class body to make some cool effects
 from start to finish.
 
+The class for Segues depends only on one overloaded function `void OnDraw(sf::RenderTexture& surface)`.
+The constructor must take in the duration, the last activity, and the next activity.
+
+```
+  SlideIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) { 
+    /* ... */ 
+  }
+```
+
+## Useful Properties
+In order to make use of the remaining time in your segue, two member functions are supplied
+
+* `getElapsed()` returns sf::Time 
+* `getDuration()` returns sf::Time
+
+Sometimes you may need to step over the render surface and draw directly to the window
+
+* `getController()` returns the ActivityController that owns it
+* `getController().getWindow()` returns sf::RenderWindow
+
+## Drawing To The Screen
+Segues are made up of two Activities: the last and the next. For most segues you need to draw one and then the other with some applied effect.
+
+* `DrawNextActivity(sf::RenderTexture& surface);` 
+* `DrawLastActivity(sf::RenderTexture& surface);`
+
+Both draw their respective activity's contents to a sf::RenderTexture that can be used later. Read on below for an example.
+
+## Segue's & Activity States
+It's important to note that Segue's are responsible for triggering 5 of the 7 states in your activities.
+
+* OnLeave -> the last scene has lost focus
+* OnExit  -> the last scene when the segue ends
+* OnEnter -> the **next** scene when the segue begins
+* OnResume -> the **next** scene when the segue ends after a _Pop_ intent
+
+_OR_
+
+* OnStart -> the **next** scene when the segue ends after a _Push_ intent
+
+It might help to remember that when a segue begins, the current activity is leaving and the other is entering. When the segue ends, the current activity exits and the other begins.
+
 This example Segue will slide a new screen in while pushing the last scene out. Really cool!
 
 ```
@@ -223,3 +265,4 @@ public:
 ```
 
 # Integrating Swoosh into your SFML application
+Adding Swoosh, the acitivity and segue mini library into a fresh SFML application is very simple. See [Example.cpp](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/Swoosh/Example.cpp)
