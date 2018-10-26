@@ -81,6 +81,15 @@ public:
     std::cout << "MainMenuScene OnLeave called" << std::endl;
   }
 
+  virtual void OnExit() {
+    std::cout << "MainMenuScene OnExit called" << std::endl;
+  }
+
+  virtual void OnEnter() {
+    std::cout << "MainMenuScene OnEnter called" << std::endl;
+  }
+
+
   virtual void OnResume() {
     std::cout << "MainMenuScene OnResume called" << std::endl;
 

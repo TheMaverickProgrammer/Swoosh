@@ -14,7 +14,6 @@ private:
   std::stack<Activity*> activities;
   sf::RenderTexture* surface;
   bool willLeave;
-  bool hasSegue;
   sf::RenderWindow& handle;
 
   enum SegueAction {
@@ -49,23 +48,17 @@ public:
   class Segue {
   public:
     void DelegateActivityPop(ActivityController& owner) {
-      if (owner.hasSegue) { return; /* this shouldn't happen */ }
+      Activity* last = owner.activities.top();
+      owner.activities.pop();
 
-      if (owner.segueAction == SegueAction::POP) {
-        Activity* last = owner.activities.top();
-        owner.activities.pop();
+      Activity* next = owner.activities.top();
+      owner.activities.pop();
 
-        Activity* next = owner.activities.top();
+      ::Segue* effect = new T(DurationType::value(), last, next);
 
-        ::Segue* effect = new T(DurationType::value(), last, next);
+      effect->OnStart();
 
-        effect->OnStart();
-
-        owner.activities.push(effect);
-      }
-      else {
-        throw std::logic_error("Segue POP recieved but no action was placed");
-      }
+      owner.activities.push(effect);
     }
 
     template<typename U, typename... Args>
@@ -74,21 +67,14 @@ public:
       bool isToType() { return true; }
     public:
       To(ActivityController& owner, Args... args) {
-        if (owner.hasSegue) { return; /* this shouldn't happen */ }
+        bool hasLast = (owner.activities.size() > 0);
+        Activity* last = hasLast ? owner.activities.top() : nullptr;
+        Activity* next = new U(owner, args...);
+        ::Segue* effect = new T(DurationType::value(), last, next);
 
-        if (owner.segueAction == SegueAction::PUSH) {
-          bool hasLast = (owner.activities.size() > 0);
-          Activity* last = hasLast ? owner.activities.top() : nullptr;
-          Activity* next = new U(owner, args...);
-          ::Segue* effect = new T(DurationType::value(), last, next);
+        effect->OnStart();
 
-          effect->OnStart();
-
-          owner.activities.push(effect);
-        }
-        else {
-          throw std::logic_error("Segue PUSH recieved but no action was placed");
-        }
+        owner.activities.push(effect);
       }
     };
   };
@@ -105,24 +91,26 @@ public:
   };
 
   template <typename T, bool U, typename... Args>
-  struct ResolveSegueIntent
+  struct ResolvePushSegueIntent
   {
-    ResolveSegueIntent(ActivityController& owner, Args... args) { ; }
+    ResolvePushSegueIntent(ActivityController& owner, Args... args) { ; }
   };
 
   template<typename T, typename... Args>
-  struct ResolveSegueIntent<T, false, Args...>
+  struct ResolvePushSegueIntent<T, false, Args...>
   {
-    ResolveSegueIntent(ActivityController& owner, Args... args) {
-      owner.segueAction = SegueAction::PUSH;
-      T segueResolve(owner, args...);
+    ResolvePushSegueIntent(ActivityController& owner, Args... args) {
+      if (owner.segueAction == SegueAction::NONE) {
+        owner.segueAction = SegueAction::PUSH;
+        T segueResolve(owner, args...);
+      }
     }
   };
 
   template<typename T, typename... Args>
-  struct ResolveSegueIntent<T, true, Args...>
+  struct ResolvePushSegueIntent<T, true, Args...>
   {
-    ResolveSegueIntent(ActivityController& owner, Args... args) {
+    ResolvePushSegueIntent(ActivityController& owner, Args... args) {
       bool hasLast = (owner.activities.size() > 0);
       Activity* last = hasLast ? owner.activities.top() : nullptr;
       Activity* next = new T(owner, args...);
@@ -140,14 +128,14 @@ public:
 
   template<typename T, typename... Args>
   void Push(Args... args) {
-    ResolveSegueIntent<T, ActivityTypeQuery<T>::value, Args...> intent(*this, args...);
+    ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value, Args...> intent(*this, args...);
   }
 
   //template<typename T, typename U = typename std::enable_if<T::DelegateActivityPop>::type>
   template<typename T>
   const bool QueuePop() {
     // Have to have more than 1 on the stack...
-    bool hasLast = (activities.size()-1 > 0);
+    bool hasLast = (activities.size() > 1);
     if (!hasLast || segueAction != SegueAction::NONE) return false;
 
     segueAction = SegueAction::POP;
@@ -212,14 +200,18 @@ private:
     segue->OnEnd();
     activities.pop();
 
-    // Remove from the stack 
-    if (segueAction == SegueAction::POP) {
-      Activity* last = segue->last; 
+    Activity* next = segue->next;
+
+    if (segueAction == SegueAction::PUSH) {
+      next->OnStart(); // new item on stack first time call
+    } else if (segueAction == SegueAction::POP) {
+      // We're removing an item from the stack
+      Activity* last = segue->last;
       last->OnEnd();
+      next->OnResume();
       delete last;
     }
 
-    Activity* next = segue->next;
     delete segue;
     activities.push(next);
     segueAction = SegueAction::NONE;
@@ -227,7 +219,6 @@ private:
 
   void Pop() {
     Activity* activity = activities.top();
-    activity->OnLeave();
     activity->OnEnd();
     activities.pop();
 

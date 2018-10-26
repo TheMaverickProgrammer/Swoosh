@@ -30,7 +30,7 @@ c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(67): warning C4244: 'ar
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(95): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(104): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
@@ -39,7 +39,7 @@ c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(95): warning C4244: 'ar
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(96): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(105): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float

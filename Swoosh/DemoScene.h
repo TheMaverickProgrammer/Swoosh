@@ -42,6 +42,14 @@ public:
 
   }
 
+  virtual void OnExit() {
+    std::cout << "DemoScene OnExit called" << std::endl;
+  }
+
+  virtual void OnEnter() {
+    std::cout << "DemoScene OnEnter called" << std::endl;
+  }
+
   virtual void OnResume() {
     std::cout << "DemoScene OnResume called" << std::endl;
 

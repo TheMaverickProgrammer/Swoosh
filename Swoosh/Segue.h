@@ -44,7 +44,7 @@ protected:
   }
 
 public:
-  virtual void OnStart() final { next->OnStart(); last->OnLeave(); timer.Reset(); }
+  virtual void OnStart() final { next->OnEnter();  last->OnLeave(); timer.Reset(); }
 
   virtual void OnUpdate(double elapsed) final {
     if (last) last->OnUpdate(elapsed);
@@ -52,9 +52,11 @@ public:
   }
 
   virtual void OnLeave() final { timer.Pause(); }
+  virtual void OnExit() final { ; }
+  virtual void OnEnter() final { ; }
   virtual void OnResume() final { timer.Start(); }
   virtual void OnDraw(sf::RenderTexture& surface) = 0;
-  virtual void OnEnd() final { }
+  virtual void OnEnd() final { last->OnExit(); }
 
   Segue() = delete;
   Segue(sf::Time duration, Activity* last, Activity* next) : duration(duration), last(last), next(next), Activity(next->controller) { /* ... */ }
