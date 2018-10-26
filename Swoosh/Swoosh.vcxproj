@@ -153,7 +153,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\extern\libs;C:\Program Files (x86)\Windows Kits\10\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew.lib;jpeg.lib;openal32.lib;sndfile.lib;freetype.lib;Winmm.lib;OpenGL32.lib;sfml-system-s.lib;sfml-window-s.lib;sfml-graphics-s.lib;sfml-audio.lib;sfml-main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew.lib;jpeg.lib;openal32.lib;sndfile.lib;freetype.lib;Winmm.lib;OpenGL32.lib;sfml-system-s.lib;sfml-window-s.lib;sfml-graphics-s.lib;sfml-audio-s.lib;sfml-main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

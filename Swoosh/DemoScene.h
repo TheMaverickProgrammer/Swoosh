@@ -4,6 +4,8 @@
 #include "TextureLoader.h"
 #include "Particle.h"
 
+#include "SlideIn.h"
+
 #include <iostream>
 
 class DemoScene : public Activity {
@@ -16,7 +18,7 @@ private:
 
 public:
   DemoScene(ActivityController& controller) : Activity(controller) { 
-    bgTexture = LoadTexture("resources/bg.png");
+    bgTexture = LoadTexture("resources/scene.png");
     bg = sf::Sprite(*bgTexture);
 
     menuFont.loadFromFile("resources/commando.ttf");
@@ -31,7 +33,7 @@ public:
 
   virtual void OnUpdate(double elapsed) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-      controller.QueuePop();
+      controller.QueuePop<ActivityController::Segue<SlideIn>>();
     }
   }
 

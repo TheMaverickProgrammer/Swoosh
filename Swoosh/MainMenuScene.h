@@ -67,13 +67,13 @@ public:
     cursor.setPosition(sf::Vector2f(sf::Mouse::getPosition(controller.getWindow()).x, sf::Mouse::getPosition(controller.getWindow()).y));
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-      controller.Push(ActivityController::Segue<WhiteWashFade>::To<DemoScene>());
+      controller.Push<ActivityController::Segue<WhiteWashFade>::To<DemoScene>>();
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-      controller.Push(ActivityController::Segue<SlideIn, Duration<&sf::seconds, 7>>::To<DemoScene>());
+      controller.Push<ActivityController::Segue<SlideIn, Duration<&sf::seconds, 3>>::To<DemoScene>>();
     } 
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-      controller.Push(ActivityController::Segue<BlendFadeIn, Duration<&sf::seconds, 2>>::To<DemoScene>());
+      controller.Push<ActivityController::Segue<BlendFadeIn, Duration<&sf::seconds, 2>>::To<DemoScene>>();
     }
   }
 
