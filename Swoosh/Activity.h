@@ -5,6 +5,7 @@ forward decl
 */
 namespace sf {
   class RenderTexture;
+  class RenderWindow;
 }
 
 namespace swoosh {
@@ -13,7 +14,7 @@ namespace swoosh {
   class Activity {
     friend class Segue;
 
-  protected:
+  private:
     ActivityController& controller;
   public:
     Activity() = delete;
@@ -27,5 +28,6 @@ namespace swoosh {
     virtual void onDraw(sf::RenderTexture& surface) = 0;
     virtual void onEnd() = 0;
     virtual ~Activity() { ; }
+    ActivityController& getController() { return controller; }
   };
 }

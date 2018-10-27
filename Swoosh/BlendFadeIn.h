@@ -34,8 +34,8 @@ public:
     left.setColor(sf::Color(255, 255, 255, (1-alpha) * 255));
     right.setColor(sf::Color(255, 255, 255, alpha * 255));
 
-    controller.getWindow().draw(left);
-    controller.getWindow().draw(right);
+    getController().getWindow().draw(left);
+    getController().getWindow().draw(right);
 
     surface.clear(sf::Color::Transparent);
   }

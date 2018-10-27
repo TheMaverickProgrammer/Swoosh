@@ -66,6 +66,27 @@
     <ClInclude Include="BlendFadeIn.h">
       <Filter>Source Files\Examples\Segues</Filter>
     </ClInclude>
+    <ClInclude Include="GameOverScene.h">
+      <Filter>Source Files\Examples\ExampleRooms</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourcePaths.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveFile.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="HiScoreScene.h">
+      <Filter>Source Files\Examples\ExampleRooms</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Checkerboard.h">
+      <Filter>Source Files\Examples\Segues</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

@@ -65,12 +65,10 @@ namespace swoosh {
       template<typename U, typename... Args>
       class To {
       public:
-        bool isToType() { return true; }
-      public:
-        To(ActivityController& owner, Args... args) {
+        To(ActivityController& owner, Args&&... args) {
           bool hasLast = (owner.activities.size() > 0);
           Activity* last = hasLast ? owner.activities.top() : nullptr;
-          Activity* next = new U(owner, args...);
+          Activity* next = new U(owner, std::forward<Args>(args)...);
           swoosh::Segue* effect = new T(DurationType::value(), last, next);
 
           effect->onStart();
@@ -94,16 +92,16 @@ namespace swoosh {
     template <typename T, bool U, typename... Args>
     struct ResolvePushSegueIntent
     {
-      ResolvePushSegueIntent(ActivityController& owner, Args... args) { ; }
+      ResolvePushSegueIntent(ActivityController& owner, Args&&... args) { ; }
     };
 
     template<typename T, typename... Args>
     struct ResolvePushSegueIntent<T, false, Args...>
     {
-      ResolvePushSegueIntent(ActivityController& owner, Args... args) {
+      ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
         if (owner.segueAction == SegueAction::NONE) {
           owner.segueAction = SegueAction::PUSH;
-          T segueResolve(owner, args...);
+          T segueResolve(owner, std::forward<Args>(args)...);
         }
       }
     };
@@ -111,10 +109,10 @@ namespace swoosh {
     template<typename T, typename... Args>
     struct ResolvePushSegueIntent<T, true, Args...>
     {
-      ResolvePushSegueIntent(ActivityController& owner, Args... args) {
+      ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
         bool hasLast = (owner.activities.size() > 0);
         Activity* last = hasLast ? owner.activities.top() : nullptr;
-        Activity* next = new T(owner, args...);
+        Activity* next = new T(owner, std::forward<Args>(args)...);
         if (hasLast) {
           last->onEnd();
           owner.activities.pop();
@@ -128,8 +126,8 @@ namespace swoosh {
     };
 
     template<typename T, typename... Args>
-    void push(Args... args) {
-      ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value, Args...> intent(*this, args...);
+    void push(Args&&... args) {
+      ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value, Args...> intent(*this, std::forward<Args>(args)...);
     }
 
     //template<typename T, typename U = typename std::enable_if<T::DelegateActivityPop>::type>

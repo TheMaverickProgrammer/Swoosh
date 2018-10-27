@@ -43,8 +43,9 @@ public:
 
     right.setPosition(-lr * (1-alpha) * right.getTexture()->getSize().x, -ud * (1-alpha) * right.getTexture()->getSize().y);
 
-    controller.getWindow().draw(left);
-    controller.getWindow().draw(right);
+    sf::RenderWindow& window = getController().getWindow();
+    window.draw(left);
+    window.draw(right);
 
     surface.clear(sf::Color::Transparent);
   }
