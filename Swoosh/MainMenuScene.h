@@ -6,10 +6,11 @@
 #include "Particle.h"
 #include "Button.h"
 #include "SaveFile.h"
+#include "GameUtils.h"
 
 #include "DemoScene.h"
 #include "HiScoreScene.h"
-#include "GameOverScene.h"
+#include "AboutScene.h"
 #include "WhiteWashFade.h"
 #include "SlideIn.h"
 #include "BlendFadeIn.h"
@@ -19,7 +20,7 @@
 #define PLAY_OPTION  "Play"
 #define SCORE_OPTION "HiScore"
 #define ABOUT_OPTION "About"
-#define M_PI         3.14159265358979323846  /* pi */
+
 class MainMenuScene : public Activity {
 private:
   sf::Texture* bgTexture;
@@ -43,9 +44,11 @@ private:
   bool fadeMusic;
 
   Timer timer; // for onscreen effects. Or we could have stored the total elapsed from the update function
-
+  save savefile;
 public:
   MainMenuScene(ActivityController& controller) : Activity(controller) { 
+    savefile.loadFromFile(SAVE_FILE_PATH);
+
     inFocus = true;
     fadeMusic = false;
 
@@ -107,7 +110,7 @@ public:
       p.sprite.setColor(sf::Color(p.sprite.getColor().r, p.sprite.getColor().g, p.sprite.getColor().b, 255 * p.life / p.lifetime));
       p.life -= elapsed;
 
-      if (p.life < 0) {
+      if (p.life <= 0) {
         particles.erase(particles.begin() + i);
         continue;
       }
@@ -122,17 +125,14 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<ActivityController::Segue<WhiteWashFade, Duration<&sf::seconds, 1>>::To<DemoScene>>();
+          getController().push<ActivityController::Segue<WhiteWashFade, Duration<&sf::seconds, 1>>::To<DemoScene>>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          // save savefile;
-          // savefile.loadFromFile(SAVE_FILE_PATH);
-          getController().push<ActivityController::Segue<SlideIn, Duration<&sf::seconds, 1>>::To<HiScoreScene>>();
+          getController().push<ActivityController::Segue<SlideIn, Duration<&sf::seconds, 1>>::To<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
-          getController().push<ActivityController::Segue<BlendFadeIn, Duration<&sf::seconds, 2>>::To<GameOverScene>>();
-          fadeMusic = true;
+          getController().push<ActivityController::Segue<BlendFadeIn, Duration<&sf::seconds, 2>>::To<AboutScene>>();
         }
       }
     }
@@ -204,7 +204,7 @@ public:
 
     // First set the text as the it would render as a full string
     menuText.setString(GAME_TITLE);
-    menuText.setOrigin(menuText.getGlobalBounds().width / 2.0f, menuText.getGlobalBounds().height / 2.0f);
+    setOrigin(menuText, 0.5, 0.5);
     menuText.setPosition(sf::Vector2f(screenMid, 100));
 
     // Get the global bounds information from that to pick out
@@ -215,7 +215,7 @@ public:
     for (int i = 0; i < strlen(GAME_TITLE); i++) {
       menuText.setFillColor(sf::Color::White);
       menuText.setString(GAME_TITLE[i]);
-      menuText.setOrigin(menuText.getGlobalBounds().width / 2.0f, menuText.getGlobalBounds().height / 2.0f);
+      setOrigin(menuText, 0.5, 0.5);
 
       // This creates our wave over all letters
       double ratio = (M_PI) / strlen(GAME_TITLE);
@@ -254,5 +254,7 @@ public:
     delete blueButton;
     delete greenButton;
     delete redButton;
+
+    savefile.writeToFile(SAVE_FILE_PATH);
   }
 };

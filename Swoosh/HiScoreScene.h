@@ -1,14 +1,13 @@
 #pragma once
-
-#pragma once
 #include "ActivityController.h"
 #include <SFML\Graphics.hpp>
+#include <SFML\Audio.hpp>
 #include "TextureLoader.h"
 #include "Particle.h"
 #include "Button.h"
 #include "ResourcePaths.h"
 #include "SaveFile.h"
-#include "Collision.h"
+#include "GameUtils.h"
 
 #include "SlideIn.h"
 
@@ -26,7 +25,10 @@ private:
   sf::Font   font;
   sf::Text   text;
 
-  save hiscore;
+  sf::SoundBuffer buffer;
+  sf::Sound selectFX;
+
+  save& hiscore;
 
   int lives;
 
@@ -37,8 +39,11 @@ private:
   Timer waitTime;
   double scrollOffset;
 
+  bool inFocus;
 public:
-  HiScoreScene(ActivityController& controller) : Activity(controller) {
+  HiScoreScene(ActivityController& controller, save& data) : hiscore(data), Activity(controller) {
+    std::cout << "savefile address is " << &data << std::endl;
+
     font.loadFromFile(GAME_FONT);
     text.setFont(font);
     text.setFillColor(sf::Color::White);
@@ -56,8 +61,6 @@ public:
     screenMid = getController().getWindow().getSize().x / 2.0;
     screenDiv = getController().getWindow().getSize().x / 4.0;
 
-    hiscore.loadFromFile(SAVE_FILE_PATH);
-
     if (hiscore.empty()) {
       hiscore.writeToFile(SAVE_FILE_PATH);
       hiscore.loadFromFile(SAVE_FILE_PATH);
@@ -65,16 +68,23 @@ public:
 
     waitTime.start();
     scrollOffset = 0;
+
+    // Load sounds
+    buffer.loadFromFile(SHIELD_UP_SFX_PATH);
+    selectFX.setBuffer(buffer);
+
+    inFocus = false;
   }
 
   virtual void onStart() {
-   
+    inFocus = true;
   }
 
   virtual void onUpdate(double elapsed) {
     goback.update(getController().getWindow());
 
-    if (goback.isClicked) {
+    if (goback.isClicked && inFocus) {
+      selectFX.play();
       getController().queuePop<ActivityController::Segue<SlideIn>>();
     }
 
@@ -101,7 +111,7 @@ public:
   }
 
   virtual void onLeave() {
-
+    inFocus = false;
   }
 
   virtual void onExit() {
@@ -155,7 +165,7 @@ public:
     text.setFillColor(sf::Color::Yellow);
     text.setPosition(sf::Vector2f(screenMid, 100));
     text.setString("Hi Scores");
-    text.setOrigin(text.getGlobalBounds().width / 2.0f, text.getGlobalBounds().height / 2.0f);
+    setOrigin(text, 0.5, 0.5);
     surface.draw(text);
 
     text.setFillColor(sf::Color::White);
@@ -166,12 +176,12 @@ public:
 
       text.setString(name);
       text.setPosition(sf::Vector2f(screenDiv, 200 + (i*100) - scrollOffset));
-      text.setOrigin(text.getGlobalBounds().width / 2.0f, text.getGlobalBounds().height / 2.0f);
+      setOrigin(text, 0.5, 0.5);
       surface.draw(text);
 
       text.setString(std::to_string(score));
       text.setPosition(sf::Vector2f(screenDiv * 3, 200 + (i*100) - scrollOffset));
-      text.setOrigin(text.getGlobalBounds().width / 2.0f, text.getGlobalBounds().height / 2.0f);
+      setOrigin(text, 0.5, 0.5);
       surface.draw(text);
     }
 

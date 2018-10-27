@@ -162,10 +162,10 @@
     <ClInclude Include="BlendFadeIn.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Checkerboard.h" />
-    <ClInclude Include="Collision.h" />
+    <ClInclude Include="GameUtils.h" />
     <ClInclude Include="DemoScene.h" />
     <ClInclude Include="EaseFunctions.h" />
-    <ClInclude Include="GameOverScene.h" />
+    <ClInclude Include="AboutScene.h" />
     <ClInclude Include="HiScoreScene.h" />
     <ClInclude Include="MainMenuScene.h" />
     <ClInclude Include="Particle.h" />

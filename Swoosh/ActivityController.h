@@ -62,9 +62,10 @@ namespace swoosh {
         owner.activities.push(effect);
       }
 
-      template<typename U, typename... Args>
+      template<typename U>
       class To {
       public:
+        template<typename... Args >
         To(ActivityController& owner, Args&&... args) {
           bool hasLast = (owner.activities.size() > 0);
           Activity* last = hasLast ? owner.activities.top() : nullptr;
@@ -89,15 +90,18 @@ namespace swoosh {
       enum { value = sizeof(is_to(t)) == sizeof(char) };
     };
 
-    template <typename T, bool U, typename... Args>
+    template <typename T, bool U>
     struct ResolvePushSegueIntent
     {
-      ResolvePushSegueIntent(ActivityController& owner, Args&&... args) { ; }
+      ResolvePushSegueIntent(ActivityController& owner) {
+        static_assert("Swoosh could not handle the segue intent");
+      }
     };
 
-    template<typename T, typename... Args>
-    struct ResolvePushSegueIntent<T, false, Args...>
+    template<typename T>
+    struct ResolvePushSegueIntent<T, false>
     {
+      template<typename... Args >
       ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
         if (owner.segueAction == SegueAction::NONE) {
           owner.segueAction = SegueAction::PUSH;
@@ -106,9 +110,10 @@ namespace swoosh {
       }
     };
 
-    template<typename T, typename... Args>
-    struct ResolvePushSegueIntent<T, true, Args...>
+    template<typename T>
+    struct ResolvePushSegueIntent<T, true>
     {
+      template<typename... Args>
       ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
         bool hasLast = (owner.activities.size() > 0);
         Activity* last = hasLast ? owner.activities.top() : nullptr;
@@ -127,7 +132,7 @@ namespace swoosh {
 
     template<typename T, typename... Args>
     void push(Args&&... args) {
-      ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value, Args...> intent(*this, std::forward<Args>(args)...);
+      ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value> intent(*this, std::forward<Args>(args)...);
     }
 
     //template<typename T, typename U = typename std::enable_if<T::DelegateActivityPop>::type>

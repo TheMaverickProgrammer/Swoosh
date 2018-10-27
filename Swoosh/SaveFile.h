@@ -11,7 +11,7 @@ struct save {
   const bool empty() { return names.empty(); }
 
   void writeToFile(std::string path) {
-    std::ofstream outfile(path);
+    std::ofstream outfile(path, std::ofstream::trunc);
 
     if (!outfile) { return;  }
 
@@ -29,7 +29,7 @@ struct save {
         strcpy_s(buffer, 4, names[i].c_str());
         buffer[3] = '\0';
         outfile.write(buffer, 4);
-        outfile.write((char*)scores[i], sizeof(long));
+        outfile << scores[i];
       }
     }
 
@@ -37,6 +37,9 @@ struct save {
   }
 
   void loadFromFile(std::string path) {
+    names.clear();
+    scores.clear();
+
     std::ifstream infile(path);
     char name[4];
     int score;
