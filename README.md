@@ -10,7 +10,7 @@ C++14
 Includes visual studio project but will work on other operating systems as long as it has C++14 support
 
 # Video
-[Click to watch!](https://streamable.com/r1spz)
+[Click to watch!](https://streamable.com/qb023)
 
 # Philosophy 
 When creating polished applications it should not be a concern to the user to handle the memory for a scene or video game level. 
