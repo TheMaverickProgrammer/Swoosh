@@ -13,6 +13,7 @@
 
 using namespace swoosh;
 using namespace swoosh::game;
+using namespace swoosh::intent;
 
 class DemoScene : public Activity {
 private:
@@ -167,7 +168,7 @@ public:
     sf::RenderWindow& window = getController().getWindow();
 
     if (lives < 0) {
-      getController().queuePop<ActivityController::Segue<Checkerboard, Duration<&sf::seconds, 3>>>();
+      getController().queuePop<segue<Checkerboard, sec<3>>>();
     }
 
     for (auto& m : meteors) {

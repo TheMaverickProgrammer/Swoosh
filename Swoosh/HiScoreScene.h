@@ -14,6 +14,7 @@
 #include <iostream>
 
 using namespace swoosh;
+using namespace swoosh::intent;
 
 class HiScoreScene : public Activity {
 private:
@@ -85,7 +86,7 @@ public:
 
     if (goback.isClicked && inFocus) {
       selectFX.play();
-      getController().queuePop<ActivityController::Segue<SlideIn>>();
+      getController().queuePop<segue<SlideIn>>();
     }
 
     // After 3 seconds, scroll up

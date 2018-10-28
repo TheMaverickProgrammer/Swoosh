@@ -26,6 +26,7 @@
                       ">> Collect stars for extra life\n\n"
 
 using namespace swoosh;
+using namespace swoosh::intent;
 
 class AboutScene : public Activity {
 private:
@@ -106,7 +107,7 @@ public:
         selectFX.play();
 
         if (goback.text == "FIN") {
-          getController().queuePop<ActivityController::Segue<SlideIn>>();
+          getController().queuePop<segue<SlideIn>>();
         }
         else {
           goback.text = "FIN";

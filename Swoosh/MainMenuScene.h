@@ -21,6 +21,8 @@
 #define SCORE_OPTION "HiScore"
 #define ABOUT_OPTION "About"
 
+using namespace swoosh::intent;
+
 class MainMenuScene : public Activity {
 private:
   sf::Texture* bgTexture;
@@ -124,17 +126,15 @@ public:
       if (b.isClicked && inFocus) {
         selectFX.play();
 
-        using intent::Segue;
-
         if (b.text == PLAY_OPTION) {
-          getController().push<Segue<WhiteWashFade, Duration<&sf::seconds, 1>>::To<DemoScene>>(savefile);
+          getController().push<segue<WhiteWashFade, sec<1>>::to<DemoScene>>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<Segue<SlideIn, Duration<&sf::seconds, 1>>::To<HiScoreScene>>(savefile);
+          getController().push<segue<SlideIn, sec<1>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
-          getController().push<Segue<BlendFadeIn, Duration<&sf::seconds, 2>>::To<AboutScene>>();
+          getController().push<segue<BlendFadeIn, sec<2>>::to<AboutScene>>();
         }
       }
     }

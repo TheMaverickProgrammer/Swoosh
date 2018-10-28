@@ -4,24 +4,6 @@
 #include <SFML/Graphics.hpp>
 
 namespace swoosh {
-  template<sf::Time(*s)(float val), int val = 0>
-  struct Duration
-  {
-    static sf::Time value() { return (*s)(val); }
-  };
-
-  /*template<sf::Time(*s)(sf::Int32 val), int val = 0>
-  struct Duration
-  {
-    static sf::Time value() { return (*s)((sf::Int32)(val)); }
-  };
-
-  template<sf::Time(*s)(sf::Int64 val), int val = 0>
-  struct Duration
-  {
-    static sf::Time value() { return (*s)(val); }
-  };*/
-
   class Segue : public Activity {
     friend class ActivityController;
 

@@ -45,8 +45,8 @@ namespace swoosh {
       return handle;
     }
 
-    template<typename T, typename DurationType = Duration<&sf::seconds, 1>>
-    class Segue {
+    template<typename T, typename DurationType>
+    class segue {
     public:
       void DelegateActivityPop(ActivityController& owner) {
         Activity* last = owner.activities.top();
@@ -63,10 +63,10 @@ namespace swoosh {
       }
 
       template<typename U>
-      class To {
+      class to {
       public:
         template<typename... Args >
-        To(ActivityController& owner, Args&&... args) {
+        to(ActivityController& owner, Args&&... args) {
           bool hasLast = (owner.activities.size() > 0);
           Activity* last = hasLast ? owner.activities.top() : nullptr;
           Activity* next = new U(owner, std::forward<Args>(args)...);
@@ -235,7 +235,37 @@ namespace swoosh {
   };
 
   namespace intent {
-    template<typename T, typename DurationType = Duration<&sf::seconds, 1>>
-    using Segue = ActivityController::Segue<T, DurationType>;
+    template<int val = 0>
+    struct seconds
+    {
+      static sf::Time value() { return sf::seconds(val); }
+    };
+
+    template<sf::Int32 val = 0>
+    struct milliseconds
+    {
+      static sf::Time value() { return sf::milliseconds(val); }
+    };
+
+    template<sf::Int64 val = 0>
+    struct microseconds
+    {
+      static sf::Time value() { return sf::microseconds(val); }
+    };
+
+    /*
+    shorthand notations*/
+
+    template<typename T, typename DurationType = seconds<1>>
+    using segue = ActivityController::segue<T, DurationType>;
+
+    template<int val = 0>
+    using sec = seconds<val>;
+
+    template<sf::Int32 val = 0>
+    using milli = milliseconds<val>;
+
+    template<sf::Int64 val = 0>
+    using micro = microseconds<val>;
   }
 }
