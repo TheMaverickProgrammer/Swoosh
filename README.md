@@ -12,6 +12,15 @@ Includes visual studio project but will work on other operating systems as long 
 # Video
 [Click to watch!](https://streamable.com/qb023)
 
+
+# Integrating Swoosh into your SFML application
+Adding Swoosh, the acitivity and segue mini library into a fresh SFML application is very simple. See [Example.cpp](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/Swoosh/Example.cpp)
+
+## Get started
+Clone this repo. Copy the headers found in the root at `src/Swoosh`. 
+
+Read more on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces).
+
 # Philosophy 
 When creating polished applications it should not be a concern to the user how to handle the memory for a scene or video game level. 
 These activities are just shells around the incoming or outgoing data in visual form; a container for the important stuff that shows up 
@@ -153,8 +162,3 @@ _OR_
 * onStart -> the **next** scene when the segue ends after a _Push_ intent
 
 It might help to remember that when a segue begins, the current activity is leaving and the other is entering. When the segue ends, the current activity exits and the other begins.
-
-# Integrating Swoosh into your SFML application
-Adding Swoosh, the acitivity and segue mini library into a fresh SFML application is very simple. See [Example.cpp](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/Swoosh/Example.cpp)
-
-Read more on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces).
