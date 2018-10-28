@@ -10,7 +10,9 @@ C++14
 Includes visual studio project but will work on other operating systems as long as it has C++14 support
 
 # Video
-[Click to watch!](https://streamable.com/qb023)
+Click the gif for the full video!
+
+[![SlideIn Segue](https://media.giphy.com/media/2jsQgGNqmHU3HB3tZN/giphy.gif)](https://streamable.com/qb023)
 
 
 # Integrating Swoosh into your SFML application
