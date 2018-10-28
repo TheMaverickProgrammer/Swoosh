@@ -19,7 +19,7 @@ Clone this repo. Copy the headers found in the root at `src/Swoosh`.
 Adding the mini library into your SFML application is very simple. See [Example.cpp](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/Swoosh/Example.cpp)
 
 ## Get Jump Started
-See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them directly into your games.
+See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also [copy the segues](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh/DemoSegues) in the source folder and use them immediately into your games with no extra configuration.
 
 Read more on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces).
 
