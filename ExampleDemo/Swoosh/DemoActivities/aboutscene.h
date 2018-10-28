@@ -138,7 +138,9 @@ public:
   }
 
   virtual void onDraw(sf::RenderTexture& surface) {
-    surface.draw(sfml);
+    sf::RenderWindow& window = getController().getWindow();
+
+    drawToScale(surface, window, sfml);
 
     text.setFont(manual);
     text.setPosition(sf::Vector2f(screenMid, 200));
@@ -146,14 +148,12 @@ public:
     text.setString(info);
     setOrigin(text, 0.5f, 0);
 
-    surface.draw(text);
+    drawToScale(surface, window, text);
 
     text.setFont(font);
     text.setFillColor(sf::Color::Black);
     setOrigin(text, 0.5f, 0.5f);
-    goback.draw(surface, text, screenMid, screenBottom - 40);
-
-    surface.draw(text);
+    goback.drawToScale(surface, window, text, screenMid, screenBottom - 40);
   }
 
   virtual void onEnd() {

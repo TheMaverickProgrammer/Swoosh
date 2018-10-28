@@ -16,6 +16,8 @@
 using namespace swoosh;
 using namespace swoosh::intent;
 
+class MainMenuScene;
+
 class HiScoreScene : public Activity {
 private:
   sf::Texture * meteorBig, * meteorMed, * meteorSmall, * meteorTiny, * btn;
@@ -58,9 +60,9 @@ public:
     meteorSmall = loadTexture(METEOR_SMALL_PATH);
     meteorTiny = loadTexture(METEOR_TINY_PATH);
 
-    screenBottom = getController().getWindow().getSize().y;
-    screenMid = getController().getWindow().getSize().x / 2.0;
-    screenDiv = getController().getWindow().getSize().x / 4.0;
+    screenBottom = getController().getWindow().getView().getSize().y;
+    screenMid = getController().getWindow().getView().getSize().x / 2.0;
+    screenDiv = getController().getWindow().getView().getSize().x / 4.0;
 
     if (hiscore.empty()) {
       hiscore.writeToFile(SAVE_FILE_PATH);
@@ -86,7 +88,13 @@ public:
 
     if (goback.isClicked && inFocus) {
       selectFX.play();
-      getController().queuePop<segue<SlideIn>>();
+
+      // Rewind lets us pop back to a particular scene in our stack history 
+      bool found = getController().queueRewind<segue<SlideIn, sec<1>>::to<MainMenuScene>>();
+
+      // should never happen
+      // but your games may need to check so here it is an example
+      assert(found && "MainMenuScene not found in our running game");
     }
 
     // After 3 seconds, scroll up
@@ -159,15 +167,17 @@ public:
   }
 
   virtual void onDraw(sf::RenderTexture& surface) {
+    sf::RenderWindow& window = getController().getWindow();
+
     for (auto& m : meteors) {
-      surface.draw(m.sprite);
+      drawToScale(surface, window, m.sprite);
     }
 
     text.setFillColor(sf::Color::Yellow);
     text.setPosition(sf::Vector2f(screenMid, 100));
     text.setString("Hi Scores");
     setOrigin(text, 0.5, 0.5);
-    surface.draw(text);
+    drawToScale(surface, window, text);
 
     text.setFillColor(sf::Color::White);
     
@@ -178,18 +188,16 @@ public:
       text.setString(name);
       text.setPosition(sf::Vector2f(screenDiv, 200 + (i*100) - scrollOffset));
       setOrigin(text, 0.5, 0.5);
-      surface.draw(text);
+      drawToScale(surface, window, text);
 
       text.setString(std::to_string(score));
       text.setPosition(sf::Vector2f(screenDiv * 3, 200 + (i*100) - scrollOffset));
       setOrigin(text, 0.5, 0.5);
-      surface.draw(text);
+      drawToScale(surface, window, text);
     }
 
     text.setFillColor(sf::Color::Black);
-    goback.draw(surface, text, screenMid, screenBottom - 40);
-
-    surface.draw(text);
+    goback.drawToScale(surface, window, text, screenMid, screenBottom - 40);
   }
 
   virtual void onEnd() {

@@ -11,6 +11,9 @@
 #include "..\DemoSegues\Checkerboard.h"
 
 #include <iostream>
+#include <assert.h>
+
+class HiScoreScene;
 
 using namespace swoosh;
 using namespace swoosh::game;
@@ -169,7 +172,8 @@ public:
     sf::RenderWindow& window = getController().getWindow();
 
     if (lives < 0) {
-      getController().queuePop<segue<Checkerboard, sec<3>>>();
+      // Rewind lets us pop back to a particular scene in our stack history 
+      getController().push<segue<Checkerboard, milli<900>>::to<HiScoreScene>>(savefile);
     }
 
     for (auto& m : meteors) {
@@ -430,25 +434,27 @@ public:
   }
 
   virtual void onDraw(sf::RenderTexture& surface) {
+    sf::RenderWindow& window = getController().getWindow();
+
     surface.draw(bg);
 
     for (auto& t : trails) {
-      surface.draw(t.sprite);
+      drawToScale(surface, window, t.sprite);
+
     }
 
     for (auto& m : meteors) {
-      surface.draw(m.sprite);
+      drawToScale(surface, window, m.sprite);
     }
 
     for (auto& e : enemies) {
-      surface.draw(e.sprite);
+      drawToScale(surface, window, e.sprite);
     }
 
     for (auto& l : lasers) {
-      surface.draw(l.sprite);
+      drawToScale(surface, window, l.sprite);
     }
     
-    sf::RenderWindow& window = getController().getWindow();
     text.setString(std::string("score: ") + std::to_string(score));
     setOrigin(text, 1, 0);
     text.setPosition(sf::Vector2f(window.getSize().x - 50, 0));
@@ -460,29 +466,30 @@ public:
       text.setFillColor(sf::Color::White);
     }
 
-    surface.draw(text);
+    drawToScale(surface, window, text);
 
-    if (isExtraLifeSpawned) surface.draw(star);
+    if (isExtraLifeSpawned) drawToScale(surface, window, star);
+
 
     if (lives >= 0) {
-      surface.draw(player.sprite);
+      drawToScale(surface, window, player.sprite);
 
       if (hasShield) {
         shield.setPosition(player.pos);
         shield.setRotation(player.sprite.getRotation());
-        surface.draw(shield);
+        drawToScale(surface, window, shield);
       }
 
       numeral = sf::Sprite(*numeralTexture[10]); // X
       numeral.setPosition(player.pos.x, player.pos.y - 100);
-      surface.draw(numeral);
+      drawToScale(surface, window, numeral);
 
       numeral = sf::Sprite(*numeralTexture[lives]);
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
-      surface.draw(numeral);
+      drawToScale(surface, window, numeral);
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);
-      surface.draw(playerLife);
+      drawToScale(surface, window, playerLife);
     }
   }
 

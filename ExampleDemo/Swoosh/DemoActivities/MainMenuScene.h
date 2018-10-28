@@ -193,16 +193,18 @@ public:
   }
 
   virtual void onDraw(sf::RenderTexture& surface) {
+    sf::RenderWindow& window = getController().getWindow();
+
     surface.draw(bg);
 
     for (auto& p : particles) {
-      surface.draw(p.sprite);
+      drawToScale(surface, window, p.sprite);
     }
 
     int i = 0;
     menuText.setFillColor(sf::Color::Black);
     for (auto& b : buttons) {
-      b.draw(surface, menuText, screenMid, 200 + (i++*100));
+      b.drawToScale(surface, window, menuText, screenMid, 200 + (i++*100));
     }
 
     // First set the text as the it would render as a full string
@@ -234,7 +236,7 @@ public:
       if (menuText.getString() == ' ') { offset += menuText.getCharacterSize(); }
 
       menuText.setPosition(sf::Vector2f(startX + offset, startY));
-      surface.draw(menuText);
+      drawToScale(surface, window, menuText);
     }
   }
 

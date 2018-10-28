@@ -56,5 +56,31 @@ namespace swoosh {
     void setOrigin(sf::Text& text, double fx, double fy) {
       text.setOrigin(sf::Vector2f(text.getGlobalBounds().width * fx, text.getGlobalBounds().height * fy));
     }
+
+    void drawToScale(sf::RenderTexture& surface, sf::RenderWindow& window, sf::Sprite& sprite) {
+      /*sf::Vector2f original = sprite.getPosition();
+      sf::Vector2f pixel = window.mapPixelToCoords(sf::Vector2i((int)original.x, (int)original.y));
+      sprite.setPosition(pixel);
+      surface.draw(sprite);
+      sprite.setPosition(original);*/
+      sf::Vector2f original = sprite.getPosition();
+      sf::Vector2i pixel = window.mapCoordsToPixel(original);
+      sprite.setPosition(sf::Vector2f(pixel.x, pixel.y));
+      surface.draw(sprite);
+      sprite.setPosition(original);
+    }
+
+    void drawToScale(sf::RenderTexture& surface, sf::RenderWindow& window, sf::Text& text) {
+      /*sf::Vector2f original = text.getPosition();
+      sf::Vector2f pixel = window.mapPixelToCoords(sf::Vector2i((int)original.x, (int)original.y));
+      text.setPosition(pixel);
+      surface.draw(text);
+      text.setPosition(original);*/
+      sf::Vector2f original = text.getPosition();
+      sf::Vector2i pixel = window.mapCoordsToPixel(original);
+      text.setPosition(sf::Vector2f(pixel.x, pixel.y));
+      surface.draw(text);
+      text.setPosition(original);
+    }
   }
 }

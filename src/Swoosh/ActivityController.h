@@ -32,10 +32,21 @@ namespace swoosh {
     }
 
     ~ActivityController() {
+      if (segueAction != SegueAction::NONE) {
+        swoosh::Segue* effect = dynamic_cast<swoosh::Segue*>(activities.top());
+
+        if (segueAction == SegueAction::PUSH) {
+          delete effect->next;
+        }
+
+        delete effect;
+        activities.pop();
+      }
+
       while (!activities.empty()) {
         Activity* activity = activities.top();
-        delete activity;
         activities.pop();
+        delete activity;
       }
 
       delete surface;
@@ -65,8 +76,11 @@ namespace swoosh {
       template<typename U>
       class to {
       public:
+
+        to() { ; }
+
         template<typename... Args >
-        to(ActivityController& owner, Args&&... args) {
+        void DelegateActivityPush(ActivityController& owner, Args&&... args) {
           bool hasLast = (owner.activities.size() > 0);
           Activity* last = hasLast ? owner.activities.top() : nullptr;
           Activity* next = new U(owner, std::forward<Args>(args)...);
@@ -75,6 +89,46 @@ namespace swoosh {
           effect->onStart();
 
           owner.activities.push(effect);
+        }
+
+        template<typename... Args >
+        bool DelegateActivityRewind(ActivityController& owner, Args&&... args) {
+          std::stack<Activity*> original;
+
+          bool hasMore = (owner.activities.size() > 1);
+
+          if (!hasMore) { return false; }
+
+          Activity* last = owner.activities.top();
+          owner.activities.pop();
+
+          Activity* next = owner.activities.top();
+
+          while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1) {
+            original.push(next);
+            owner.activities.pop();
+            next = owner.activities.top();
+          }
+
+          if (owner.activities.empty()) {
+            // We did not find it, push the states back on the list and return false
+            while (original.size() > 0) {
+              owner.activities.push(original.top());
+              original.pop();
+            }
+
+            owner.activities.push(last);
+
+            return false;
+          }
+
+          swoosh::Segue* effect = new T(DurationType::value(), last, next);
+
+          effect->onStart();
+
+          owner.activities.push(effect);
+
+          return true;
         }
       };
     };
@@ -105,7 +159,8 @@ namespace swoosh {
       ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
         if (owner.segueAction == SegueAction::NONE) {
           owner.segueAction = SegueAction::PUSH;
-          T segueResolve(owner, std::forward<Args>(args)...);
+          T segueResolve;
+          segueResolve.DelegateActivityPush(owner, std::forward<Args>(args)...);
         }
       }
     };
@@ -135,7 +190,6 @@ namespace swoosh {
       ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value> intent(*this, std::forward<Args>(args)...);
     }
 
-    //template<typename T, typename U = typename std::enable_if<T::DelegateActivityPop>::type>
     template<typename T>
     const bool queuePop() {
       // Have to have more than 1 on the stack...
@@ -149,7 +203,6 @@ namespace swoosh {
       return true;
     }
 
-
     const bool queuePop() {
       bool hasMore = (activities.size() > 0);
 
@@ -158,6 +211,73 @@ namespace swoosh {
       willLeave = true;
 
       return true;
+    }
+
+    template <typename T, bool U>
+    struct ResolveRewindSegueIntent
+    {
+      ResolveRewindSegueIntent(ActivityController& owner) {
+        static_assert("Swoosh could not handle the segue intent");
+      }
+
+      bool RewindSuccessful;
+    };
+
+    template<typename T>
+    struct ResolveRewindSegueIntent<T, false>
+    {
+      bool RewindSuccessful;
+
+      template<typename... Args >
+      ResolveRewindSegueIntent(ActivityController& owner, Args&&... args) {
+        if (owner.segueAction == SegueAction::NONE) {
+          owner.segueAction = SegueAction::POP;
+          T segueResolve;
+          RewindSuccessful = segueResolve.DelegateActivityRewind(owner, std::forward<Args>(args)...);
+        }
+      }
+    };
+
+    template<typename T>
+    struct ResolveRewindSegueIntent<T, true>
+    {
+      bool RewindSuccessful;
+
+      template<typename... Args>
+      ResolveRewindSegueIntent(ActivityController& owner, Args&&... args) {
+        std::stack<Activity*> original;
+
+        bool hasLast = (owner.activities.size() > 0);
+
+        if (!hasLast) { RewindSuccessful = false; return; }
+
+        Activity* next = owner.activities.top();
+
+        while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1) {
+          original.push(next);
+          activities.pop();
+          next = owner.activities.top();
+        }
+
+        if (activities.empty()) {
+          // We did not find it, push the states back on the list and return false
+          while (original.size() > 0) {
+            activities.push(original.top());
+            original.pop();
+          }
+
+          RewindSuccessful = false;
+          return;
+        }
+
+        next->onResume();
+      }
+    };
+
+    template<typename T, typename... Args>
+    bool queueRewind(Args&&... args) {
+      ResolveRewindSegueIntent<T, ActivityTypeQuery<T>::value> intent(*this, std::forward<Args>(args)...);
+      return intent.RewindSuccessful;
     }
 
     void update(double elapsed) {
