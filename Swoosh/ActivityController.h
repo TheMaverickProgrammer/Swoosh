@@ -233,4 +233,9 @@ namespace swoosh {
       delete activity;
     }
   };
+
+  namespace intent {
+    template<typename T, typename DurationType = Duration<&sf::seconds, 1>>
+    using Segue = ActivityController::Segue<T, DurationType>;
+  }
 }

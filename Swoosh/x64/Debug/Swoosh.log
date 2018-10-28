@@ -179,7 +179,7 @@ c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(106): warning C4244: 'a
           ]
 c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(109): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(110): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
-c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(181): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(183): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
@@ -188,13 +188,13 @@ c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(181): warning C4244: 'a
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(182): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(184): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(202): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(233): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(204): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\mainmenuscene.h(235): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
