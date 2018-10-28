@@ -30,21 +30,30 @@ controller.push<MainMenuScene>();
 ...
 
 // User selects settings
-using intent::Segue;
-controller.push<Segue<SlideInLeft>::To<AppSettingsScene>>();
+using intent::segue;
+controller.push<segue<SlideInLeft>::to<AppSettingsScene>>();
 ```
 
 The syntax is human readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: writing the application!
 
 ## Changing Time
 The `Segue` class takes in two arguments: the next activity type, and the duration for the transition to last. By default the transition is set to 1 second. 
-This may be too fast or too slow for your needs. The `Duration` class takes two types: the SFML function for time like `sf::seconds` and the amount you want.
+This may be too fast or too slow for your needs. The `DurationType` class takes a templated wrapper for SFML time functions. They are found in the `swoosh::intent` namespace.
 
 For example
 
 ```
-controller.push<Segue<FadeIn, Duration<&sf::seconds, 5>>::To<DramaticIntroScene>>();
+using namespace swoosh::intent;
+controller.push<zegue<FadeIn, seconds<5>>::to<DramaticIntroScene>>();
 ```
+
+There are 3 wrappers and each have a shorthand alias
+
+`seconds<int val>` -> `sec<int val>`
+
+`milliseconds<Int32 val>` -> `milli<Int32 val>`
+
+`microseconds<Int64 val>` -> `micro<Int64 val>`
 
 ## Supplying Additional Arguments
 Your activity classes may be dependant on external information like loading your game from a save file or displaying important business data exported from another screen. 
@@ -58,17 +67,17 @@ This is the same for segues
 
 ```
 FinancialInfo* data = loadFinancialResult(calender.getDate());
-controller.push<Segue<CheckerboardEffect, Duration<&sf::seconds, 3>>::To<FinancialReport>>(data);
+controller.push<segue<CheckerboardEffect, sec<3>>::to<FinancialReport>>(data);
 ```
 
 # Leaving Activities
 The `ActivityController` class can _push_ and _pop_ states but only when it's safe to do so. It does not pop in the middle of a cycle and does not push when in the middle of a segue.
-Make sure your activity controller calls are in an Activity's `OnUpdate(double elapsed)` function to avoid having _push_ or _pop_ intents discarded.
+Make sure your activity controller calls are in an Activity's `onUpdate(double elapsed)` function to avoid having _push_ or _pop_ intents discarded.
 
 ## Push
 ```
 controller.push<MyScene>();
-controller.push<Segue<FadeIn>::To<MyScene>>();
+controller.push<segue<FadeIn>::to<MyScene>>();
 ```
 
 ## Pop
@@ -77,7 +86,7 @@ safe to do for _pop_. Instead, the function `queuePop()` is supplied, signalling
 
 ```
 controller.queuePop(); 
-controller.queuePop<Segue<SlideIn>>();
+controller.queuePop<segue<SlideIn>>();
 ```
 
 # Writing Activities
