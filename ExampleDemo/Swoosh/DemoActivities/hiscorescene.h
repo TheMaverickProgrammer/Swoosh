@@ -60,9 +60,9 @@ public:
     meteorSmall = loadTexture(METEOR_SMALL_PATH);
     meteorTiny = loadTexture(METEOR_TINY_PATH);
 
-    screenBottom = getController().getWindow().getView().getSize().y;
-    screenMid = getController().getWindow().getView().getSize().x / 2.0;
-    screenDiv = getController().getWindow().getView().getSize().x / 4.0;
+    screenBottom = 600;
+    screenMid = 800 / 2.0;
+    screenDiv = 800 / 4.0;
 
     if (hiscore.empty()) {
       hiscore.writeToFile(SAVE_FILE_PATH);
@@ -170,14 +170,14 @@ public:
     sf::RenderWindow& window = getController().getWindow();
 
     for (auto& m : meteors) {
-      drawToScale(surface, window, m.sprite);
+      surface.draw(m.sprite);
     }
 
     text.setFillColor(sf::Color::Yellow);
     text.setPosition(sf::Vector2f(screenMid, 100));
     text.setString("Hi Scores");
     setOrigin(text, 0.5, 0.5);
-    drawToScale(surface, window, text);
+    surface.draw(text);
 
     text.setFillColor(sf::Color::White);
     
@@ -188,16 +188,16 @@ public:
       text.setString(name);
       text.setPosition(sf::Vector2f(screenDiv, 200 + (i*100) - scrollOffset));
       setOrigin(text, 0.5, 0.5);
-      drawToScale(surface, window, text);
+      surface.draw(text);
 
       text.setString(std::to_string(score));
       text.setPosition(sf::Vector2f(screenDiv * 3, 200 + (i*100) - scrollOffset));
       setOrigin(text, 0.5, 0.5);
-      drawToScale(surface, window, text);
+      surface.draw(text);
     }
 
     text.setFillColor(sf::Color::Black);
-    goback.drawToScale(surface, window, text, screenMid, screenBottom - 40);
+    goback.draw(surface, text, screenMid, screenBottom - 40);
   }
 
   virtual void onEnd() {

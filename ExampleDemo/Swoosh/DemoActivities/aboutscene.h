@@ -72,9 +72,11 @@ public:
     sfml.setScale(0.7, 0.7);
     setOrigin(sfml, 0.5, 0.60);
 
-    screenBottom = getController().getWindow().getSize().y;
-    screenMid = getController().getWindow().getSize().x / 2.0;
-    screenDiv = getController().getWindow().getSize().x / 4.0;
+    sf::Vector2u windowSize = getController().getInitialWindowSize();
+
+    screenBottom = windowSize.y;
+    screenMid = windowSize.x / 2.0;
+    screenDiv = windowSize.y / 4.0;
 
     // Load sounds
     buffer.loadFromFile(SHIELD_UP_SFX_PATH);
@@ -97,7 +99,9 @@ public:
       offset = ease::wideParabola(timer.getElapsed().asMilliseconds()-3000, 5000, 0.9);
     }
 
-    sfml.setPosition(100 + (offset * 500), 100);
+    sf::Vector2u windowSize = getController().getInitialWindowSize();
+
+    sfml.setPosition(100 + (offset * windowSize.x - 300), 100);
     sfml.setRotation(offset * 360 * 2);
 
     goback.update(getController().getWindow());
@@ -140,7 +144,7 @@ public:
   virtual void onDraw(sf::RenderTexture& surface) {
     sf::RenderWindow& window = getController().getWindow();
 
-    drawToScale(surface, window, sfml);
+    surface.draw(sfml);
 
     text.setFont(manual);
     text.setPosition(sf::Vector2f(screenMid, 200));
@@ -148,12 +152,12 @@ public:
     text.setString(info);
     setOrigin(text, 0.5f, 0);
 
-    drawToScale(surface, window, text);
+    surface.draw(text);
 
     text.setFont(font);
     text.setFillColor(sf::Color::Black);
     setOrigin(text, 0.5f, 0.5f);
-    goback.drawToScale(surface, window, text, screenMid, screenBottom - 40);
+    goback.draw(surface, text, screenMid, screenBottom - 40);
   }
 
   virtual void onEnd() {

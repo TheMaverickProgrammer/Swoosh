@@ -198,13 +198,13 @@ public:
     surface.draw(bg);
 
     for (auto& p : particles) {
-      drawToScale(surface, window, p.sprite);
+      surface.draw(p.sprite);
     }
 
     int i = 0;
     menuText.setFillColor(sf::Color::Black);
     for (auto& b : buttons) {
-      b.drawToScale(surface, window, menuText, screenMid, 200 + (i++*100));
+      b.draw(surface, menuText, screenMid, 200 + (i++*100));
     }
 
     // First set the text as the it would render as a full string
@@ -236,7 +236,7 @@ public:
       if (menuText.getString() == ' ') { offset += menuText.getCharacterSize(); }
 
       menuText.setPosition(sf::Vector2f(startX + offset, startY));
-      drawToScale(surface, window, menuText);
+      surface.draw(menuText);
     }
   }
 

@@ -14,8 +14,10 @@ namespace swoosh {
   private:
     std::stack<Activity*> activities;
     sf::RenderTexture* surface;
-    bool willLeave;
     sf::RenderWindow& handle;
+    sf::Vector2u initWindowSize;
+
+    bool willLeave;
 
     enum SegueAction {
       POP,
@@ -25,6 +27,8 @@ namespace swoosh {
 
   public:
     ActivityController(sf::RenderWindow& window) : handle(window) {
+      initWindowSize = handle.getSize();
+
       surface = new sf::RenderTexture();
       surface->create((unsigned int)handle.getSize().x, (unsigned int)handle.getSize().y);
       willLeave = false;
@@ -52,6 +56,10 @@ namespace swoosh {
       delete surface;
     }
 
+    const sf::Vector2u getInitialWindowSize() const {
+      return initWindowSize;
+    }
+
     sf::RenderWindow& getWindow() {
       return handle;
     }
@@ -59,7 +67,7 @@ namespace swoosh {
     template<typename T, typename DurationType>
     class segue {
     public:
-      void DelegateActivityPop(ActivityController& owner) {
+      void delegateActivityPop(ActivityController& owner) {
         Activity* last = owner.activities.top();
         owner.activities.pop();
 
@@ -80,7 +88,7 @@ namespace swoosh {
         to() { ; }
 
         template<typename... Args >
-        void DelegateActivityPush(ActivityController& owner, Args&&... args) {
+        void delegateActivityPush(ActivityController& owner, Args&&... args) {
           bool hasLast = (owner.activities.size() > 0);
           Activity* last = hasLast ? owner.activities.top() : nullptr;
           Activity* next = new U(owner, std::forward<Args>(args)...);
@@ -92,7 +100,7 @@ namespace swoosh {
         }
 
         template<typename... Args >
-        bool DelegateActivityRewind(ActivityController& owner, Args&&... args) {
+        bool delegateActivityRewind(ActivityController& owner, Args&&... args) {
           std::stack<Activity*> original;
 
           bool hasMore = (owner.activities.size() > 1);
@@ -171,7 +179,7 @@ namespace swoosh {
         if (owner.segueAction == SegueAction::NONE) {
           owner.segueAction = SegueAction::PUSH;
           T segueResolve;
-          segueResolve.DelegateActivityPush(owner, std::forward<Args>(args)...);
+          segueResolve.delegateActivityPush(owner, std::forward<Args>(args)...);
         }
       }
     };
@@ -209,7 +217,7 @@ namespace swoosh {
 
       segueAction = SegueAction::POP;
       T segueResolve;
-      segueResolve.DelegateActivityPop(*this);
+      segueResolve.delegateActivityPop(*this);
 
       return true;
     }
@@ -244,7 +252,7 @@ namespace swoosh {
         if (owner.segueAction == SegueAction::NONE) {
           owner.segueAction = SegueAction::POP;
           T segueResolve;
-          RewindSuccessful = segueResolve.DelegateActivityRewind(owner, std::forward<Args>(args)...);
+          RewindSuccessful = segueResolve.delegateActivityRewind(owner, std::forward<Args>(args)...);
         }
       }
     };

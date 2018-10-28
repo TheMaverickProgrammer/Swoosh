@@ -90,10 +90,12 @@ public:
     gameOverChannel.setBuffer(gameOverFX);
     extraLifeChannel.setBuffer(extraLifeFX);
 
+    sf::Vector2u windowSize = getController().getInitialWindowSize();
+
     bgTexture = loadTexture(PURPLE_BG_PATH);
     bgTexture->setRepeated(true);
     bg = sf::Sprite(*bgTexture);
-    bg.setTextureRect({ 0, 0, 800, 600 });
+    bg.setTextureRect({ 0, 0, (int)windowSize.x, (int)windowSize.y });
 
     meteorBig = loadTexture(METEOR_BIG_PATH);
     meteorMed = loadTexture(METEOR_MED_PATH);
@@ -140,11 +142,13 @@ public:
     enemy.sprite = sf::Sprite(*enemyTexture);
     setOrigin(enemy.sprite, 0.5, 0.5);
 
+    sf::Vector2u windowSize = getController().getInitialWindowSize();
+
     int side = rand() % 2;
     if(side == 0)
-      enemy.pos = sf::Vector2f((rand() % 2) * window.getSize().x, rand() % window.getSize().y);
+      enemy.pos = sf::Vector2f((rand() % 2) * windowSize.x, rand() % windowSize.y);
     else 
-      enemy.pos = sf::Vector2f(rand() % window.getSize().x, (rand() % 2) * window.getSize().y);
+      enemy.pos = sf::Vector2f(rand() % windowSize.x, (rand() % 2) * windowSize.y);
 
     enemy.lifetime = 0; // this enemy stays alive until a lifetime is provided
     enemy.sprite.setPosition(enemy.pos);
@@ -153,8 +157,9 @@ public:
 
   void resetPlayer() {
     // start is in the center of the screen
-    sf::RenderWindow& window = getController().getWindow();
-    player.pos = sf::Vector2f(window.getSize().x / 2.0, window.getSize().y / 2.0);
+    sf::Vector2u windowSize = getController().getInitialWindowSize();
+
+    player.pos = sf::Vector2f(windowSize.x / 2.0, windowSize.y / 2.0);
     player.speed = sf::Vector2f(0, 0);
     player.sprite.setPosition(player.pos);
     player.friction = sf::Vector2f(0.96f, 0.96f);
@@ -170,6 +175,7 @@ public:
 
   virtual void onUpdate(double elapsed) {
     sf::RenderWindow& window = getController().getWindow();
+    auto windowSize = getController().getInitialWindowSize();
 
     if (lives < 0) {
       // Rewind lets us pop back to a particular scene in our stack history 
@@ -287,11 +293,11 @@ public:
       if (rand() % 30 == 0 && !isExtraLifeSpawned) {
         isExtraLifeSpawned = true;
 
-        star.setPosition(rand() % window.getSize().x, rand() % window.getSize().y);
+        star.setPosition(rand() % windowSize.x, rand() % windowSize.y);
 
         // do not spawn on top of player
         while (doesCollide(star, player.sprite)) {
-          star.setPosition(rand() % window.getSize().x, rand() % window.getSize().y);
+          star.setPosition(rand() % windowSize.x, rand() % windowSize.y);
         }
       }
     }
@@ -307,7 +313,7 @@ public:
       }
     }
 
-    sf::Vector2i mousepos = sf::Mouse::getPosition(window);
+    sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     double angle = angleTo(mousepos, player.pos);
 
     player.sprite.setRotation(90.0 + angle);
@@ -337,9 +343,9 @@ public:
 
     player.pos += player.speed;
 
-    player.pos.x = std::min(player.pos.x, (float)window.getView().getSize().x);
+    player.pos.x = std::min(player.pos.x, (float)windowSize.x);
     player.pos.x = std::max(0.0f, player.pos.x);
-    player.pos.y = std::min(player.pos.y, (float)window.getView().getSize().y);
+    player.pos.y = std::min(player.pos.y, (float)windowSize.y);
     player.pos.y = std::max(0.0f, player.pos.y);
 
     player.sprite.setPosition(player.pos);
@@ -353,7 +359,7 @@ public:
       if (!mousePressed) {
         particle laser;
         laser.sprite = sf::Sprite(*laserTexture);
-        laser.sprite.setOrigin(sf::Vector2f(laser.sprite.getGlobalBounds().width / 2.0, laser.sprite.getGlobalBounds().height / 2.0));
+        setOrigin(laser.sprite, 0.5, 0.5);
         laser.pos = player.pos;
         laser.sprite.setRotation(90.0f + angle);
         laser.sprite.setPosition(laser.pos);
@@ -424,7 +430,8 @@ public:
         p.sprite = sf::Sprite(*meteorTiny);
       }
 
-      p.pos = sf::Vector2f(rand() % getController().getWindow().getSize().x, rand() % getController().getWindow().getSize().y);
+      auto windowSize = getController().getInitialWindowSize();
+      p.pos = sf::Vector2f(rand() % windowSize.x, rand() % windowSize.y);
       p.sprite.setPosition(p.pos);
 
       p.speed = sf::Vector2f(randSpeedX, randSpeedY);
@@ -443,25 +450,26 @@ public:
     surface.draw(bg);
 
     for (auto& t : trails) {
-      drawToScale(surface, window, t.sprite);
-
+      surface.draw(t.sprite);
     }
 
     for (auto& m : meteors) {
-      drawToScale(surface, window, m.sprite);
+      surface.draw(m.sprite);
     }
 
     for (auto& e : enemies) {
-      drawToScale(surface, window, e.sprite);
+      surface.draw(e.sprite);
     }
 
     for (auto& l : lasers) {
-      drawToScale(surface, window, l.sprite);
+      surface.draw(l.sprite);
     }
     
+    auto windowSize = getController().getInitialWindowSize();
+
     text.setString(std::string("score: ") + std::to_string(score));
     setOrigin(text, 1, 0);
-    text.setPosition(sf::Vector2f(window.getSize().x - 50, 0));
+    text.setPosition(sf::Vector2f(windowSize.x - 50, 0));
 
     if (alpha < 255) {
       text.setFillColor(sf::Color::Red);
@@ -470,30 +478,30 @@ public:
       text.setFillColor(sf::Color::White);
     }
 
-    drawToScale(surface, window, text);
+    surface.draw(text);
 
-    if (isExtraLifeSpawned) drawToScale(surface, window, star);
+    if (isExtraLifeSpawned) surface.draw(star);
 
 
     if (lives >= 0) {
-      drawToScale(surface, window, player.sprite);
+      surface.draw(player.sprite);
 
       if (hasShield) {
         shield.setPosition(player.pos);
         shield.setRotation(player.sprite.getRotation());
-        drawToScale(surface, window, shield);
+        surface.draw(shield);
       }
 
       numeral = sf::Sprite(*numeralTexture[10]); // X
       numeral.setPosition(player.pos.x, player.pos.y - 100);
-      drawToScale(surface, window, numeral);
+      surface.draw(numeral);
 
       numeral = sf::Sprite(*numeralTexture[lives]);
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
-      drawToScale(surface, window, numeral);
+      surface.draw(numeral);
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);
-      drawToScale(surface, window, playerLife);
+      surface.draw(playerLife);
     }
   }
 
