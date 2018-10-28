@@ -16,7 +16,7 @@ Includes visual studio project but will work on other operating systems as long 
 # Integrating Swoosh into your SFML application
 Clone this repo. Copy the headers found in the root at `src/Swoosh`. 
 
-Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/Demo.cppp)
+Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/Demo.cpp)
 
 ## Get Jump Started
 See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also [copy the segues](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh/DemoSegues) in the source folder and use them immediately into your games with no extra configuration.
