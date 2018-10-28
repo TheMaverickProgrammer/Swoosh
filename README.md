@@ -99,68 +99,7 @@ An activity has 7 states it can be in:
 * Ending (to be terminated)
 * Updating 
 
-Here is an example of the most simplest scene using Swoosh:
-
-```
-class DemoScene : public Activity {
-private:
-  sf::Texture* bgTexture;
-  sf::Sprite bg;
-
-  sf::Font   menuFont;
-  sf::Text   menuText;
-
-public:
-  DemoScene(ActivityController& controller) : Activity(controller) { 
-    bgTexture = LoadTexture("resources/scene.png");
-    bg = sf::Sprite(*bgTexture);
-
-    menuFont.loadFromFile("resources/commando.ttf");
-    menuText.setFont(menuFont);
-
-    menuText.setFillColor(sf::Color::Red); 
-  }
-
-  virtual void onStart() {
-    std::cout << "DemoScene OnStart called" << std::endl;
-  }
-
-  virtual void onUpdate(double elapsed) {
-  }
-
-  virtual void onLeave() {
-    std::cout << "DemoScene OnLeave called" << std::endl;
-
-  }
-
-  virtual void onExit() {
-    std::cout << "DemoScene OnExit called" << std::endl;
-  }
-
-  virtual void onEnter() {
-    std::cout << "DemoScene OnEnter called" << std::endl;
-  }
-
-  virtual void onResume() {
-    std::cout << "DemoScene OnResume called" << std::endl;
-
-  }
-
-  virtual void onDraw(sf::RenderTexture& surface) {
-    surface.draw(bg);
-
-    menuText.setPosition(sf::Vector2f(200, 100));
-    menuText.setString("Hello World");
-    surface.draw(menuText);
-  }
-
-  virtual void onEnd() {
-    std::cout << "DemoScene OnEnd called" << std::endl;
-  }
-
-  virtual ~DemoScene() { delete bgTexture;; }
-};
-```
+[Here is an example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/DemoActivities/aboutscene.h) of a simple About scene in your app. It shows text and has a button to click next for more info. The SFML logo rolls across the top just for visual effect.
 
 # Writing Segues
 When writing transitions or action-dependant software, one of the worst things that can happen is to have a buggy action. 
