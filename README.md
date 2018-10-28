@@ -34,7 +34,7 @@ Swoosh addresses these issues by wrapping push and pop calls with templated type
 
 For example
 
-```
+```c++
 ActivityController controller;
 controller.push<MainMenuScene>();
 
@@ -53,7 +53,7 @@ This may be too fast or too slow for your needs. The `DurationType` class takes 
 
 For example
 
-```
+```c++
 using namespace swoosh::intent;
 controller.push<zegue<FadeIn, seconds<5>>::to<DramaticIntroScene>>();
 ```
@@ -69,14 +69,14 @@ There are 3 wrappers and each have a shorthand alias
 ## Supplying Additional Arguments
 Your activity classes may be dependant on external information like loading your game from a save file or displaying important business data exported from another screen. 
 
-```
+```c++
 SaveInfo = info = LoadSaveFile(selectedProfile);
 controller.push<SuperJumpManLevel1>({info.getLives(), info.getCoins(), info.getMapData()});
 ```
 
 This is the same for segues
 
-```
+```c++
 FinancialInfo* data = loadFinancialResult(calender.getDate());
 controller.push<segue<CheckerboardEffect, sec<3>>::to<FinancialReport>>(data);
 ```
@@ -86,7 +86,7 @@ The `ActivityController` class can _push_ and _pop_ states but only when it's sa
 Make sure your activity controller calls are in an Activity's `onUpdate(double elapsed)` function to avoid having _push_ or _pop_ intents discarded.
 
 ## Push
-```
+```c++
 controller.push<MyScene>();
 controller.push<segue<FadeIn>::to<MyScene>>();
 ```
@@ -98,6 +98,23 @@ safe to do for _pop_. Instead, the function `queuePop()` is supplied, signalling
 ```
 controller.queuePop(); 
 controller.queuePop<segue<SlideIn>>();
+```
+
+## Rewinding
+Rewinding is useful when you have an inactive Activity lingering in your stack from before and you wish to go back to that point. Rewinding the activity stack pops and ends all previous activities until it finds the first matching activity type. _queuePop_ is an intent to pop once where _queueRewind_ is an intent to pop _many times_.
+
+Example: jumping from the menu to the battle screen to a hiscore screen back to the menu. 
+
+This is useful to simulate persistent behavior such as in a top-down adventure game where you star as a young elf crossing the overworld, going deep into dungeons, and then teleporting yourself back to the overworld; exactly the way it was before you left.
+
+The syntax is close to _push_ except if it succeeds, activities are ended and discarded.
+
+```c++
+bool found = controller.queueRewind<segue<SlideIn>::to<LOZOverworld>>();
+
+if(!found) {
+    // Perhaps we're already in overworld. Certain teleport items cannot be used!
+}
 ```
 
 # Writing Activities
@@ -123,7 +140,7 @@ from start to finish.
 The class for Segues depends only on one overloaded function `void OnDraw(sf::RenderTexture& surface)`.
 The constructor must take in the duration, the last activity, and the next activity.
 
-```
+```c++
   SlideIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) { 
     /* ... */ 
   }
