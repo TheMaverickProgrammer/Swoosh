@@ -30,7 +30,8 @@ controller.push<MainMenuScene>();
 ...
 
 // User selects settings
-controller.push<ActivityController::Segue<SlideInLeft>::To<AppSettingsScene>();
+using intent::Segue;
+controller.push<Segue<SlideInLeft>::To<AppSettingsScene>>();
 ```
 
 The syntax is human readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: writing the application!
@@ -42,7 +43,7 @@ This may be too fast or too slow for your needs. The `Duration` class takes two 
 For example
 
 ```
-controller.push<ActivityController::Segue<FadeIn, Duration<&sf::seconds, 5>>::To<DramaticIntroScene>();
+controller.push<Segue<FadeIn, Duration<&sf::seconds, 5>>::To<DramaticIntroScene>>();
 ```
 
 ## Supplying Additional Arguments
@@ -57,7 +58,7 @@ This is the same for segues
 
 ```
 FinancialInfo* data = loadFinancialResult(calender.getDate());
-controller.push<ActivityController::Segue<CheckerboardEffect, Duration<&sf::seconds, 3>>::To<FinancialReport>(data);
+controller.push<Segue<CheckerboardEffect, Duration<&sf::seconds, 3>>::To<FinancialReport>>(data);
 ```
 
 # Leaving Activities
@@ -67,7 +68,7 @@ Make sure your activity controller calls are in an Activity's `OnUpdate(double e
 ## Push
 ```
 controller.push<MyScene>();
-controller.push<ActivityController::Segue<FadeIn>::To<MyScene>>();
+controller.push<Segue<FadeIn>::To<MyScene>>();
 ```
 
 ## Pop
@@ -76,7 +77,7 @@ safe to do for _pop_. Instead, the function `queuePop()` is supplied, signalling
 
 ```
 controller.queuePop(); 
-controller.queuePop<ActivityController::Segue<SlideIn>>();
+controller.queuePop<Segue<SlideIn>>();
 ```
 
 # Writing Activities
@@ -136,7 +137,7 @@ public:
 
   }
 
-  virtual void OoDraw(sf::RenderTexture& surface) {
+  virtual void onDraw(sf::RenderTexture& surface) {
     surface.draw(bg);
 
     menuText.setPosition(sf::Vector2f(200, 100));
