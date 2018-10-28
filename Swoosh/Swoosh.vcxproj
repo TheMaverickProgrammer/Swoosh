@@ -75,6 +75,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(VC_SourcePath)\..\src;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -106,7 +107,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)\extern\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\extern\includes;%(AdditionalIncludeDirectories)$(SolutionDir)\..\src;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,14 +158,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Activity.h" />
-    <ClInclude Include="ActivityController.h" />
     <ClInclude Include="BlendFadeIn.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Checkerboard.h" />
-    <ClInclude Include="Game.h" />
     <ClInclude Include="DemoScene.h" />
-    <ClInclude Include="Ease.h" />
     <ClInclude Include="AboutScene.h" />
     <ClInclude Include="HiScoreScene.h" />
     <ClInclude Include="MainMenuScene.h" />
@@ -173,9 +170,7 @@
     <ClInclude Include="SaveFile.h" />
     <ClInclude Include="SlideIn.h" />
     <ClInclude Include="TextureLoader.h" />
-    <ClInclude Include="Timer.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Segue.h" />
     <ClInclude Include="WhiteWashFade.h" />
   </ItemGroup>
   <ItemGroup>
@@ -185,7 +180,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Example.cpp" />
+    <ClCompile Include="Demo.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
