@@ -4,7 +4,7 @@
 #include "TextureLoader.h"
 #include "Particle.h"
 #include "ResourcePaths.h"
-#include "GameUtils.h"
+#include "Game.h"
 #include "SaveFile.h"
 
 #include "Checkerboard.h"

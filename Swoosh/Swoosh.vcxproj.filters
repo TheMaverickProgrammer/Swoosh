@@ -22,7 +22,7 @@
     <Filter Include="Source Files\Examples\Segues">
       <UniqueIdentifier>{181d1dc8-d6ad-46a9-8401-a8f7aa6c2095}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Utils">
+    <Filter Include="Source Files\ExampleUtils">
       <UniqueIdentifier>{a7681cc1-3025-4d64-b89b-a6a735ff79e4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -46,19 +46,16 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureLoader.h">
-      <Filter>Source Files\Utils</Filter>
+      <Filter>Source Files\ExampleUtils</Filter>
     </ClInclude>
     <ClInclude Include="Particle.h">
-      <Filter>Source Files\Utils</Filter>
+      <Filter>Source Files\ExampleUtils</Filter>
     </ClInclude>
     <ClInclude Include="WhiteWashFade.h">
       <Filter>Source Files\Examples\Segues</Filter>
     </ClInclude>
     <ClInclude Include="DemoScene.h">
       <Filter>Source Files\Examples\ExampleRooms</Filter>
-    </ClInclude>
-    <ClInclude Include="EaseFunctions.h">
-      <Filter>Source Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="SlideIn.h">
       <Filter>Source Files\Examples\Segues</Filter>
@@ -67,13 +64,13 @@
       <Filter>Source Files\Examples\Segues</Filter>
     </ClInclude>
     <ClInclude Include="ResourcePaths.h">
-      <Filter>Source Files\Utils</Filter>
+      <Filter>Source Files\ExampleUtils</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
-      <Filter>Source Files\Utils</Filter>
+      <Filter>Source Files\ExampleUtils</Filter>
     </ClInclude>
     <ClInclude Include="SaveFile.h">
-      <Filter>Source Files\Utils</Filter>
+      <Filter>Source Files\ExampleUtils</Filter>
     </ClInclude>
     <ClInclude Include="HiScoreScene.h">
       <Filter>Source Files\Examples\ExampleRooms</Filter>
@@ -81,11 +78,14 @@
     <ClInclude Include="Checkerboard.h">
       <Filter>Source Files\Examples\Segues</Filter>
     </ClInclude>
-    <ClInclude Include="GameUtils.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="AboutScene.h">
       <Filter>Source Files\Examples\ExampleRooms</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ease.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

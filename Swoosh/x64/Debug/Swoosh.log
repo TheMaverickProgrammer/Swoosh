@@ -1,12 +1,12 @@
 ﻿  Example.cpp
 c:\users\bountyhunter\code\swoosh\swoosh\timer.h(41): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
 c:\users\bountyhunter\code\swoosh\swoosh\timer.h(43): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
-c:\users\bountyhunter\code\swoosh\swoosh\gameutils.h(53): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\game.h(53): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\swoosh\gameutils.h(57): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\game.h(57): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
@@ -208,12 +208,12 @@ c:\users\bountyhunter\code\swoosh\swoosh\example.cpp(48): warning C4244: 'argume
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\swoosh\gameutils.h(39): warning C4244: '/=': conversion from 'double' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\game.h(39): warning C4244: '/=': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-  c:\users\bountyhunter\code\swoosh\swoosh\gameutils.h(48): note: see reference to function template instantiation 'T swoosh::game::normalize<sf::Vector2<float>>(T)' being compiled
+  c:\users\bountyhunter\code\swoosh\swoosh\game.h(48): note: see reference to function template instantiation 'T swoosh::game::normalize<sf::Vector2<float>>(T)' being compiled
           with
           [
               T=sf::Vector2<float>
@@ -224,7 +224,7 @@ c:\users\bountyhunter\code\swoosh\swoosh\gameutils.h(39): warning C4244: '/=': c
               U=sf::Vector2f,
               V=sf::Vector2f
           ]
-c:\users\bountyhunter\code\swoosh\swoosh\gameutils.h(40): warning C4244: '/=': conversion from 'double' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\swoosh\game.h(40): warning C4244: '/=': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float

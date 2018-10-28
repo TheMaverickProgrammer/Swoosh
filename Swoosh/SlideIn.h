@@ -1,6 +1,6 @@
 #pragma once
 #include "Segue.h"
-#include "EaseFunctions.h"
+#include "Ease.h"
 
 using namespace swoosh;
 

@@ -6,7 +6,7 @@
 #include "Particle.h"
 #include "Button.h"
 #include "SaveFile.h"
-#include "GameUtils.h"
+#include "Game.h"
 
 #include "DemoScene.h"
 #include "HiScoreScene.h"

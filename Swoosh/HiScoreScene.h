@@ -7,7 +7,7 @@
 #include "Button.h"
 #include "ResourcePaths.h"
 #include "SaveFile.h"
-#include "GameUtils.h"
+#include "Game.h"
 
 #include "SlideIn.h"
 
