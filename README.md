@@ -157,38 +157,4 @@ It might help to remember that when a segue begins, the current activity is leav
 # Integrating Swoosh into your SFML application
 Adding Swoosh, the acitivity and segue mini library into a fresh SFML application is very simple. See [Example.cpp](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/Swoosh/Example.cpp)
 
-# Namespaces
-Last but not least, Swoosh as a stand-alone library comes with other utilities specific but not limited to gaming.
-
-## using namespace swoosh;
-The basics
-
-* class Activity
-* class Segue
-* class ActivityController
-* class Timer
-
-## using namespace swoosh::intent;
-Aliases tucked away to make the library easier to use
-
-* typename segue<_Segue_, _Duration_>::to<_Destination_>
-* typename seconds
-* typename milliseconds
-* typename microseconds
-
-## using namespace swoosh::game;
-Game logic and utility functions to shorten SFML code
-
-* function _bool_ doesCollide(_a_, _b_)
-* function _double_ angleTo(_subject_, _target_)
-* function _vector2_ normalize(_input_)
-* function _vector2_ direction(_target_, _dest_)
-* function void setOrigin(_sprite_, _fx_, _fy_) 
-* function void setOrigin(_text_, _fx_, _fy_) 
-
-## using namespace swoosh::ease;
-Math that makes cool animations over time with little effort
-
-* function _double_ linear(_elapsed_, _duration_, _exponent_)
-* function _double_ wideParabola(_elapsed_, _duration_, _exponent_)
-
+Read more on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces).
