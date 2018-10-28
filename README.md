@@ -1,5 +1,5 @@
 # Swoosh
-SFML Activity and Segue Mini Library
+Header-only SFML Activity and Segue Mini Library
 
 # Technology
 SFML 2.5
