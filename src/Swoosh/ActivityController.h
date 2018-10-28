@@ -122,6 +122,17 @@ namespace swoosh {
             return false;
           }
 
+          // We did find it, call on end to everything and free memory
+          while (original.size() > 0) {
+            Activity* top = original.top();
+            top->onEnd();
+            delete top;
+            original.pop();
+          }
+
+          // Remove next from the activity stack
+          owner.activities.pop();
+
           swoosh::Segue* effect = new T(DurationType::value(), last, next);
 
           effect->onStart();

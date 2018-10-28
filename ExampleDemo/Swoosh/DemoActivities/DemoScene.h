@@ -387,6 +387,10 @@ public:
 
   virtual void onExit() {
     std::cout << "DemoScene OnExit called" << std::endl;
+
+    savefile.names.insert(savefile.names.begin(), "ZZZ");
+    savefile.scores.insert(savefile.scores.begin(), score);
+    savefile.writeToFile(SAVE_FILE_PATH);
   }
 
   virtual void onEnter() {
@@ -495,10 +499,6 @@ public:
 
   virtual void onEnd() {
     std::cout << "DemoScene OnEnd called" << std::endl;
-    
-    savefile.names.insert(savefile.names.begin(), "ZZZ");
-    savefile.scores.insert(savefile.scores.begin(), score);
-    savefile.writeToFile(SAVE_FILE_PATH);
   }
 
   virtual ~DemoScene() { delete bgTexture;; }

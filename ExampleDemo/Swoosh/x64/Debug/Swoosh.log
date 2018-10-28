@@ -1,5 +1,4 @@
-﻿  pch.cpp
-  Demo.cpp
+﻿  Demo.cpp
 c:\users\bountyhunter\code\swoosh\src\swoosh\timer.h(41): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
 c:\users\bountyhunter\code\swoosh\src\swoosh\timer.h(43): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
 c:\users\bountyhunter\code\swoosh\src\swoosh\game.h(53): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
@@ -120,7 +119,7 @@ c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(
               T=float
           ]
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(358): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(423): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(427): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
@@ -129,12 +128,12 @@ c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(426): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(430): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(460): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(464): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
