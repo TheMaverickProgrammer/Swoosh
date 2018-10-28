@@ -148,7 +148,7 @@ Segues are made up of two Activities: the last and the next. For most segues you
 
 Both draw their respective activity's contents to a sf::RenderTexture that can be used later. Read on below for an example.
 
-[This example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/Swoosh/SlideIn.h) Segue will slide a new screen in while pushing the last scene out. Really cool!
+[This example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/DemoSegues/slidein.h) Segue will slide a new screen in while pushing the last scene out. Really cool!
 
 ## Segue's & Activity States
 It's important to note that Segue's are responsible for triggering 6 of the 7 states in your activities.
