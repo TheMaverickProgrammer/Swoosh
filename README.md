@@ -60,7 +60,7 @@ controller.push<zegue<FadeIn, seconds<5>>::to<DramaticIntroScene>>();
 
 There are 3 wrappers and each have a shorthand alias
 
-`seconds<int val>       ` -> `sec<int val>`
+`       seconds<int val>` -> `sec<int val>`
 
 `milliseconds<Int32 val>` -> `milli<Int32 val>`
 
@@ -156,7 +156,7 @@ Sometimes you may need to step over the render surface and draw directly to the 
 
 * `getController()` returns the ActivityController that owns it
 * `getController().getWindow()` returns sf::RenderWindow
-
+* `getController().getInitialWindowSize()` returns sf::Vector2u of the window at startup. Useful when wanting to keep your graphics consistent with scale.
 ## Drawing To The Screen
 Segues are made up of two Activities: the last and the next. For most segues you need to draw one and then the other with some applied effect.
 
