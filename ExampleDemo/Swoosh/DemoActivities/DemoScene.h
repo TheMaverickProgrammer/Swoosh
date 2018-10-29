@@ -178,7 +178,6 @@ public:
     auto windowSize = getController().getInitialWindowSize();
 
     if (lives < 0) {
-      // Rewind lets us pop back to a particular scene in our stack history 
       getController().push<segue<Checkerboard, milli<900>>::to<HiScoreScene>>(savefile);
     }
 

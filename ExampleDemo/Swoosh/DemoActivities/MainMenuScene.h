@@ -7,6 +7,8 @@
 #include "DemoSegues\WhiteWashFade.h"
 #include "DemoSegues\SlideIn.h"
 #include "DemoSegues\BlendFadeIn.h"
+#include "DemoSegues\PageTurn.h"
+
 #include "DemoScene.h"
 #include "HiScoreScene.h"
 #include "AboutScene.h"
@@ -132,7 +134,7 @@ public:
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<segue<SlideIn, sec<1>>::to<HiScoreScene>>(savefile);
+          getController().push<segue<PageTurn, sec<5>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
           getController().push<segue<BlendFadeIn, sec<2>>::to<AboutScene>>();
@@ -223,7 +225,7 @@ public:
       setOrigin(menuText, 0.5, 0.5);
 
       // This creates our wave over all letters
-      double ratio = (M_PI) / strlen(GAME_TITLE);
+      double ratio = (ease::pi) / strlen(GAME_TITLE);
       double wave = (std::sin(timer.getElapsed().asSeconds()*2.0+((i+1)*ratio)));
 
       // Only add the peaks

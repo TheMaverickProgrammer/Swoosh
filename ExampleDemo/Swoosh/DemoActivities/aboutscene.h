@@ -96,12 +96,12 @@ public:
     double offset = 0;
     if (timer.getElapsed().asSeconds() > 3) {
 
-      offset = ease::wideParabola(timer.getElapsed().asMilliseconds()-3000, 5000, 0.9);
+      offset = ease::wideParabola(timer.getElapsed().asMilliseconds()-3000.0, 5000.0, 0.9);
     }
 
     sf::Vector2u windowSize = getController().getInitialWindowSize();
 
-    sfml.setPosition(100 + (offset * windowSize.x - 300), 100);
+    sfml.setPosition(100 + (offset * (windowSize.x - 300)), 100);
     sfml.setRotation(offset * 360 * 2);
 
     goback.update(getController().getWindow());

@@ -47,6 +47,8 @@ public:
   HiScoreScene(ActivityController& controller, save& data) : hiscore(data), Activity(controller) {
     std::cout << "savefile address is " << &data << std::endl;
 
+    auto windowSize = getController().getInitialWindowSize();
+
     font.loadFromFile(GAME_FONT);
     text.setFont(font);
     text.setFillColor(sf::Color::White);
@@ -60,9 +62,9 @@ public:
     meteorSmall = loadTexture(METEOR_SMALL_PATH);
     meteorTiny = loadTexture(METEOR_TINY_PATH);
 
-    screenBottom = 600;
-    screenMid = 800 / 2.0;
-    screenDiv = 800 / 4.0;
+    screenBottom = windowSize.y;
+    screenMid = windowSize.x / 2.0;
+    screenDiv = windowSize.x / 4.0;
 
     if (hiscore.empty()) {
       hiscore.writeToFile(SAVE_FILE_PATH);

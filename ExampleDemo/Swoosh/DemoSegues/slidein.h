@@ -13,7 +13,7 @@ public:
   virtual void onDraw(sf::RenderTexture& surface) {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
-    double alpha = ease::linear(elapsed, duration, 1);
+    double alpha = ease::linear(elapsed, duration, 1.0);
 
     this->drawLastActivity(surface);
 

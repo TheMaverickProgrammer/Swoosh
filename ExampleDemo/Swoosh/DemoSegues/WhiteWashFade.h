@@ -9,7 +9,7 @@ public:
   virtual void onDraw(sf::RenderTexture& surface) {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
-    double alpha = ease::wideParabola(elapsed, duration, 1);
+    double alpha = ease::wideParabola(elapsed, duration, 1.0);
 
     if (elapsed <= duration * 0.5)
       this->drawLastActivity(surface);

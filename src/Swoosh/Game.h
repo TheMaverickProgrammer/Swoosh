@@ -1,8 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-
-#define M_PI 3.14159265358979323846  /* pi */
+#include <Swoosh/Ease.h>
 
 namespace swoosh {
   namespace game {
@@ -20,11 +19,12 @@ namespace swoosh {
       return (mx < mx2 + mw2 && mx + mw > mx2 && my < my2 + mh2 && my + mh > my2);
     }
 
+    // Degrees
     template<typename T, typename V>
     static double angleTo(T& a, V& b) {
       double angle = atan2(a.y - b.y, a.x - b.x);
 
-      angle = angle * (180.0 / M_PI);
+      angle = angle * (180.0 / ease::pi);
 
       if (angle < 0) {
         angle = 360.0 - (-angle);
@@ -33,9 +33,9 @@ namespace swoosh {
       return angle;
     }
 
-    template<typename T>
-    static T normalize(T input) {
-      double length = sqrtf(input.x*input.x + input.y * input.y);
+    template<template <typename> class T, typename U>
+    static T<U> normalize(T<U> input) {
+      U length = sqrt(input.x*input.x + input.y * input.y);
       input.x /= length;
       input.y /= length;
       return input;
