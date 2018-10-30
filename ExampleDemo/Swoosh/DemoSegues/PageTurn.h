@@ -38,16 +38,17 @@ private:
   // More cells means higher quality effect at the cost of more work for cpu and gpu
   // Bigger cell size = less cells fit
   // Smaller cell size = more cells fit
-  void triangleStripulate(sf::Texture& source, sf::VertexArray& destination, int cellSize) {
+  void triangleStripulate(int screenWidth, int screenHeight, sf::VertexArray& destination, int cellSize) {
     destination.clear();
 
-    sf::Vector2u size = source.getSize();
-    double cols = size.x / cellSize;
-    double rows = size.y / cellSize;
+    int cols = screenWidth / cellSize;
+    int rows = screenHeight / cellSize;
+
+    cellSize /= 2;
 
     // each grid has 2 triangles which have 3 points (1 point = 1 vertex)
     int total = cols * rows * 2 * 3;
-    destination = sf::VertexArray(sf::PrimitiveType::Triangles, total);
+    destination = sf::VertexArray(sf::PrimitiveType::Triangles, 0);
 
     for (int i = 0; i < cols; i++) {
       for (int j = 0; j < rows; j++) {
@@ -61,19 +62,8 @@ private:
           sf::Vector2f((i + 1)*cellSize, j*cellSize) 
         };
 
-        /* SFML DOESNT NORMALIZE TEX COORDS
-        sf::Vector2f texel[4] = {
-          sf::Vector2f((i*cellSize)       / size.x, (j*cellSize)       / size.y),
-          sf::Vector2f((i*cellSize)       / size.x, ((j + 1)*cellSize) / size.y),
-          sf::Vector2f(((i + 1)*cellSize) / size.x, ((j + 1)*cellSize) / size.y),
-          sf::Vector2f(((i + 1)*cellSize) / size.x, (j*cellSize)       / size.y)
-        };*/
-
-        // cw
-        // int order[6] = { 0, 2, 1, 0, 3, 2 };
-
         // ccw
-        int order[6] = { 0, 1, 2, 0, 2, 3 };
+        int order[6] = { 0, 2, 1, 0, 3, 2 };
 
         for (auto o : order) {
           vertex.position = pos[o];
@@ -91,11 +81,11 @@ public:
     double alpha = ease::linear(elapsed, duration, 1.0);
 
     float angle1 = ease::radians(90.0f);
-    float angle2 = ease::radians(48.0f);
-    float angle3 = ease::radians(6.0f);
+    float angle2 = ease::radians(45.0f);
+    float angle3 = ease::radians(4.0f);
     float     A1 = -15.0f;
-    float     A2 = -2.5f;
-    float     A3 = -3.5f;
+    float     A2 = -1.5f;
+    float     A3 = -50.5f;
     float theta1 = 0.05f;
     float theta2 = 0.5f;
     float theta3 = 10.0f;
@@ -117,7 +107,7 @@ public:
       theta = ease::interpolate(f1, angle1, angle2);
       A = ease::interpolate(f2, A1, A2);
     }
-    else if (alpha <= 0.4)
+    else if (alpha <= 0.84)
     {
       // Produce the most pronounced curling near the middle of the turn. Here small values of theta and A
       // result in a short, fat cone that distinctly show the curl effect.
@@ -153,8 +143,6 @@ public:
     states.shader = &shader;
 
     surface.clear(sf::Color::Transparent);
-
-    triangleStripulate(*temp, paper, 10);
     surface.draw(paper, states);
     
     surface.display();
@@ -180,7 +168,8 @@ public:
     /* ... */
     temp = nullptr;
     shader.loadFromFile(TURN_PAGE_VERT_PATH, TURN_PAGE_FRAG_PATH);
-    //shader.loadFromFile(TURN_PAGE_FRAG_PATH, sf::Shader::Fragment);
+    auto size = getController().getWindow().getView().getSize();
+    triangleStripulate(size.x, size.y, paper, 10);
   }
 
   virtual ~PageTurn() { ; }

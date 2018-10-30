@@ -1,14 +1,14 @@
 #version 110
 
-uniform float A;
 uniform float theta;
 uniform float rho;
+uniform float A;
 
 void main()
 {
     float R, r, beta;
     vec3  v1;
-    vec4  position = gl_Vertex;
+    vec4  position = gl_ModelViewMatrix * gl_Vertex;
                     
     // Radius of the circle circumscribed by vertex (vi.x, vi.y) around A on the x-y plane
     R = sqrt(position.x * position.x + pow(position.y - A, 2.0)); 
@@ -26,7 +26,9 @@ void main()
     position.y = v1.y;
     position.z = (v1.x * sin(rho) + v1.z * cos(rho));
 
-    gl_Position = position; // gl_ProjectionMatrix * gl_ModelViewProjectionMatrix * position; 
+    gl_Position = gl_ProjectionMatrix * position;
+    gl_Position = vec4(gl_Position.xy, 0.0, gl_Position.w);
+
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
     gl_FrontColor = gl_Color;
 }  

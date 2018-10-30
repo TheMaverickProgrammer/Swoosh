@@ -13,7 +13,7 @@ struct save {
   void writeToFile(std::string path) {
     std::ofstream outfile(path, std::ofstream::trunc);
 
-    if (!outfile) { return;  }
+    if (!outfile) { outfile.close(); return; }
 
     if (names.empty()) {
       for (int i = 0; i < 5; i++) {
@@ -44,7 +44,7 @@ struct save {
     char name[4];
     int score;
 
-    if (!infile) { return; }
+    if (!infile) { infile.close();  return; }
    
     while (infile) {
       infile.read(name, 4);

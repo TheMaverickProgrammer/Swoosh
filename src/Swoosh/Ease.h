@@ -9,7 +9,7 @@ namespace swoosh {
 
     template<typename T>
     static constexpr T interpolate(T factor, T a, T b) {
-      return a * (1.0 - factor) + b * factor;
+      return a + (b - a) * factor;
     }
 
     template<typename T>
