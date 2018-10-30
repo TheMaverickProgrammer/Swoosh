@@ -25,6 +25,11 @@ c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\slidein.h(35): w
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\slidein.h(44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\blendfadein.h(34): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\blendfadein.h(35): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(58): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(59): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
@@ -40,19 +45,14 @@ c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(61): 
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(62): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(104): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(105): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(106): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(114): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(123): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(124): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(125): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(172): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(116): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(117): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(118): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(126): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(135): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(136): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(137): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(184): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
@@ -231,7 +231,7 @@ c:\users\bountyhunter\code\swoosh\src\swoosh\ease.h(8): warning C4244: 'return':
           [
               T=float
           ]
-  c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(83): note: see reference to function template instantiation 'T swoosh::ease::radians<float>(T)' being compiled
+  c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(95): note: see reference to function template instantiation 'T swoosh::ease::radians<float>(T)' being compiled
           with
           [
               T=float

@@ -44,12 +44,11 @@ private:
     int cols = screenWidth / cellSize;
     int rows = screenHeight / cellSize;
 
-    cellSize /= 2;
-
     // each grid has 2 triangles which have 3 points (1 point = 1 vertex)
     int total = cols * rows * 2 * 3;
-    destination = sf::VertexArray(sf::PrimitiveType::Triangles, 0);
+    destination = sf::VertexArray(sf::PrimitiveType::Triangles, total);
 
+    int index = 0;
     for (int i = 0; i < cols; i++) {
       for (int j = 0; j < rows; j++) {
         sf::Vertex vertex;
@@ -62,16 +61,29 @@ private:
           sf::Vector2f((i + 1)*cellSize, j*cellSize) 
         };
 
+
+        sf::Vector2f tex[4] = {
+          sf::Vector2f((i*cellSize) /(float)screenWidth, (j*cellSize)/(float)screenHeight),
+          sf::Vector2f((i*cellSize) / (float)screenWidth, ((j + 1)*cellSize)/(float)screenHeight),
+          sf::Vector2f(((i + 1)*cellSize)/(float)screenWidth, ((j + 1)*cellSize)/(float)screenHeight),
+          sf::Vector2f(((i + 1)*cellSize)/(float)screenWidth, (j*cellSize)/(float)screenHeight)
+        };
+
         // ccw
         int order[6] = { 0, 2, 1, 0, 3, 2 };
 
         for (auto o : order) {
           vertex.position = pos[o];
-          vertex.texCoords = pos[o];
-          destination.append(vertex);
+          vertex.texCoords = tex[o];
+          destination[index++] = vertex;
         }
       }
     }
+
+    destination[0].color = sf::Color::Blue;
+    destination[(((cols-1) * (rows)) * 6) + 5].color = sf::Color::Green;
+    destination[total-1].color = sf::Color::Red;
+
   }
 
 public:

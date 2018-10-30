@@ -8,7 +8,7 @@ void main()
 {
     float R, r, beta;
     vec3  v1;
-    vec4  position = gl_ModelViewMatrix * gl_Vertex;
+    vec4  position =  gl_Vertex;
                     
     // Radius of the circle circumscribed by vertex (vi.x, vi.y) around A on the x-y plane
     R = sqrt(position.x * position.x + pow(position.y - A, 2.0)); 
@@ -25,9 +25,9 @@ void main()
     position.x = (v1.x * cos(rho) - v1.z * sin(rho));
     position.y = v1.y;
     position.z = (v1.x * sin(rho) + v1.z * cos(rho));
+    
 
-    gl_Position = gl_ProjectionMatrix * position;
-    gl_Position = vec4(gl_Position.xy, 0.0, gl_Position.w);
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(position.xy, 0.0, 1.0);
 
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
     gl_FrontColor = gl_Color;
