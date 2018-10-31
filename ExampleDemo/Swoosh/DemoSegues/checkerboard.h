@@ -2,8 +2,6 @@
 #include <Swoosh\Segue.h>
 #include <Swoosh\Ease.h>
 #include <Swoosh\EmbedGLSL.h>
-#include "..\ResourcePaths.h"
-#include "..\TextureLoader.h"
 
 using namespace swoosh;
 

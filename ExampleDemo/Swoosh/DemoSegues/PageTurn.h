@@ -4,9 +4,6 @@
 #include <Swoosh\Game.h>
 #include <Swoosh\EmbedGLSL.h>
 
-#include "..\ResourcePaths.h"
-#include "..\TextureLoader.h"
-
 using namespace swoosh;
 
 /*

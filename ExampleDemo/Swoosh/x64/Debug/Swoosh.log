@@ -26,34 +26,34 @@ c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\slidein.h(44): w
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\blendfadein.h(34): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\blendfadein.h(35): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
 c:\users\bountyhunter\code\swoosh\src\swoosh\embedglsl.h(18): warning C4101: 'next_token': unreferenced local variable
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(106): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(107): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(108): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(109): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(110): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(111): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(112): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(167): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(168): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(169): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(177): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(186): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(187): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(188): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(235): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(164): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(165): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(166): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(174): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(183): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(184): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(185): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(232): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
@@ -232,9 +232,10 @@ c:\users\bountyhunter\code\swoosh\src\swoosh\ease.h(8): warning C4244: 'return':
           [
               T=float
           ]
-  c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(146): note: see reference to function template instantiation 'T swoosh::ease::radians<float>(T)' being compiled
+  c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(143): note: see reference to function template instantiation 'T swoosh::ease::radians<float>(T)' being compiled
           with
           [
               T=float
           ]
+  LINK : C:\Users\Bountyhunter\Code\Swoosh\ExampleDemo\x64\Debug\Swoosh.exe not found or not built by the last incremental link; performing full link
   Swoosh.vcxproj -> C:\Users\Bountyhunter\Code\Swoosh\ExampleDemo\x64\Debug\Swoosh.exe
