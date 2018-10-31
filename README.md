@@ -17,7 +17,7 @@ SFML 2.5
 C++14
 
 ## Optional
-Includes visual studio project but will work on other operating systems as long as it has C++14 support
+Includes visual studio project but not needed. Source code will work on other operating systems as long as it has C++14 support. You will need to provide your own build scripts to run the project. Swoosh header files require _zero_ building.
 
 # Video
 Click the gif for the full video!
