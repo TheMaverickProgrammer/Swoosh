@@ -183,9 +183,9 @@ Both draw their respective activity's contents to a sf::RenderTexture that can b
 [This example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/DemoSegues/slidein.h) Segue will slide a new screen in while pushing the last scene out. Really cool!
 
 ## Embedding GLSL and textures
-Some post processing effects require samples as inputs (see Checkerboard segue). In order to make Swoosh 100% header-only the scripts and samples had to be embedded. This is purely optional for your projects and if you want to share your custom segue effects, is the best practice.
+Some post processing effects require samples as inputs like the [Checkerboard](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/Checkerboard.h) segue. In order to make Swoosh 100% header-only the scripts and samples had to be embedded. This is purely optional for your projects and if you want to share your custom segue effects, is the best practice.
 
-Learn [how to embed GLSL and textures here]().
+Learn [how to embed GLSL and textures here](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Embed-GLSL).
 
 ## Segue's & Activity States
 It's important to note that Segue's are responsible for triggering 6 of the 7 states in your activities.
