@@ -1,6 +1,16 @@
 # Swoosh
 Header-only SFML Activity and Segue Mini Library
 
+# Updates
+10/31/2018
+
+* New segues are available to directly copy in the `src/Segues` folder.
+* Textures and GLSL are embedded into the header files. Swoosh is truly 100% header-only now. 
+* New wiki page to detail how to change the embedded textures used in some Segue post processing
+
+10/29/2018
+* first made available to the public
+
 # Technology
 SFML 2.5
 
@@ -16,14 +26,14 @@ Click the gif for the full video!
 
 
 # Integrating Swoosh into your SFML application
-Clone this repo. Copy the headers found in the root at `src/Swoosh`. 
+Clone this repo. Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
 
 Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/Demo.cpp)
 
 ## Get Jump Started
-See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also [copy the segues](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh/DemoSegues) in the source folder and use them immediately into your games with no extra configuration.
+See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
 
-Read more on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces).
+Read more on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
 # Philosophy 
 When creating polished applications it should not be a concern to the user how to handle the memory for a scene or video game level. 
@@ -171,6 +181,11 @@ Segues are made up of two Activities: the last and the next. For most segues you
 Both draw their respective activity's contents to a sf::RenderTexture that can be used later. Read on below for an example.
 
 [This example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/DemoSegues/slidein.h) Segue will slide a new screen in while pushing the last scene out. Really cool!
+
+## Embedding GLSL and textures
+Some post processing effects require samples as inputs (see Checkerboard segue). In order to make Swoosh 100% header-only the scripts and samples had to be embedded. This is purely optional for your projects and if you want to share your custom segue effects, is the best practice.
+
+Learn [how to embed GLSL and textures here]().
 
 ## Segue's & Activity States
 It's important to note that Segue's are responsible for triggering 6 of the 7 states in your activities.
