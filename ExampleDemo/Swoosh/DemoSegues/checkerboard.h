@@ -1,10 +1,32 @@
 #pragma once
 #include <Swoosh\Segue.h>
 #include <Swoosh\Ease.h>
+#include <Swoosh\EmbedGLSL.h>
 #include "..\ResourcePaths.h"
 #include "..\TextureLoader.h"
 
 using namespace swoosh;
+
+auto CHECKERBOARD_FRAG_SHADER = GLSL 
+(
+  110,
+  uniform sampler2D texture;
+  uniform sampler2D map;
+  uniform float progress;
+
+  void main()
+  {
+    vec4 pixel = texture2D(texture, vec2(gl_TexCoord[0].x, gl_TexCoord[0].y));
+    vec4 transition = texture2D(map, vec2(gl_TexCoord[0].x, gl_TexCoord[0].y));
+    vec4 color = gl_Color * pixel;
+
+    if (progress >= transition.r) {
+      color = vec4(1, 1, 1, 0);
+    }
+
+    gl_FragColor = color;
+  }
+);
 
 class Checkerboard : public Segue {
 private:
@@ -54,7 +76,7 @@ public:
   Checkerboard(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */
     temp = nullptr;
-    shader.loadFromFile(SHADER_PATH, sf::Shader::Fragment);
+    shader.loadFromMemory(CHECKERBOARD_FRAG_SHADER, sf::Shader::Fragment);
     pattern = loadTexture(SHADER_PATTERN_PATH);
     shader.setUniform("texture", sf::Shader::CurrentTexture);
     shader.setUniform("map", *pattern);
