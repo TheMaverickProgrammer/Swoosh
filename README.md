@@ -4,7 +4,7 @@ Header-only SFML Activity and Segue Mini Library
 # Updates
 10/31/2018
 
-* New segues are available to directly copy in the `src/Segues` folder.
+* New segues are available. You can directly copy them from the `src/Segues` folder.
 * Textures and GLSL are embedded into the header files. Swoosh is truly 100% header-only now. 
 * New wiki page to detail how to change the embedded textures used in some Segue post processing
 
