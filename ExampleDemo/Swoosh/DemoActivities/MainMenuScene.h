@@ -134,7 +134,7 @@ public:
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<segue<PageTurn, sec<5>>::to<HiScoreScene>>(savefile);
+          getController().push<segue<Checkerboard, sec<2>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
           getController().push<segue<BlendFadeIn, sec<2>>::to<AboutScene>>();

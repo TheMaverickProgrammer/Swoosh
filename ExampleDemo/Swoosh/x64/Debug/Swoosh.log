@@ -25,7 +25,7 @@ c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\slidein.h(35): w
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\slidein.h(44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\blendfadein.h(34): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\blendfadein.h(35): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
-c:\users\bountyhunter\code\swoosh\src\swoosh\embedglsl.h(16): warning C4101: 'next_token': unreferenced local variable
+c:\users\bountyhunter\code\swoosh\src\swoosh\embedglsl.h(18): warning C4101: 'next_token': unreferenced local variable
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demosegues\pageturn.h(109): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [

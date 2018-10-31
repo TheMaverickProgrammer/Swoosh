@@ -2,6 +2,8 @@
 #include <sstream>
 #include <cstring>
 
+#include <iostream>
+
 namespace swoosh {
   namespace glsl{
 
@@ -30,7 +32,7 @@ namespace swoosh {
 
 
       std::string output = ss.str(); //Get the string stream as a std::string
-      std::size_t found = output.find("\n"); // Find the first line break, this is the #version decl
+      std::size_t found = output.find('\n'); // Find the first line break, this is the #version decl
       output.erase(found + 1, 1); // Erase this quote char
       output.erase(output.length() - 3, 2); // Remove the quote and last delim char from macro expansion
       return output;
@@ -38,6 +40,5 @@ namespace swoosh {
   }
 }
 
-#define SWOOSH_SHADER_TO_STR_VA_ARGS(...) #__VA_ARGS__
-
-#define GLSL(version, ...)  swoosh::glsl::formatGLSL("#version " #version "\n" SWOOSH_SHADER_TO_STR_VA_ARGS(#__VA_ARGS__))
+#define SWOOSH_EMBED_TO_STR(...) #__VA_ARGS__
+#define GLSL(version, ...)  swoosh::glsl::formatGLSL("#version " #version "\n" SWOOSH_EMBED_TO_STR(#__VA_ARGS__))

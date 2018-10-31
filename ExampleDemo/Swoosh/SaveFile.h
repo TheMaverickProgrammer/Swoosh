@@ -33,6 +33,9 @@ struct save {
       }
     }
 
+    names.clear();
+    scores.clear();
+
     outfile.close();
   }
 
@@ -50,7 +53,7 @@ struct save {
       infile.read(name, 4);
       infile >> score;
 
-      std::cout << name << ", " << score << std::endl;
+      //std::cout << name << ", " << score << std::endl;
       names.push_back(name);
       scores.push_back(score);
     }
