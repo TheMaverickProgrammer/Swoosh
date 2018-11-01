@@ -160,9 +160,11 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\Segues\BlendFadeIn.h" />
     <ClInclude Include="..\..\src\Segues\Checkerboard.h" />
+    <ClInclude Include="..\..\src\Segues\HorizontalOpen.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalSlice.h" />
     <ClInclude Include="..\..\src\Segues\PageTurn.h" />
     <ClInclude Include="..\..\src\Segues\SlideIn.h" />
+    <ClInclude Include="..\..\src\Segues\VerticalOpen.h" />
     <ClInclude Include="..\..\src\Segues\VerticalSlice.h" />
     <ClInclude Include="..\..\src\Segues\WhiteWashFade.h" />
     <ClInclude Include="..\..\src\Segues\ZoomIn.h" />
