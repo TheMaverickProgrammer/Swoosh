@@ -15,7 +15,6 @@ namespace swoosh {
 
 
       char* input = new char[strlen(glsl) + 1];
-      char* next_token;
       char delim[] = ";";
       strcpy(input, glsl);
 

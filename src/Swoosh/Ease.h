@@ -13,7 +13,7 @@ namespace swoosh {
     }
 
     template<typename T>
-    static constexpr double linear(T delta, T length, T power) {
+    static constexpr T linear(T delta, T length, T power) {
       T normal = 1.0 / length;
 
       T x = delta * normal;
@@ -34,7 +34,7 @@ namespace swoosh {
     }
 
     template<typename T>
-    static double constexpr wideParabola(T delta, T length, T power) {
+    static constexpr T wideParabola(T delta, T length, T power) {
       T normal = 2.0 / length;
 
       // Convert seconds elapsed to x values of 0 -> 2
@@ -55,6 +55,54 @@ namespace swoosh {
       }
 
       T y = 1 - exponential;
+
+      return y;
+    }
+
+    /*
+      y = 3x ^ 2 - 2x ^ 4
+
+      overshoot destination and slide back at the end
+    */
+    template<typename T>
+    static constexpr T bezierPopIn(T delta, T length) {
+      T normal = 1.0 / length;
+
+      T x = delta * normal;
+
+      if (x >= 1) {
+        x = 1;
+      }
+
+    
+      T part1 = 3.0 * x * x;
+      T part2 = 2.0 * x * x * x * x;
+
+      T y = part1 - part2;
+
+      return y;
+    }
+
+    /*
+    y = 3(1-x) ^ 2 - 2(1-x) ^ 4
+
+    pop out and then slide out
+  */
+    template<typename T>
+    static constexpr T bezierPopOut(T delta, T length) {
+      T normal = 1.0 / length;
+
+      T x = delta * normal;
+
+      if (x >= 1) {
+        x = 1;
+      }
+
+      x = (1.0 - x);
+      T part1 = 3.0 * x * x;
+      T part2 = 2.0 * x * x * x * x;
+
+      T y = part1 - part2;
 
       return y;
     }

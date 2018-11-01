@@ -72,6 +72,33 @@
     <ClInclude Include="DemoActivities\MainMenuScene.h">
       <Filter>Source Files\Demo\Activities</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Segues\BlendFadeIn.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\Checkerboard.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\HorizontalSlice.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\PageTurn.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\SlideIn.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\VerticalSlice.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\WhiteWashFade.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\ZoomIn.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\ZoomOut.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

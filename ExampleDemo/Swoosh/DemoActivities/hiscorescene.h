@@ -9,7 +9,7 @@
 #include "ResourcePaths.h"
 #include "SaveFile.h"
 
-#include "..\DemoSegues\SlideIn.h"
+#include <Segues\SlideIn.h>
 
 #include <iostream>
 

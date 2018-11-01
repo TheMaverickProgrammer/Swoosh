@@ -4,10 +4,14 @@
 #include <SFML\Graphics.hpp>
 #include <SFML\Audio.hpp>
 
-#include "DemoSegues\WhiteWashFade.h"
-#include "DemoSegues\SlideIn.h"
-#include "DemoSegues\BlendFadeIn.h"
-#include "DemoSegues\PageTurn.h"
+#include <Segues\WhiteWashFade.h>
+#include <Segues\SlideIn.h>
+#include <Segues\BlendFadeIn.h>
+#include <Segues\PageTurn.h>
+#include <Segues\ZoomOut.h>
+#include <Segues\ZoomIn.h>
+#include <Segues\HorizontalSlice.h>
+#include <Segues\VerticalSlice.h>
 
 #include "DemoScene.h"
 #include "HiScoreScene.h"
@@ -137,7 +141,7 @@ public:
           getController().push<segue<Checkerboard, sec<2>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
-          getController().push<segue<BlendFadeIn, sec<2>>::to<AboutScene>>();
+          getController().push<segue<ZoomOut, sec<2>>::to<AboutScene>>();
         }
       }
     }

@@ -8,7 +8,7 @@
 #include "..\ResourcePaths.h"
 #include "..\SaveFile.h"
 
-#include "..\DemoSegues\Checkerboard.h"
+#include <Segues\Checkerboard.h>
 
 #include <iostream>
 #include <assert.h>

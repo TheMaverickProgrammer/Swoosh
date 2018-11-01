@@ -9,8 +9,8 @@
 #include "ResourcePaths.h"
 #include "SaveFile.h"
 
-#include "..\DemoSegues\SlideIn.h"
-#include "..\DemoSegues\BlendFadeIn.h"
+#include <Segues\SlideIn.h>
+#include <Segues\BlendFadeIn.h>
 
 #include <iostream>
 
@@ -143,6 +143,8 @@ public:
 
   virtual void onDraw(sf::RenderTexture& surface) {
     sf::RenderWindow& window = getController().getWindow();
+
+    surface.clear(sf::Color::Black);
 
     surface.draw(sfml);
 
