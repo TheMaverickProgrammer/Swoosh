@@ -194,7 +194,7 @@ Segues are made up of two Activities: the last and the next. For most segues you
 
 Both draw their respective activity's contents to a sf::RenderTexture that can be used later. Read on below for an example.
 
-[This example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/DemoSegues/slidein.h) Segue will slide a new screen in while pushing the last scene out. Really cool!
+[This example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/SlideIn.h) Segue will slide a new screen in while pushing the last scene out. Really cool!
 
 ## Embedding GLSL and textures
 Some post processing effects require samples as inputs like the [Checkerboard](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/Checkerboard.h) segue. In order to make Swoosh 100% header-only the scripts and samples had to be embedded. This is purely optional for your projects and if you want to share your custom segue effects, is the best practice.
