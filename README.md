@@ -2,6 +2,13 @@
 Header-only SFML Activity and Segue Mini Library
 
 # Updates
+11/11/2018
+
+* New segues. 
+* Added ability to set an activity's view using `setView()` so that segues can look right with different views in two scenes.
+* New classes `swoosh::ActionList` and `swoosh::ActionItem` types. Control your busy scenes with even more polish with action lists!
+* New pokemon proof of concept demo! [Check it out](https://github.com/TheMaverickProgrammer/PokemonHeartGold-Swoosh)!
+
 10/31/2018
 
 * New segues are available. You can directly copy them from the `src/Segues` folder.
@@ -24,6 +31,10 @@ Click the gif for the full video!
 
 [![SlideIn Segue](https://media.giphy.com/media/2jsQgGNqmHU3HB3tZN/giphy.gif)](https://streamable.com/qb023)
 
+See the pokemon demo using just swoosh!
+
+[![clip](https://media.giphy.com/media/1WbJank711TIIMmVr4/giphy.gif)](https://streamable.com/vyfhq)
+
 
 # Integrating Swoosh into your SFML application
 Clone this repo. Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
@@ -33,7 +44,7 @@ Adding the mini library into your SFML application is very simple. See [this exa
 ## Get Jump Started
 See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
 
-See all the effects and more on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
+See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
 # Philosophy 
 When creating polished applications it should not be a concern to the user how to handle the memory for a scene or video game level. 
@@ -140,6 +151,9 @@ An activity has 7 states it can be in:
 * Updating 
 
 [Here is an example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/DemoActivities/aboutscene.h) of a simple About scene in your app. It shows text and has a button to click next for more info. The SFML logo rolls across the top just for visual effect.
+
+## Defining a View
+If you need to define a view for one activity without affecting another you use that Activity's `setView(sf::View view)` function. You can set once and forget! The controller will make sure everything looks right.
 
 # Writing Segues
 When writing transitions or action-dependant software, one of the worst things that can happen is to have a buggy action. 
