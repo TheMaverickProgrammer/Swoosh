@@ -49,11 +49,11 @@ namespace swoosh {
       return val;
     }
 
-    void setOrigin(sf::Sprite& sprite, double fx, double fy) {
+    static void setOrigin(sf::Sprite& sprite, double fx, double fy) {
       sprite.setOrigin(sf::Vector2f(sprite.getGlobalBounds().width * fx, sprite.getGlobalBounds().height * fy));
     }
 
-    void setOrigin(sf::Text& text, double fx, double fy) {
+    static void setOrigin(sf::Text& text, double fx, double fy) {
       text.setOrigin(sf::Vector2f(text.getGlobalBounds().width * fx, text.getGlobalBounds().height * fy));
     }
   }

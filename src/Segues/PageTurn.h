@@ -161,9 +161,9 @@ public:
     {
       // Start off with a flat page with no deformation at the beginning of a page turn, then begin to curl the page gradually
       // as the hand lifts it off the surface of the book.
-      dt = alpha / 0.15;
-      f1 = sin(ease::pi * pow(dt, theta1) / 2.0);
-      f2 = sin(ease::pi * pow(dt, theta2) / 2.0);
+      dt = (float)(alpha / 0.15);
+      f1 = (float)sin(ease::pi * pow(dt, theta1) / 2.0);
+      f2 = (float)sin(ease::pi * pow(dt, theta2) / 2.0);
       theta = ease::interpolate(f1, angle1, angle2);
       A = ease::interpolate(f2, A1, A2);
     }

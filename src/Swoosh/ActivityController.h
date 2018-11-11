@@ -7,13 +7,14 @@
 #include <functional>
 #include <utility>
 
+
 namespace swoosh {
   class ActivityController {
     friend class swoosh::Segue;
 
   private:
     std::stack<Activity*> activities;
-    sf::RenderTexture* surface;
+    mutable sf::RenderTexture* surface;
     sf::RenderWindow& handle;
     sf::Vector2u initWindowSize;
 
@@ -75,7 +76,8 @@ namespace swoosh {
         owner.activities.pop();
 
         swoosh::Segue* effect = new T(DurationType::value(), last, next);
-
+        effect->setActivityViewFunc = &ActivityController::setActivityView;
+        effect->resetViewFunc = &ActivityController::resetView;
         effect->onStart();
 
         owner.activities.push(effect);
@@ -92,7 +94,11 @@ namespace swoosh {
           bool hasLast = (owner.activities.size() > 0);
           Activity* last = hasLast ? owner.activities.top() : nullptr;
           Activity* next = new U(owner, std::forward<Args>(args)...);
+          next->setView(owner.handle.getDefaultView());
+
           swoosh::Segue* effect = new T(DurationType::value(), last, next);
+          effect->setActivityViewFunc = &ActivityController::setActivityView;
+          effect->resetViewFunc = &ActivityController::resetView;
 
           effect->onStart();
 
@@ -142,6 +148,8 @@ namespace swoosh {
           owner.activities.pop();
 
           swoosh::Segue* effect = new T(DurationType::value(), last, next);
+          effect->setActivityViewFunc = &ActivityController::setActivityView;
+          effect->resetViewFunc = &ActivityController::resetView;
 
           effect->onStart();
 
@@ -192,12 +200,11 @@ namespace swoosh {
         bool hasLast = (owner.activities.size() > 0);
         Activity* last = hasLast ? owner.activities.top() : nullptr;
         Activity* next = new T(owner, std::forward<Args>(args)...);
+        next->setView(owner.handle.getDefaultView());
+
         if (hasLast) {
-          last->onEnd();
-          owner.activities.pop();
+          last->onExit();
         }
-        if (hasLast)
-          delete last;
 
         next->onStart();
         owner.activities.push(next);
@@ -325,6 +332,7 @@ namespace swoosh {
       if (activities.size() == 0)
         return;
 
+      surface->setView(activities.top()->view);
       activities.top()->onDraw(*surface);
 
       surface->display();
@@ -338,7 +346,24 @@ namespace swoosh {
       // Prepare buffer for next cycle
       surface->clear(sf::Color::Transparent);
     }
+
+    void draw(sf::RenderTexture& external) {
+      if (activities.size() == 0)
+        return;
+
+      external.setView(activities.top()->view);
+      activities.top()->onDraw(external);
+    }
+
   private:
+    void setActivityView(sf::RenderTexture& surface, Activity* activity) {
+      surface.setView(activity->getView());
+    }
+
+    void resetView(sf::RenderTexture& surface) {
+      surface.setView(handle.getDefaultView());
+    }
+
     void endSegue(swoosh::Segue* segue) {
       segue->onEnd();
       activities.pop();

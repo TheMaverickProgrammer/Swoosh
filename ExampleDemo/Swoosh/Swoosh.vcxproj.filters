@@ -45,21 +45,6 @@
     <ClInclude Include="SaveFile.h">
       <Filter>Source Files\Demo\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="DemoSegues\BlendFadeIn.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="DemoSegues\Checkerboard.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="DemoSegues\PageTurn.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="DemoSegues\SlideIn.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="DemoSegues\WhiteWashFade.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
     <ClInclude Include="DemoActivities\aboutscene.h">
       <Filter>Source Files\Demo\Activities</Filter>
     </ClInclude>

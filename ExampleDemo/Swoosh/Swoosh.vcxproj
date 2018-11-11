@@ -174,11 +174,6 @@
     <ClInclude Include="DemoActivities\DemoScene.h" />
     <ClInclude Include="DemoActivities\hiscorescene.h" />
     <ClInclude Include="DemoActivities\MainMenuScene.h" />
-    <ClInclude Include="DemoSegues\BlendFadeIn.h" />
-    <ClInclude Include="DemoSegues\Checkerboard.h" />
-    <ClInclude Include="DemoSegues\PageTurn.h" />
-    <ClInclude Include="DemoSegues\SlideIn.h" />
-    <ClInclude Include="DemoSegues\WhiteWashFade.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ResourcePaths.h" />
     <ClInclude Include="SaveFile.h" />

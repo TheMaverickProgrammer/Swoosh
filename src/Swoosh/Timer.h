@@ -4,7 +4,7 @@
 namespace swoosh {
   class Timer {
     sf::Clock clock;
-    float elapsed;
+    sf::Int32 elapsed;
     bool paused;
 
   public:
