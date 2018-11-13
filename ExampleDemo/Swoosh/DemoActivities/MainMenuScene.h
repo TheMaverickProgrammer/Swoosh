@@ -1,6 +1,7 @@
 #pragma once
 #include <Swoosh\ActivityController.h>
 #include <Swoosh\Game.h>
+// #include <Swoosh\ActionList.h>
 #include <SFML\Graphics.hpp>
 #include <SFML\Audio.hpp>
 
@@ -142,7 +143,7 @@ public:
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<segue<HorizontalOpen, sec<2>>::to<HiScoreScene>>(savefile);
+          getController().push<segue<PageTurn, sec<2>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
           getController().push<segue<VerticalOpen, sec<2>>::to<AboutScene>>();

@@ -141,18 +141,18 @@ public:
     double alpha = ease::linear(elapsed, duration, 1.0);
 
     float angle1 = ease::radians(90.0f);
-    float angle2 = ease::radians(45.0f);
-    float angle3 = ease::radians(4.0f);
-    float     A1 = -15.0f;
-    float     A2 = -1.5f;
-    float     A3 = -50.5f;
-    float theta1 = 0.05f;
-    float theta2 = 0.5f;
-    float theta3 = 10.0f;
-    float theta4 = 2.0f;
+    float angle2 = ease::radians(75.0f);
+    float angle3 = ease::radians(40.0f);
+    float     A1 = -515.0f;
+    float     A2 = -300.5f;
+    float     A3 = 0.5f;
+    float theta1 = 90.05f;
+    float theta2 = 0.05f;
+    float theta3 = 90.5f;
+    float theta4 = 90.0f;
 
     float f1, f2, dt;
-    double theta = 90.f;
+    double theta = 0.0f;
     double A = 0.0f;
 
     double rho = alpha * ease::pi;
@@ -167,11 +167,11 @@ public:
       theta = ease::interpolate(f1, angle1, angle2);
       A = ease::interpolate(f2, A1, A2);
     }
-    else if (alpha <= 0.84)
+    else if (alpha <= 0.5)
     {
       // Produce the most pronounced curling near the middle of the turn. Here small values of theta and A
       // result in a short, fat cone that distinctly show the curl effect.
-      dt = (alpha - 0.15) / 0.25;
+      dt = (alpha - 0.15) / (0.5-0.15);
       theta = ease::interpolate(dt, angle2, angle3);
       A = ease::interpolate(dt, A2, A3);
     }
@@ -183,7 +183,7 @@ public:
       dt = (alpha - 0.4) / 0.6;
       f1 = sin(ease::pi * pow(dt, theta3) / 2.0);
       f2 = sin(ease::pi * pow(dt, theta4) / 2.0);
-      theta = ease::interpolate(f1, angle3, angle1);
+      theta = ease::interpolate(f1, angle3, angle3);
       A = ease::interpolate(f2, A3, A1);
     }
 

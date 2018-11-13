@@ -4,6 +4,8 @@
 
 namespace swoosh {
 
+  class ActionList;
+
   /*
   Your standard ActionItem is non-blocking and seemingly runs concurrent with your other 
   non-blocking action items
@@ -12,7 +14,7 @@ namespace swoosh {
     friend class ActionList;
     friend class ClearPreviousActions;
     friend class ClearAllActions;
-    friend class ConditionalAction;
+    friend class ConditionalBranchListAction;
 
   protected:
     bool isBlocking;
@@ -49,7 +51,7 @@ namespace swoosh {
 
   class ClearPreviousActions;
   class ClearAllActions;
-  class ConditionalAction;
+  class ConditionalBranchListAction;
 
 
   /*
@@ -68,7 +70,7 @@ namespace swoosh {
   class ActionList {
     friend class ClearPreviousActions;
     friend class ClearAllActions;
-    friend class ConditionalAction;
+    friend class ConditionalBranchListAction;
   private:
     std::vector<ActionItem*> items;
     bool clearFlag;
