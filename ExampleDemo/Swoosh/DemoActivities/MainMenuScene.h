@@ -15,6 +15,7 @@
 #include <Segues\VerticalSlice.h>
 #include <Segues\HorizontalOpen.h>
 #include <Segues\VerticalOpen.h>
+#include <Segues\PixelateBlackWashFade.h>
 
 #include "DemoScene.h"
 #include "HiScoreScene.h"
@@ -143,7 +144,7 @@ public:
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<segue<PageTurn, sec<2>>::to<HiScoreScene>>(savefile);
+          getController().push<segue<PixelateBlackWashFade, sec<2>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
           getController().push<segue<VerticalOpen, sec<2>>::to<AboutScene>>();

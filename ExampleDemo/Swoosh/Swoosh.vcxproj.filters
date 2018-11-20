@@ -90,6 +90,9 @@
     <ClInclude Include="..\..\src\Segues\VerticalOpen.h">
       <Filter>Source Files\Demo\Segues</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Segues\PixelateBlackWashFade.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

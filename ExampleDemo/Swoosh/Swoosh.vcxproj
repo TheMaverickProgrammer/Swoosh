@@ -163,6 +163,7 @@
     <ClInclude Include="..\..\src\Segues\HorizontalOpen.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalSlice.h" />
     <ClInclude Include="..\..\src\Segues\PageTurn.h" />
+    <ClInclude Include="..\..\src\Segues\PixelateBlackWashFade.h" />
     <ClInclude Include="..\..\src\Segues\SlideIn.h" />
     <ClInclude Include="..\..\src\Segues\VerticalOpen.h" />
     <ClInclude Include="..\..\src\Segues\VerticalSlice.h" />
