@@ -9,7 +9,7 @@
 #include "ResourcePaths.h"
 #include "SaveFile.h"
 
-#include <Segues\SlideIn.h>
+#include <Segues\PushIn.h>
 #include <Segues\BlendFadeIn.h>
 
 #include <iostream>
@@ -112,7 +112,7 @@ public:
         selectFX.play();
 
         if (goback.text == "FIN") {
-          getController().queuePop<segue<SlideIn>>();
+          getController().queuePop<segue<PushIn<direction::left>>>();
         }
         else {
           goback.text = "FIN";

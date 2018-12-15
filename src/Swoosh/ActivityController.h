@@ -399,6 +399,10 @@ namespace swoosh {
   };
 
   namespace intent {
+    enum direction : int {
+      left, right, up, down, max
+    };
+
     template<int val = 0>
     struct seconds
     {

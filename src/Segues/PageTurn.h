@@ -23,55 +23,56 @@ With minor adjustment to the invisible cone's size, shape, and projection point;
 we can emulate a more realistic page turning segue.
 */
 
-auto TURN_PAGE_VERT_SHADER = GLSL
-(
-  110,
-  uniform float theta;
-uniform float rho;
-uniform float A;
+namespace {
+  auto TURN_PAGE_VERT_SHADER = GLSL
+  (
+    110,
+    uniform float theta;
+    uniform float rho;
+    uniform float A;
 
-void main()
-{
-  float Z, r, beta;
-  vec3  v1;
-  vec4  position = gl_Vertex;
+    void main()
+    {
+      float Z, r, beta;
+      vec3  v1;
+      vec4  position = gl_Vertex;
 
-  // Radius of the circle circumscribed by vertex (vi.x, vi.y) around A on the x-y plane
-  Z = sqrt(position.x * position.x + pow(position.y - A, 2.0));
-  // Now get the radius of the cone cross section intersected by our vertex in 3D space.
-  r = Z * sin(theta);
-  // Angle subtended by arc |ST| on the cone cross section.
-  beta = asin(position.x / Z) / sin(theta);
+      // Radius of the circle circumscribed by vertex (vi.x, vi.y) around A on the x-y plane
+      Z = sqrt(position.x * position.x + pow(position.y - A, 2.0));
+      // Now get the radius of the cone cross section intersected by our vertex in 3D space.
+      r = Z * sin(theta);
+      // Angle subtended by arc |ST| on the cone cross section.
+      beta = asin(position.x / Z) / sin(theta);
 
-  //project the vertex onto the cone
-  v1.x = r * sin(beta);
-  v1.y = Z + A - r * (1.0 - cos(beta)) * sin(theta);
-  v1.z = r * (1.0 - cos(beta)) * cos(theta);
+      //project the vertex onto the cone
+      v1.x = r * sin(beta);
+      v1.y = Z + A - r * (1.0 - cos(beta)) * sin(theta);
+      v1.z = r * (1.0 - cos(beta)) * cos(theta);
 
-  position.x = (v1.x * cos(rho) - v1.z * sin(rho));
-  position.y = v1.y;
-  position.z = (v1.x * sin(rho) + v1.z * cos(rho));
+      position.x = (v1.x * cos(rho) - v1.z * sin(rho));
+      position.y = v1.y;
+      position.z = (v1.x * sin(rho) + v1.z * cos(rho));
 
 
-  gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(position.xy, 0.0, 1.0);
+      gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(position.xy, 0.0, 1.0);
 
-  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-  gl_FrontColor = gl_Color;
+      gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+      gl_FrontColor = gl_Color;
+    }
+  );
+
+  auto TURN_PAGE_FRAG_SHADER = GLSL
+  (
+    110,
+    uniform sampler2D texture;
+
+    void main()
+    {
+      vec4 pixel = texture2D(texture, vec2(gl_TexCoord[0].x, gl_TexCoord[0].y));
+      gl_FragColor = gl_Color * pixel;
+    }
+  );
 }
-
-);
-
-auto TURN_PAGE_FRAG_SHADER = GLSL
-(
-  110,
-  uniform sampler2D texture;
-
-void main()
-{
-  vec4 pixel = texture2D(texture, vec2(gl_TexCoord[0].x, gl_TexCoord[0].y));
-  gl_FragColor = gl_Color * pixel;
-}
-);
 
 class PageTurn : public Segue {
 private:
@@ -207,7 +208,7 @@ public:
   PageTurn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */
     temp = nullptr;
-    shader.loadFromMemory(TURN_PAGE_VERT_SHADER, TURN_PAGE_FRAG_SHADER);
+    shader.loadFromMemory(::TURN_PAGE_VERT_SHADER, ::TURN_PAGE_FRAG_SHADER);
     auto size = getController().getWindow().getView().getSize();
     triangleStripulate(size.x, size.y, paper, 10);
   }

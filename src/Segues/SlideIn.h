@@ -4,12 +4,13 @@
 
 using namespace swoosh;
 
+template<int direction>
 class SlideIn : public Segue {
 private:
   sf::Texture* temp;
-  int direction = 0;
 
 public:
+
   virtual void onDraw(sf::RenderTexture& surface) {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
@@ -28,11 +29,9 @@ public:
     int ud = 0;
 
     if (direction == 0) lr = -1;
-    if (direction == 1) ud = -1;
-    if (direction == 2) lr = 1;
+    if (direction == 1) lr = 1;
+    if (direction == 2) ud = -1;
     if (direction == 3) ud = 1;
-
-    left.setPosition(lr * alpha * left.getTexture()->getSize().x, ud * alpha * left.getTexture()->getSize().y);
 
     surface.clear();
 
@@ -53,7 +52,6 @@ public:
   SlideIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) { 
     /* ... */ 
     temp = nullptr;
-    direction = rand() % 4; // Choose a random direction
   }
 
   virtual ~SlideIn() { ; }

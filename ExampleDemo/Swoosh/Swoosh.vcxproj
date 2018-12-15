@@ -158,13 +158,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\Segues\BlackWashFade.h" />
     <ClInclude Include="..\..\src\Segues\BlendFadeIn.h" />
+    <ClInclude Include="..\..\src\Segues\BlurFadeIn.h" />
     <ClInclude Include="..\..\src\Segues\Checkerboard.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalOpen.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalSlice.h" />
     <ClInclude Include="..\..\src\Segues\PageTurn.h" />
     <ClInclude Include="..\..\src\Segues\PixelateBlackWashFade.h" />
+    <ClInclude Include="..\..\src\Segues\PushIn.h" />
     <ClInclude Include="..\..\src\Segues\SlideIn.h" />
+    <ClInclude Include="..\..\src\Segues\SwipeIn.h" />
     <ClInclude Include="..\..\src\Segues\VerticalOpen.h" />
     <ClInclude Include="..\..\src\Segues\VerticalSlice.h" />
     <ClInclude Include="..\..\src\Segues\WhiteWashFade.h" />

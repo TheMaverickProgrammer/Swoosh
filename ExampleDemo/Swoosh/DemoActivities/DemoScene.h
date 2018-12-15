@@ -247,7 +247,7 @@ public:
         e.sprite.setRotation(90.0f + angle);
         e.sprite.setPosition(e.pos);
 
-        sf::Vector2f dir = direction<float>(player.pos, e.pos);
+        sf::Vector2f dir = directionTo<float>(player.pos, e.pos);
         sf::Vector2f delta;
         delta.x = dir.x * 2.0f;
         delta.y = dir.y * 2.0f;
@@ -318,7 +318,7 @@ public:
     player.sprite.setRotation(90.0 + angle);
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
-      sf::Vector2f dir = direction<float>(mousepos, player.pos);
+      sf::Vector2f dir = directionTo<float>(mousepos, player.pos);
       sf::Vector2f delta = player.speed;
       delta.x += dir.x * 30 * elapsed;
       delta.y += dir.y * 30 * elapsed;
@@ -363,7 +363,7 @@ public:
         laser.sprite.setRotation(90.0f + angle);
         laser.sprite.setPosition(laser.pos);
 
-        sf::Vector2f dir = direction<float>(mousepos, laser.pos);
+        sf::Vector2f dir = directionTo<float>(mousepos, laser.pos);
         sf::Vector2f delta;
         delta.x = dir.x * 500.0f;
         delta.y = dir.y * 500.0f;

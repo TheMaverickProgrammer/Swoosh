@@ -5,26 +5,28 @@
 
 using namespace swoosh;
 
-auto CHECKERBOARD_FRAG_SHADER = GLSL 
-(
-  110,
-  uniform sampler2D texture;
-  uniform sampler2D pattern;
-  uniform float progress;
+namespace {
+  auto CHECKERBOARD_FRAG_SHADER = GLSL
+  (
+    110,
+    uniform sampler2D texture;
+    uniform sampler2D pattern;
+    uniform float progress;
 
-  void main()
-  {
-    vec4 pixel = texture2D(texture, vec2(gl_TexCoord[0].xy));
-    vec4 transition = texture2D(pattern, vec2(gl_TexCoord[0].xy));
-    vec4 color = gl_Color * pixel;
+    void main()
+    {
+      vec4 pixel = texture2D(texture, vec2(gl_TexCoord[0].xy));
+      vec4 transition = texture2D(pattern, vec2(gl_TexCoord[0].xy));
+      vec4 color = gl_Color * pixel;
 
-    if (progress >= transition.g) {
-      color = vec4(1, 1, 1, 0);
+      if (progress >= transition.g) {
+        color = vec4(1, 1, 1, 0);
+      }
+
+      gl_FragColor = color;
     }
-
-    gl_FragColor = color;
-  }
-);
+   );
+}
 
 class Checkerboard : public Segue {
 private:
@@ -99,7 +101,7 @@ public:
     buffer.create(checkerboard_raw_32bit_rgba.width, checkerboard_raw_32bit_rgba.height, checkerboard_raw_32bit_rgba.pixel_data);
     pattern.loadFromImage(buffer);
 
-    shader.loadFromMemory(CHECKERBOARD_FRAG_SHADER, sf::Shader::Fragment);
+    shader.loadFromMemory(::CHECKERBOARD_FRAG_SHADER, sf::Shader::Fragment);
     shader.setUniform("texture", sf::Shader::CurrentTexture);
     shader.setUniform("pattern", pattern);
   }

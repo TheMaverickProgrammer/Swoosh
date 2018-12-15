@@ -93,6 +93,18 @@
     <ClInclude Include="..\..\src\Segues\PixelateBlackWashFade.h">
       <Filter>Source Files\Demo\Segues</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Segues\BlurFadeIn.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\BlackWashFade.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\PushIn.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\SwipeIn.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

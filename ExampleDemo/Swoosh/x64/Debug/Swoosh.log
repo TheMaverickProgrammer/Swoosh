@@ -19,15 +19,8 @@ c:\users\bountyhunter\code\swoosh\src\segues\whitewashfade.h(20): warning C4244:
               T=float
           ]
 c:\users\bountyhunter\code\swoosh\src\segues\whitewashfade.h(21): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
-c:\users\bountyhunter\code\swoosh\src\segues\slidein.h(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\src\segues\slidein.h(44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 c:\users\bountyhunter\code\swoosh\src\segues\blendfadein.h(34): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
 c:\users\bountyhunter\code\swoosh\src\segues\blendfadein.h(35): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
-c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(103): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
 c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(104): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
@@ -43,10 +36,15 @@ c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(106): warning C4244: 'ar
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(165): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(155): warning C4101: 'f2': unreferenced local variable
-c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(155): warning C4101: 'f1': unreferenced local variable
-c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(212): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(107): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(166): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(156): warning C4101: 'f2': unreferenced local variable
+c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(156): warning C4101: 'f1': unreferenced local variable
+c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(213): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
@@ -86,7 +84,7 @@ c:\users\bountyhunter\code\swoosh\src\segues\verticalopen.h(30): warning C4244: 
               T=int
           ]
 c:\users\bountyhunter\code\swoosh\src\segues\verticalopen.h(31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\src\segues\pixelateblackwashfade.h(56): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\src\segues\pixelateblackwashfade.h(58): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
@@ -95,7 +93,7 @@ c:\users\bountyhunter\code\swoosh\src\segues\pixelateblackwashfade.h(56): warnin
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\src\segues\pixelateblackwashfade.h(57): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\src\segues\pixelateblackwashfade.h(59): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(149): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
@@ -236,16 +234,16 @@ c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\aboutscene.h
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\aboutscene.h(79): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\aboutscene.h(104): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\aboutscene.h(105): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(84): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(115): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(121): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(86): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(117): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(123): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(124): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(125): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(196): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(126): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(127): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(198): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
@@ -254,13 +252,13 @@ c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscen
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(197): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(199): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(219): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(250): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(221): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(252): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
@@ -270,9 +268,33 @@ c:\users\bountyhunter\code\swoosh\src\swoosh\ease.h(8): warning C4244: 'return':
           [
               T=float
           ]
-  c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(141): note: see reference to function template instantiation 'T swoosh::ease::radians<float>(T)' being compiled
+  c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(142): note: see reference to function template instantiation 'T swoosh::ease::radians<float>(T)' being compiled
           with
           [
               T=float
           ]
+c:\users\bountyhunter\code\swoosh\src\segues\pushin.h(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  c:\users\bountyhunter\code\swoosh\src\segues\pushin.h(14): note: while compiling class template member function 'void PushIn<0>::onDraw(sf::RenderTexture &)'
+  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(78): note: see reference to class template instantiation 'PushIn<0>' being compiled
+  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(71): note: while compiling class template member function 'void swoosh::ActivityController::segue<PushIn<0>,swoosh::intent::seconds<1>>::delegateActivityPop(swoosh::ActivityController &)'
+  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(227): note: see reference to function template instantiation 'void swoosh::ActivityController::segue<PushIn<0>,swoosh::intent::seconds<1>>::delegateActivityPop(swoosh::ActivityController &)' being compiled
+  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(226): note: see reference to class template instantiation 'swoosh::ActivityController::segue<PushIn<0>,swoosh::intent::seconds<1>>' being compiled
+  c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\aboutscene.h(115): note: see reference to function template instantiation 'const bool swoosh::ActivityController::queuePop<swoosh::ActivityController::segue<PushIn<0>,swoosh::intent::seconds<1>>>(void)' being compiled
+c:\users\bountyhunter\code\swoosh\src\segues\pushin.h(45): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\src\segues\slidein.h(43): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  c:\users\bountyhunter\code\swoosh\src\segues\slidein.h(14): note: while compiling class template member function 'void SlideIn<0>::onDraw(sf::RenderTexture &)'
+  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(109): note: see reference to class template instantiation 'SlideIn<0>' being compiled
+  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(258): note: see reference to function template instantiation 'bool swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>::delegateActivityRewind<>(swoosh::ActivityController &)' being compiled
+  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(262): note: see reference to function template instantiation 'bool swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>::delegateActivityRewind<>(swoosh::ActivityController &)' being compiled
+  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(304): note: see reference to function template instantiation 'swoosh::ActivityController::ResolveRewindSegueIntent<T,false>::ResolveRewindSegueIntent<>(swoosh::ActivityController &)' being compiled
+          with
+          [
+              T=swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>
+          ]
+  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(305): note: see reference to function template instantiation 'swoosh::ActivityController::ResolveRewindSegueIntent<T,false>::ResolveRewindSegueIntent<>(swoosh::ActivityController &)' being compiled
+          with
+          [
+              T=swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>
+          ]
+  c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\hiscorescene.h(95): note: see reference to function template instantiation 'bool swoosh::ActivityController::queueRewind<swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>,>(void)' being compiled
   Swoosh.vcxproj -> C:\Users\Bountyhunter\Code\Swoosh\ExampleDemo\x64\Debug\Swoosh.exe

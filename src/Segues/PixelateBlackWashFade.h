@@ -5,19 +5,21 @@
 
 using namespace swoosh;
 
-auto PIXELATE_SHADER = GLSL
-(
-  110,
-  uniform sampler2D texture;
-  uniform float pixel_threshold;
+namespace {
+  auto PIXELATE_SHADER = GLSL
+  (
+    110,
+    uniform sampler2D texture;
+    uniform float pixel_threshold;
 
-  void main()
-  {
-    float factor = 1.0 / (pixel_threshold + 0.001);
-    vec2 pos = floor(gl_TexCoord[0].xy * factor + 0.5) / factor;
-    gl_FragColor = texture2D(texture, pos) * gl_Color;
-  }
-);
+    void main()
+    {
+      float factor = 1.0 / (pixel_threshold + 0.001);
+      vec2 pos = floor(gl_TexCoord[0].xy * factor + 0.5) / factor;
+      gl_FragColor = texture2D(texture, pos) * gl_Color;
+    }
+  );
+}
 
 class PixelateBlackWashFade : public Segue {
 private:
@@ -60,7 +62,7 @@ public:
   }
 
   PixelateBlackWashFade(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
-    shader.loadFromMemory(PIXELATE_SHADER, sf::Shader::Fragment);
+    shader.loadFromMemory(::PIXELATE_SHADER, sf::Shader::Fragment);
   }
 
   virtual ~PixelateBlackWashFade() { ; }

@@ -42,7 +42,7 @@ namespace swoosh {
     }
 
     template<typename T, typename U, typename V>
-    static sf::Vector2<T> direction(U target, V dest) {
+    static sf::Vector2<T> directionTo(U target, V dest) {
       T x = T(target.x - dest.x);
       T y = T(target.y - dest.y);
       sf::Vector2<T> val = normalize(sf::Vector2<T>( x, y ));
