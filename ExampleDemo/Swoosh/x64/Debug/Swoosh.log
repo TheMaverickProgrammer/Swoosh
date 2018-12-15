@@ -94,6 +94,8 @@ c:\users\bountyhunter\code\swoosh\src\segues\pixelateblackwashfade.h(58): warnin
               T=float
           ]
 c:\users\bountyhunter\code\swoosh\src\segues\pixelateblackwashfade.h(59): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\src\segues\blurfadein.h(133): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\swoosh\src\segues\blurfadein.h(134): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
 c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\demoscene.h(149): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
