@@ -75,7 +75,7 @@ controller.push<MainMenuScene>();
 
 // User selects settings
 using intent::segue;
-controller.push<segue<SlideInLeft>::to<AppSettingsScene>>();
+controller.push<segue<SlideIn<direction::left>::to<AppSettingsScene>>();
 ```
 
 The syntax is human readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: writing the application!
@@ -130,7 +130,7 @@ safe to do for _pop_. Instead, the function `queuePop()` is supplied, signalling
 
 ```
 controller.queuePop(); 
-controller.queuePop<segue<SlideIn>>();
+controller.queuePop<segue<BlurFadeIn>>();
 ```
 
 ## Rewinding
@@ -143,7 +143,7 @@ This is useful to simulate persistent behavior such as in a top-down adventure g
 The syntax is close to _push_ except if it succeeds, activities are ended and discarded.
 
 ```c++
-bool found = controller.queueRewind<segue<SlideIn>::to<LOZOverworld>>();
+bool found = controller.queueRewind<segue<BlackWashFadeIn>::to<LOZOverworld>>();
 
 if(!found) {
     // Perhaps we're already in overworld. Certain teleport items cannot be used!
