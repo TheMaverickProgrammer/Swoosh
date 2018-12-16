@@ -24,7 +24,7 @@ namespace swoosh {
 
       T exponential = x;
 
-      for (int i = 0; i < power; i++) {
+      for (int i = 1; i < power; i++) {
         exponential *= exponential;
       }
 
@@ -69,7 +69,7 @@ namespace swoosh {
       T poly = (x*x) - (2 * x) + 1;
       T exponential = poly;
 
-      for (int i = 0; i < power; i++) {
+      for (int i = 1; i < power; i++) {
         exponential *= exponential;
       }
 

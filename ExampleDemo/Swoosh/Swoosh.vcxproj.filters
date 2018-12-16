@@ -105,6 +105,12 @@
     <ClInclude Include="..\..\src\Segues\SwipeIn.h">
       <Filter>Source Files\Demo\Segues</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Segues\DiamondTileSwipe.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\DiamondTileCircle.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

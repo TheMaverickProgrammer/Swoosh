@@ -162,6 +162,8 @@
     <ClInclude Include="..\..\src\Segues\BlendFadeIn.h" />
     <ClInclude Include="..\..\src\Segues\BlurFadeIn.h" />
     <ClInclude Include="..\..\src\Segues\Checkerboard.h" />
+    <ClInclude Include="..\..\src\Segues\DiamondTileCircle.h" />
+    <ClInclude Include="..\..\src\Segues\DiamondTileSwipe.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalOpen.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalSlice.h" />
     <ClInclude Include="..\..\src\Segues\PageTurn.h" />
