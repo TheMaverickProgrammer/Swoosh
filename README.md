@@ -2,9 +2,10 @@
 Header-only SFML Activity and Segue Mini Library
 
 # Updates
-12/14/2018
+12/16/2018
 
 * New segues -> BlurFadeIn for a simple camera blur effect into the next scene! [Check it out](https://streamable.com/dq028)!
+* New segues -> CaveStory effects! DiamondTileSwipe (directional) and DiamondTileCircle. [Check it out](https://streamable.com/dtgwi)!
 * SlideIn -> renamed to PushIn. 
 * Added new SlideIn segue. Slides on top off the old scene!
 * Added new SwipeIn segue. Rolls out on top of the old scene!
