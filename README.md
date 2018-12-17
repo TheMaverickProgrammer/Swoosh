@@ -1,3 +1,4 @@
+![logo](https://i.imgur.com/tri24Y5.png)
 # Swoosh
 Header-only SFML Activity and Segue Mini Library
 
