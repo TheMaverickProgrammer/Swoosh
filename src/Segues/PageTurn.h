@@ -138,35 +138,31 @@ public:
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
 
-    // radius of cone
-    float angle1 = ease::radians(300.0f);
-    float angle2 = ease::radians(-300.0f);
-    float angle3 = ease::radians(0.0f);
+    // page turn
+    float angle1 = ease::radians(90.0f);
+    float angle2 = ease::radians(4.0f);
+    float angle3 = ease::radians(4.0f);
 
     // length of cone
-    float     A1 = 0.0;
-    float     A2 = 0.5f;
-    float     A3 = 100.5f;
+    float     A1 = -15.0f;
+    float     A2 = 0.0f;
+    float     A3 = 0.5f;
 
-    // coef
-    float theta1 = 10.0f;
-    float theta2 = 10.5f;
-    float theta3 = 80.0f;
+    // curl amount
+    float theta1 = 10.5f;
+    float theta2 = 15.0f;
+    float theta3 = 10.01f;
 
     float f1, f2, dt;
-    double theta = 0.f;
+    double theta = 90.f;
     double A = 0.0f;
 
-    double rho = alpha * ease::pi;
+    double rho = alpha * (ease::pi*0.5);
 
-    if (alpha <= 1.0)
-    {
-      // Produce the most pronounced curling near the middle of the turn. Here small values of theta and A
-      // result in a short, fat cone that distinctly show the curl effect.
-      dt = alpha;
-      theta = ease::interpolate(dt, angle1, angle3);
-      A = ease::interpolate(dt, A1, A3);
-    }
+    dt = alpha;
+    theta = ease::interpolate(dt, angle1, angle2);
+    A = ease::interpolate(dt, A1, A2);
+
 
     this->drawLastActivity(surface);
 

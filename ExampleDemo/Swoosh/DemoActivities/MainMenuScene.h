@@ -104,7 +104,7 @@ public:
     // Load sounds
     buffer.loadFromFile(SHIELD_UP_SFX_PATH);
     selectFX.setBuffer(buffer);
-    themeMusic.openFromFile(THEME_MUSIC_PATH);
+    themeMusic.openFromFile(INGAME_MUSIC_PATH);
 
     timer.reset();
   }
@@ -148,7 +148,7 @@ public:
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<segue<DiamondTileSwipe<direction::left>, sec<4>>::to<HiScoreScene>>(savefile);
+          getController().push<segue<PageTurn, sec<4>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
           getController().push<segue<VerticalOpen, sec<2>>::to<AboutScene>>();

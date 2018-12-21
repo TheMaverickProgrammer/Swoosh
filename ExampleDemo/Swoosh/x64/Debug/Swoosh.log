@@ -41,10 +41,10 @@ c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(107): warning C4244: 'ar
           [
               T=float
           ]
-c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(166): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(162): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(156): warning C4101: 'f2': unreferenced local variable
 c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(156): warning C4101: 'f1': unreferenced local variable
-c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(213): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(209): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
@@ -283,20 +283,4 @@ c:\users\bountyhunter\code\swoosh\src\segues\pushin.h(36): warning C4244: 'argum
   c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(226): note: see reference to class template instantiation 'swoosh::ActivityController::segue<PushIn<0>,swoosh::intent::seconds<1>>' being compiled
   c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\aboutscene.h(115): note: see reference to function template instantiation 'const bool swoosh::ActivityController::queuePop<swoosh::ActivityController::segue<PushIn<0>,swoosh::intent::seconds<1>>>(void)' being compiled
 c:\users\bountyhunter\code\swoosh\src\segues\pushin.h(45): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\swoosh\src\segues\slidein.h(43): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  c:\users\bountyhunter\code\swoosh\src\segues\slidein.h(14): note: while compiling class template member function 'void SlideIn<0>::onDraw(sf::RenderTexture &)'
-  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(109): note: see reference to class template instantiation 'SlideIn<0>' being compiled
-  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(258): note: see reference to function template instantiation 'bool swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>::delegateActivityRewind<>(swoosh::ActivityController &)' being compiled
-  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(262): note: see reference to function template instantiation 'bool swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>::delegateActivityRewind<>(swoosh::ActivityController &)' being compiled
-  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(304): note: see reference to function template instantiation 'swoosh::ActivityController::ResolveRewindSegueIntent<T,false>::ResolveRewindSegueIntent<>(swoosh::ActivityController &)' being compiled
-          with
-          [
-              T=swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>
-          ]
-  c:\users\bountyhunter\code\swoosh\src\swoosh\activitycontroller.h(305): note: see reference to function template instantiation 'swoosh::ActivityController::ResolveRewindSegueIntent<T,false>::ResolveRewindSegueIntent<>(swoosh::ActivityController &)' being compiled
-          with
-          [
-              T=swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>
-          ]
-  c:\users\bountyhunter\code\swoosh\exampledemo\swoosh\demoactivities\hiscorescene.h(95): note: see reference to function template instantiation 'bool swoosh::ActivityController::queueRewind<swoosh::ActivityController::segue<SlideIn<0>,swoosh::intent::seconds<1>>::to<MainMenuScene>,>(void)' being compiled
   Swoosh.vcxproj -> C:\Users\Bountyhunter\Code\Swoosh\ExampleDemo\x64\Debug\Swoosh.exe
