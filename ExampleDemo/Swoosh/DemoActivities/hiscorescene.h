@@ -171,6 +171,11 @@ public:
   virtual void onDraw(sf::RenderTexture& surface) {
     sf::RenderWindow& window = getController().getWindow();
 
+    sf::RectangleShape black;
+    black.setSize(sf::Vector2f(surface.getTexture().getSize().x, surface.getTexture().getSize().y));
+    black.setFillColor(sf::Color::Black);
+    surface.draw(black);
+
     for (auto& m : meteors) {
       surface.draw(m.sprite);
     }

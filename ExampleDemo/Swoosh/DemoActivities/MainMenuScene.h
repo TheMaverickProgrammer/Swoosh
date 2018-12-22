@@ -20,6 +20,8 @@
 #include <Segues\SwipeIn.h>
 #include <Segues\DiamondTileSwipe.h>
 #include <Segues\DiamondTileCircle.h>
+#include <Segues\CircleOpen.h>
+#include <Segues\CircleClose.h>
 
 #include "DemoScene.h"
 #include "HiScoreScene.h"
@@ -148,7 +150,7 @@ public:
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<segue<PageTurn, sec<4>>::to<HiScoreScene>>(savefile);
+          getController().push<segue<CircleClose, sec<2>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
           getController().push<segue<VerticalOpen, sec<2>>::to<AboutScene>>();
