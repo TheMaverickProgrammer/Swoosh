@@ -2,7 +2,14 @@
 # Swoosh
 Header-only SFML Activity and Segue Mini Library
 
+## Get Jump Started
+See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
+
+See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
+
 # Updates
+![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
+
 12/16/2018
 
 * New segues -> BlurFadeIn for a simple camera blur effect into the next scene! [Check it out](https://streamable.com/dq028)!
@@ -52,11 +59,6 @@ See the pokemon demo using just swoosh!
 Clone this repo. Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
 
 Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/Demo.cpp)
-
-## Get Jump Started
-See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
-
-See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
 # Philosophy 
 When creating polished applications it should not be a concern to the user how to handle the memory for a scene or video game level. 
