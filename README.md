@@ -10,30 +10,6 @@ See all the effects and more that comes with the library on the [wiki](https://g
 # Updates
 ![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
 
-12/16/2018
-
-* New segues -> BlurFadeIn for a simple camera blur effect into the next scene! [Check it out](https://streamable.com/dq028)!
-* New segues -> CaveStory effects! DiamondTileSwipe (directional) and DiamondTileCircle. [Check it out](https://streamable.com/dtgwi)!
-* SlideIn -> renamed to PushIn. 
-* Added new SlideIn segue. Slides on top off the old scene!
-* Added new SwipeIn segue. Rolls out on top of the old scene!
-* Added `intent::direction` enum can be `left, right, up, down` and used in segues that require direction input 
-   * aka `push<segue<SwipeIn<direction::left>>::to<DemoScene>>();`
-* Some cleanup 
-
-11/11/2018
-
-* New segues. 
-* Added ability to set an activity's view using `setView()` so that segues can look right with different views in two scenes.
-* New classes `swoosh::ActionList` and `swoosh::ActionItem` types. Control your busy scenes with even more polish with action lists!
-* New pokemon proof of concept demo! [Check it out](https://github.com/TheMaverickProgrammer/PokemonHeartGold-Swoosh)!
-
-10/31/2018
-
-* New segues are available. You can directly copy them from the `src/Segues` folder.
-* Textures and GLSL are embedded into the header files. Swoosh is truly 100% header-only now. 
-* New wiki page to detail how to change the embedded textures used in some Segue post processing
-
 10/29/2018
 * first made available to the public
 
