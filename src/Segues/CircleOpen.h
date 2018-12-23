@@ -10,16 +10,28 @@ namespace {
     110,
     uniform sampler2D texture;
     uniform sampler2D texture2;
+    uniform float ratio;
     uniform float time;
 
     void main() {
       vec2 pos = vec2(gl_TexCoord[0].x, gl_TexCoord[0].y);
 
       float size = time;
+
       vec4 outcol = texture2D(texture2, gl_TexCoord[0].xy);
 
-      if (pow(pos.x-0.5, 2.0)+pow(pos.y-0.5, 2.0) < size*size) {
-          outcol = texture2D(texture, gl_TexCoord[0].xy);
+      float x = pos.x - 0.5;
+      float y = pos.y - 0.5;
+
+      if (ratio >= 1.0) {
+        x *= ratio;
+      }
+      else {
+        y *= 1.0 / ratio;
+      }
+
+      if (x*x + y * y < size*size) {
+        outcol = texture2D(texture, gl_TexCoord[0].xy);
       }
 
       gl_FragColor = outcol;
@@ -54,6 +66,10 @@ public:
 
     sf::Texture* temp2 = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
 
+    sf::Vector2u size = getController().getWindow().getSize();
+    float aspectRatio = (float)size.x / (float)size.y;
+
+    shader.setUniform("ratio", aspectRatio);
     shader.setUniform("texture2", *temp2);
     shader.setUniform("texture", *temp);
     shader.setUniform("time", (float)alpha);

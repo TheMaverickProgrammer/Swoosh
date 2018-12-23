@@ -150,7 +150,7 @@ public:
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<segue<CircleClose, sec<2>>::to<HiScoreScene>>(savefile);
+          getController().push<segue<CircleOpen, sec<2>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
           getController().push<segue<VerticalOpen, sec<2>>::to<AboutScene>>();
@@ -199,7 +199,7 @@ public:
 
       particle p;
       p.sprite = sf::Sprite(*starTexture);
-      p.pos = sf::Vector2f(rand() % getController().getWindow().getSize().x, getController().getWindow().getSize().y);
+      p.pos = sf::Vector2f(rand() % getController().getInitialWindowSize().x, getController().getInitialWindowSize().y);
       p.speed = sf::Vector2f(randSpeedX, -randSpeedY);
       p.friction = sf::Vector2f(0.99999f, 0.9999f);
       p.life = 3.0;
