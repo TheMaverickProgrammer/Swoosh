@@ -10,6 +10,7 @@
 #include "SaveFile.h"
 
 #include <Segues\SlideIn.h>
+#include <Segues\CircleOpen.h>
 
 #include <iostream>
 
@@ -92,7 +93,7 @@ public:
       selectFX.play();
 
       // Rewind lets us pop back to a particular scene in our stack history 
-      bool found = getController().queueRewind<segue<ZoomIn, sec<1>>::to<MainMenuScene>>();
+      bool found = getController().queueRewind<segue<CircleOpen, sec<1>>::to<MainMenuScene>>();
 
       // should never happen
       // but your games may need to check so here it is an example

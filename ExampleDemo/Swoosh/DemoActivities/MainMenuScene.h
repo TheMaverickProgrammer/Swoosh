@@ -22,6 +22,9 @@
 #include <Segues\DiamondTileCircle.h>
 #include <Segues\CircleOpen.h>
 #include <Segues\CircleClose.h>
+#include <Segues\Morph.h>
+#include <Segues\RadialCCW.h>
+#include <Segues\Cube3D.h>
 
 #include "DemoScene.h"
 #include "HiScoreScene.h"
@@ -146,11 +149,11 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<segue<DiamondTileCircle, sec<4>>::to<DemoScene>>(savefile);
+          getController().push<segue<RadialCCW, sec<4>>::to<DemoScene>>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<segue<CircleOpen, sec<2>>::to<HiScoreScene>>(savefile);
+          getController().push<segue<Cube3D<direction::up>, sec<2>>::to<HiScoreScene>>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
           getController().push<segue<VerticalOpen, sec<2>>::to<AboutScene>>();

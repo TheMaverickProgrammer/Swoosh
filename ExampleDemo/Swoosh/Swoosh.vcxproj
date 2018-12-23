@@ -168,9 +168,11 @@
     <ClInclude Include="..\..\src\Segues\DiamondTileSwipe.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalOpen.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalSlice.h" />
+    <ClInclude Include="..\..\src\Segues\Morph.h" />
     <ClInclude Include="..\..\src\Segues\PageTurn.h" />
     <ClInclude Include="..\..\src\Segues\PixelateBlackWashFade.h" />
     <ClInclude Include="..\..\src\Segues\PushIn.h" />
+    <ClInclude Include="..\..\src\Segues\RadialCCW.h" />
     <ClInclude Include="..\..\src\Segues\SlideIn.h" />
     <ClInclude Include="..\..\src\Segues\SwipeIn.h" />
     <ClInclude Include="..\..\src\Segues\VerticalOpen.h" />

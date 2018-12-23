@@ -117,6 +117,12 @@
     <ClInclude Include="..\..\src\Segues\CircleOpen.h">
       <Filter>Source Files\Demo\Segues</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Segues\Morph.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\RadialCCW.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
