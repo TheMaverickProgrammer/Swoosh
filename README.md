@@ -3,20 +3,15 @@
 Header-only SFML Activity and Segue Mini Library
 
 ## Get Jump Started
-See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
-
 See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
+
+See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
 
 # Updates
 ![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
 
-10/29/2018
-* first made available to the public
-
 # Technology
-SFML 2.5
-
-C++14
+SFML 2.5, C++14, GLSL 1.10
 
 ## Optional
 Includes visual studio project but not needed. Source code will work on other operating systems as long as it has C++14 support. You will need to provide your own build scripts to run the project. Swoosh header files require _zero_ building.
@@ -55,7 +50,7 @@ controller.push<MainMenuScene>();
 
 // User selects settings
 using intent::segue;
-controller.push<segue<SlideIn<direction::left>::to<AppSettingsScene>>();
+controller.push<segue<BlendFadeIn>::to<AppSettingsScene>>();
 ```
 
 The syntax is human readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: writing the application!
@@ -68,9 +63,25 @@ For example
 
 ```c++
 using namespace swoosh::intent;
-controller.push<zegue<FadeIn, seconds<5>>::to<DramaticIntroScene>>();
+controller.push<segue<Cube3D<direction::left>, seconds<5>>::to<DramaticIntroScene>>();
 ```
 
+## Writing clearer intents
+The last example had a segue that required directional input and the syntax was longer than we'd like. 
+Although Swoosh is doing a ton behind the scenes for us, we lost some clarity.
+
+We can clean up the intent by creating our own segue typename. 
+
+```c++
+using segue = segue<Cube3D<direction::up>, sec<2>>;
+using intent = segue::to<DramaticIntroScene>;
+
+getController().push<intent>();
+```
+
+Much more elegant!
+
+## Shorter time wrappers - less typing!
 There are 3 wrappers and each have a shorthand alias
 
 `.......seconds<int val>` -> `sec<int val>`
