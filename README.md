@@ -66,14 +66,14 @@ using namespace swoosh::intent;
 controller.push<segue<Cube3D<direction::left>, seconds<5>>::to<DramaticIntroScene>>();
 ```
 
-## Writing clearer intents
+## Writing Clearer Intents
 The last example had a segue that required directional input and the syntax was longer than we'd like. 
 Although Swoosh is doing a ton behind the scenes for us, we lost some clarity.
 
 We can clean up the intent by creating our own segue typename. 
 
 ```c++
-using segue = segue<Cube3D<direction::up>, sec<2>>;
+using segue  = segue<Cube3D<direction::up>, sec<2>>;
 using intent = segue::to<DramaticIntroScene>;
 
 getController().push<intent>();
@@ -81,7 +81,7 @@ getController().push<intent>();
 
 Much more elegant!
 
-## Shorter time wrappers - less typing!
+## Less Typing!
 There are 3 wrappers and each have a shorthand alias
 
 `.......seconds<int val>` -> `sec<int val>`
@@ -94,15 +94,25 @@ There are 3 wrappers and each have a shorthand alias
 Your activity classes may be dependant on external information like loading your game from a save file or displaying important business data exported from another screen. 
 
 ```c++
-SaveInfo = info = LoadSaveFile(selectedProfile);
+SaveInfo info = LoadSaveFile(selectedProfile);
+
+// Pass on specific data the level wants from the save file
 controller.push<SuperJumpManLevel1>({info.getLives(), info.getCoins(), info.getMapData()});
 ```
 
 This is the same for segues
 
 ```c++
+ActivityController& controller = getController();
+
+// write clear intents
+using segue  = segue<CheckerboardEffect, sec<3>>;
+using intent = segue::to<MatchMakingLobby>;
+
 FinancialInfo* data = loadFinancialResult(calender.getDate());
-controller.push<segue<CheckerboardEffect, sec<3>>::to<FinancialReport>>(data);
+
+// Go!
+controller.push<intent>(data);
 ```
 
 # Leaving Activities
