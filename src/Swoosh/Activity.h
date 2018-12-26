@@ -1,6 +1,5 @@
 #pragma once
 #include <SFML\Graphics.hpp>
-#include "ActivityController.h"
 
 namespace swoosh {
   class Activity {

@@ -4,7 +4,9 @@
 // #include <Swoosh\ActionList.h>
 #include <SFML\Graphics.hpp>
 #include <SFML\Audio.hpp>
-
+#include <Segues\CrossZoom.h>
+#include <Segues\ZoomFadeIn.h>
+#include <Segues\Checkerboard.h>
 #include <Segues\WhiteWashFade.h>
 #include <Segues\SlideIn.h>
 #include <Segues\BlendFadeIn.h>
@@ -109,7 +111,7 @@ public:
     // Load sounds
     buffer.loadFromFile(SHIELD_UP_SFX_PATH);
     selectFX.setBuffer(buffer);
-    themeMusic.openFromFile(INGAME_MUSIC_PATH);
+    //themeMusic.openFromFile(INGAME_MUSIC_PATH);
 
     timer.reset();
   }
@@ -149,14 +151,17 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<segue<RadialCCW, sec<4>>::to<DemoScene>>(savefile);
+          getController().push<segue<Cube3D<direction::up>, sec<4>>::to<DemoScene>>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          getController().push<segue<Cube3D<direction::up>, sec<2>>::to<HiScoreScene>>(savefile);
+          using segue = segue<CrossZoom, sec<2>>;
+          using intent = segue::to<HiScoreScene>;
+
+          getController().push<intent>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
-          getController().push<segue<VerticalOpen, sec<2>>::to<AboutScene>>();
+          getController().push<segue<Cube3D<direction::left>, sec<2>>::to<AboutScene>>();
         }
       }
     }

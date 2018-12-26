@@ -11,6 +11,7 @@
 
 #include <Segues\PushIn.h>
 #include <Segues\BlendFadeIn.h>
+#include <Segues\Cube3D.h>
 
 #include <iostream>
 
@@ -112,7 +113,7 @@ public:
         selectFX.play();
 
         if (goback.text == "FIN") {
-          getController().queuePop<segue<PushIn<direction::left>>>();
+          getController().queuePop<segue<Cube3D<direction::right>, sec<5>>>();
         }
         else {
           goback.text = "FIN";
