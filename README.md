@@ -2,38 +2,16 @@
 # Swoosh
 Header-only SFML Activity and Segue Mini Library
 
+## Get Jump Started
+See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
+
+See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
+
 # Updates
-12/16/2018
-
-* New segues -> BlurFadeIn for a simple camera blur effect into the next scene! [Check it out](https://streamable.com/dq028)!
-* New segues -> CaveStory effects! DiamondTileSwipe (directional) and DiamondTileCircle. [Check it out](https://streamable.com/dtgwi)!
-* SlideIn -> renamed to PushIn. 
-* Added new SlideIn segue. Slides on top off the old scene!
-* Added new SwipeIn segue. Rolls out on top of the old scene!
-* Added `intent::direction` enum can be `left, right, up, down` and used in segues that require direction input 
-   * aka `push<segue<SwipeIn<direction::left>>::to<DemoScene>>();`
-* Some cleanup 
-
-11/11/2018
-
-* New segues. 
-* Added ability to set an activity's view using `setView()` so that segues can look right with different views in two scenes.
-* New classes `swoosh::ActionList` and `swoosh::ActionItem` types. Control your busy scenes with even more polish with action lists!
-* New pokemon proof of concept demo! [Check it out](https://github.com/TheMaverickProgrammer/PokemonHeartGold-Swoosh)!
-
-10/31/2018
-
-* New segues are available. You can directly copy them from the `src/Segues` folder.
-* Textures and GLSL are embedded into the header files. Swoosh is truly 100% header-only now. 
-* New wiki page to detail how to change the embedded textures used in some Segue post processing
-
-10/29/2018
-* first made available to the public
+![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
 
 # Technology
-SFML 2.5
-
-C++14
+SFML 2.5, C++14, GLSL 1.10
 
 ## Optional
 Includes visual studio project but not needed. Source code will work on other operating systems as long as it has C++14 support. You will need to provide your own build scripts to run the project. Swoosh header files require _zero_ building.
@@ -52,11 +30,6 @@ See the pokemon demo using just swoosh!
 Clone this repo. Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
 
 Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/Demo.cpp)
-
-## Get Jump Started
-See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
-
-See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
 # Philosophy 
 When creating polished applications it should not be a concern to the user how to handle the memory for a scene or video game level. 
@@ -77,7 +50,7 @@ controller.push<MainMenuScene>();
 
 // User selects settings
 using intent::segue;
-controller.push<segue<SlideIn<direction::left>::to<AppSettingsScene>>();
+controller.push<segue<BlendFadeIn>::to<AppSettingsScene>>();
 ```
 
 The syntax is human readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: writing the application!
@@ -90,9 +63,25 @@ For example
 
 ```c++
 using namespace swoosh::intent;
-controller.push<zegue<FadeIn, seconds<5>>::to<DramaticIntroScene>>();
+controller.push<segue<Cube3D<direction::left>, seconds<5>>::to<DramaticIntroScene>>();
 ```
 
+## Writing Clearer Intents
+The last example had a segue that required directional input and the syntax was longer than we'd like. 
+Although Swoosh is doing a ton behind the scenes for us, we lost some clarity.
+
+We can clean up the intent by creating our own segue typename. 
+
+```c++
+using segue  = segue<Cube3D<direction::up>, sec<2>>;
+using intent = segue::to<DramaticIntroScene>;
+
+getController().push<intent>();
+```
+
+Much more elegant!
+
+## Less Typing!
 There are 3 wrappers and each have a shorthand alias
 
 `.......seconds<int val>` -> `sec<int val>`
@@ -105,15 +94,25 @@ There are 3 wrappers and each have a shorthand alias
 Your activity classes may be dependant on external information like loading your game from a save file or displaying important business data exported from another screen. 
 
 ```c++
-SaveInfo = info = LoadSaveFile(selectedProfile);
+SaveInfo info = LoadSaveFile(selectedProfile);
+
+// Pass on specific data the level wants from the save file
 controller.push<SuperJumpManLevel1>({info.getLives(), info.getCoins(), info.getMapData()});
 ```
 
 This is the same for segues
 
 ```c++
+ActivityController& controller = getController();
+
+// write clear intents
+using segue  = segue<CheckerboardEffect, sec<3>>;
+using intent = segue::to<MatchMakingLobby>;
+
 FinancialInfo* data = loadFinancialResult(calender.getDate());
-controller.push<segue<CheckerboardEffect, sec<3>>::to<FinancialReport>>(data);
+
+// Go!
+controller.push<intent>(data);
 ```
 
 # Leaving Activities
