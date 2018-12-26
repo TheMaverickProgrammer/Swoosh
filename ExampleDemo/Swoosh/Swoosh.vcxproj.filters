@@ -129,6 +129,9 @@
     <ClInclude Include="..\..\src\Segues\CrossZoom.h">
       <Filter>Source Files\Demo\Segues</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Segues\Cube3D.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

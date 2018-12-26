@@ -53,9 +53,9 @@ namespace {
 
       pfr = project(pfr);
 
-      //if (inBounds(pfr)) {
-      if(true) {
-        float range = time;
+      if (inBounds(pfr)) {
+      //if(true) {
+        /*float range = time;
 
         if (direction == 2) { range = 1.0 - time; }
 
@@ -80,9 +80,9 @@ namespace {
 
         pfr = vec2(pfr.y, pfr.x);
 
-        pfr = project(pfr);
+        pfr = project(pfr);*/
 
-        c += mix(vec4(1.0), texture2D(texture, vec2(pfr.x, 1.0 - pfr.y)), reflection * mix(1.0, 0.0, pfr.y));
+        c += mix(vec4(0.0), texture2D(texture, vec2(pfr.x, 1.0 - pfr.y)), reflection * mix(1.0, 0.0, pfr.y));
       }
       pto = project(pto);
       if (inBounds(pto) && direction < 2) {

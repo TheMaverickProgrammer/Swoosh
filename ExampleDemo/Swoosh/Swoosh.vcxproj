@@ -165,6 +165,7 @@
     <ClInclude Include="..\..\src\Segues\CircleClose.h" />
     <ClInclude Include="..\..\src\Segues\CircleOpen.h" />
     <ClInclude Include="..\..\src\Segues\CrossZoom.h" />
+    <ClInclude Include="..\..\src\Segues\Cube3D.h" />
     <ClInclude Include="..\..\src\Segues\DiamondTileCircle.h" />
     <ClInclude Include="..\..\src\Segues\DiamondTileSwipe.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalOpen.h" />
