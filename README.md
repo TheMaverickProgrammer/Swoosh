@@ -27,7 +27,7 @@ See the pokemon demo using just swoosh!
 
 
 # Integrating Swoosh into your SFML application
-Clone this repo. Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
+Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
 
 Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/Demo.cpp)
 
@@ -70,7 +70,7 @@ controller.push<segue<Cube3D<direction::left>, seconds<5>>::to<DramaticIntroScen
 The last example had a segue that required directional input and the syntax was longer than we'd like. 
 Although Swoosh is doing a ton behind the scenes for us, we lost some clarity.
 
-We can clean up the intent by creating our own segue typename. 
+We can clean up the intent by creating our own segue typename alias. 
 
 ```c++
 using segue  = segue<Cube3D<direction::up>, sec<2>>;
@@ -109,7 +109,7 @@ ActivityController& controller = getController();
 using segue  = segue<CheckerboardEffect, sec<3>>;
 using intent = segue::to<MatchMakingLobby>;
 
-FinancialInfo* data = loadFinancialResult(calender.getDate());
+LobbyInfo data = queryLobbyServer().get(); // blocking future request
 
 // Go!
 controller.push<intent>(data);
@@ -144,7 +144,10 @@ This is useful to simulate persistent behavior such as in a top-down adventure g
 The syntax is close to _push_ except if it succeeds, activities are ended and discarded.
 
 ```c++
-bool found = controller.queueRewind<segue<BlackWashFadeIn>::to<LOZOverworld>>();
+using segue = segue<BlackWashFadeIn>;
+using intent = segue::to<LOZOverworld>;
+
+bool found = controller.queueRewind<intent>();
 
 if(!found) {
     // Perhaps we're already in overworld. Certain teleport items cannot be used!
@@ -208,7 +211,7 @@ Both draw their respective activity's contents to a sf::RenderTexture that can b
 [This example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/PushIn.h) Segue will slide a new screen in while pushing the last scene out. Really cool!
 
 ## Embedding GLSL and textures
-Some post processing effects require samples as inputs like the [Checkerboard](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/Checkerboard.h) segue. In order to make Swoosh 100% header-only the scripts and samples had to be embedded. This is purely optional for your projects and if you want to share your custom segue effects, is the best practice.
+Some post processing effects require samples as inputs. In order to make Swoosh 100% header-only the scripts and samples had to be embedded. This is purely optional for your projects and if you want to share your custom segue effects, is the best practice.
 
 Learn [how to embed GLSL and textures here](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Embed-GLSL).
 
