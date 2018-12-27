@@ -125,5 +125,26 @@ namespace swoosh {
 
       return y;
     }
+
+    /*
+      y = 1-(sin(x+90)*cos(-2x)
+    */
+    template<typename T>
+    static constexpr T sinuoidBounceOut(T delta, T length) {
+      T normal = 3.0 / length;
+
+      T x = delta * normal;
+
+      if (x >= 3) {
+        x = 3;
+      }
+
+      T y = 1.0 - (sin(x + 90.0)*cos(-2.0 * x));
+
+      // Transform y into canonical [0,1] values
+      y /= 2.0;
+
+      return y;
+    }
   }
 }

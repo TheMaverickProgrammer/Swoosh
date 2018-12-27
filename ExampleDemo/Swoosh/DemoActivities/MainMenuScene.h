@@ -6,6 +6,7 @@
 #include <SFML\Audio.hpp>
 #include <Segues\CrossZoom.h>
 #include <Segues\ZoomFadeIn.h>
+#include <Segues\ZoomFadeInBounce.h>
 #include <Segues\Checkerboard.h>
 #include <Segues\WhiteWashFade.h>
 #include <Segues\SlideIn.h>
@@ -155,7 +156,7 @@ public:
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          using segue = segue<CrossZoom, sec<2>>;
+          using segue = segue<ZoomFadeInBounce, sec<1>>;
           using intent = segue::to<HiScoreScene>;
 
           getController().push<intent>(savefile);

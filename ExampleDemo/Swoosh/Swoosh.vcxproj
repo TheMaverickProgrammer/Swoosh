@@ -181,6 +181,7 @@
     <ClInclude Include="..\..\src\Segues\VerticalSlice.h" />
     <ClInclude Include="..\..\src\Segues\WhiteWashFade.h" />
     <ClInclude Include="..\..\src\Segues\ZoomFadeIn.h" />
+    <ClInclude Include="..\..\src\Segues\ZoomFadeInBounce.h" />
     <ClInclude Include="..\..\src\Segues\ZoomIn.h" />
     <ClInclude Include="..\..\src\Segues\ZoomOut.h" />
     <ClInclude Include="Button.h" />
