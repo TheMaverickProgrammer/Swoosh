@@ -152,17 +152,20 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<segue<Cube3D<direction::up>, sec<4>>::to<DemoScene>>(savefile);
+          using segue = segue<Morph, milli<400>>;
+          using intent = segue::to<DemoScene>;
+
+          getController().push<intent>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          using segue = segue<ZoomFadeInBounce, sec<1>>;
+          using segue = segue<Morph, sec<1>>;
           using intent = segue::to<HiScoreScene>;
 
           getController().push<intent>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
-          getController().push<segue<Cube3D<direction::left>, sec<2>>::to<AboutScene>>();
+          getController().push<segue<Morph, sec<2>>::to<AboutScene>>();
         }
       }
     }
