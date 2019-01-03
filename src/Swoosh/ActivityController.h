@@ -16,7 +16,7 @@ namespace swoosh {
     std::stack<Activity*> activities;
     mutable sf::RenderTexture* surface;
     sf::RenderWindow& handle;
-    sf::Vector2u initWindowSize;
+    sf::Vector2u virtualWindowSize;
 
     bool willLeave;
 
@@ -28,10 +28,19 @@ namespace swoosh {
 
   public:
     ActivityController(sf::RenderWindow& window) : handle(window) {
-      initWindowSize = handle.getSize();
+      virtualWindowSize = handle.getSize();
 
       surface = new sf::RenderTexture();
       surface->create((unsigned int)handle.getSize().x, (unsigned int)handle.getSize().y);
+      willLeave = false;
+      segueAction = SegueAction::NONE;
+    }
+
+    ActivityController(sf::RenderWindow& window, sf::Vector2u virtualWindowSize) : handle(window) {
+      this->virtualWindowSize = virtualWindowSize;
+
+      surface = new sf::RenderTexture();
+      surface->create((unsigned int)virtualWindowSize.x, (unsigned int)virtualWindowSize.y);
       willLeave = false;
       segueAction = SegueAction::NONE;
     }
@@ -57,8 +66,13 @@ namespace swoosh {
       delete surface;
     }
 
+    [[deprecated("Replaced by getVirtualWindowSize()")]]
     const sf::Vector2u getInitialWindowSize() const {
-      return initWindowSize;
+      return virtualWindowSize;
+    }
+
+    const sf::Vector2u getVirtualWindowSize() const {
+      return virtualWindowSize;
     }
 
     sf::RenderWindow& getWindow() {

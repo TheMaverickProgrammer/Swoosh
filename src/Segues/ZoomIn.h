@@ -45,7 +45,7 @@ public:
   ZoomIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */ 
     temp = nullptr;
-    windowSize = getController().getInitialWindowSize();
+    windowSize = getController().getVirtualWindowSize();
   }
 
   virtual ~ZoomIn() { if(temp) delete temp; }

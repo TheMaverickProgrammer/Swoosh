@@ -45,7 +45,7 @@ public:
   ZoomOut(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */ 
     temp = nullptr;
-    windowSize = getController().getInitialWindowSize();
+    windowSize = getController().getVirtualWindowSize();
   }
 
   virtual ~ZoomOut() { if(temp) delete temp; }

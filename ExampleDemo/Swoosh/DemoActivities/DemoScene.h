@@ -90,7 +90,7 @@ public:
     gameOverChannel.setBuffer(gameOverFX);
     extraLifeChannel.setBuffer(extraLifeFX);
 
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
     bgTexture = loadTexture(PURPLE_BG_PATH);
     bgTexture->setRepeated(true);
@@ -142,7 +142,7 @@ public:
     enemy.sprite = sf::Sprite(*enemyTexture);
     setOrigin(enemy.sprite, 0.5, 0.5);
 
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
     int side = rand() % 2;
     if(side == 0)
@@ -157,7 +157,7 @@ public:
 
   void resetPlayer() {
     // start is in the center of the screen
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
     player.pos = sf::Vector2f(windowSize.x / 2.0, windowSize.y / 2.0);
     player.speed = sf::Vector2f(0, 0);
@@ -175,7 +175,7 @@ public:
 
   virtual void onUpdate(double elapsed) {
     sf::RenderWindow& window = getController().getWindow();
-    auto windowSize = getController().getInitialWindowSize();
+    auto windowSize = getController().getVirtualWindowSize();
 
     if (lives < 0) {
       getController().push<segue<Checkerboard, milli<900>>::to<HiScoreScene>>(savefile);
@@ -429,7 +429,7 @@ public:
         p.sprite = sf::Sprite(*meteorTiny);
       }
 
-      auto windowSize = getController().getInitialWindowSize();
+      auto windowSize = getController().getVirtualWindowSize();
       p.pos = sf::Vector2f(rand() % windowSize.x, rand() % windowSize.y);
       p.sprite.setPosition(p.pos);
 
@@ -464,7 +464,7 @@ public:
       surface.draw(l.sprite);
     }
     
-    auto windowSize = getController().getInitialWindowSize();
+    auto windowSize = getController().getVirtualWindowSize();
 
     text.setString(std::string("score: ") + std::to_string(score));
     setOrigin(text, 1, 0);

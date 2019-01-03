@@ -73,7 +73,7 @@ public:
     sfml.setScale(0.7, 0.7);
     setOrigin(sfml, 0.5, 0.60);
 
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
     screenBottom = windowSize.y;
     screenMid = windowSize.x / 2.0;
@@ -100,7 +100,7 @@ public:
       offset = ease::wideParabola(timer.getElapsed().asMilliseconds()-3000.0, 5000.0, 0.9);
     }
 
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
     sfml.setPosition(100 + (offset * (windowSize.x - 300)), 100);
     sfml.setRotation(offset * 360 * 2);

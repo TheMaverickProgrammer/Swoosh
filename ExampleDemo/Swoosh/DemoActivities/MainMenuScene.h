@@ -208,7 +208,7 @@ public:
 
       particle p;
       p.sprite = sf::Sprite(*starTexture);
-      p.pos = sf::Vector2f(rand() % getController().getInitialWindowSize().x, getController().getInitialWindowSize().y);
+      p.pos = sf::Vector2f(rand() % getController().getVirtualWindowSize().x, getController().getVirtualWindowSize().y);
       p.speed = sf::Vector2f(randSpeedX, -randSpeedY);
       p.friction = sf::Vector2f(0.99999f, 0.9999f);
       p.life = 3.0;
