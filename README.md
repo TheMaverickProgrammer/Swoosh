@@ -196,9 +196,9 @@ Sometimes you may need to step over the render surface and draw directly to the 
 
 * `getController()` returns the ActivityController that owns it
 * `getController().getWindow()` returns sf::RenderWindow
-* `getController().getInitialWindowSize()` returns sf::Vector2u of the window when your app is created. 
+* `getController().getVirtualWindowSize()` returns sf::Vector2u of the window when your app is created. 
 
-_getInitialWindowSize()_ is useful when wanting to keep your graphics consistent with scale.
+_getVirtualWindowSize()_ is useful when wanting to keep your graphics consistent with scale. By default it is the same value as your window when it is first created. 
 
 ## Drawing To The Screen
 Segues are made up of two Activities: the last and the next. For most segues you need to draw one and then the other with some applied effect.
