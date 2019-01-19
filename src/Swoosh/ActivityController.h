@@ -132,11 +132,11 @@ namespace swoosh {
 
           Activity* next = owner.activities.top();
 
-          while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1) {
+          do {
             original.push(next);
             owner.activities.pop();
             next = owner.activities.top();
-          }
+          } while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1);
 
           if (owner.activities.empty()) {
             // We did not find it, push the states back on the list and return false
@@ -153,6 +153,7 @@ namespace swoosh {
           // We did find it, call on end to everything and free memory
           while (original.size() > 0) {
             Activity* top = original.top();
+            top->onLeave();
             top->onEnd();
             delete top;
             original.pop();
@@ -217,9 +218,11 @@ namespace swoosh {
         next->setView(owner.handle.getDefaultView());
 
         if (hasLast) {
+          last->onLeave();
           last->onExit();
         }
 
+        next->onEnter();
         next->onStart();
         owner.activities.push(next);
       }
@@ -293,11 +296,11 @@ namespace swoosh {
 
         Activity* next = owner.activities.top();
 
-        while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1) {
+        do {
           original.push(next);
           activities.pop();
           next = owner.activities.top();
-        }
+        } while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1);
 
         if (activities.empty()) {
           // We did not find it, push the states back on the list and return false
@@ -308,6 +311,14 @@ namespace swoosh {
 
           RewindSuccessful = false;
           return;
+        }
+
+        // We found it free the states
+        while (original.size() > 0) {
+          original.top()->onLeave();
+          original.top()->onEnd();
+          delete original.top();
+          original.pop();
         }
 
         next->onResume();
@@ -402,11 +413,14 @@ namespace swoosh {
 
     void pop() {
       Activity* activity = activities.top();
+      activity->onLeave();
       activity->onEnd();
       activities.pop();
 
-      if (activities.size() > 0)
+      if (activities.size() > 0) {
+        activities.top()->onEnter();
         activities.top()->onResume();
+      }
 
       delete activity;
     }

@@ -37,7 +37,7 @@ namespace swoosh {
     }
 
   public:
-    virtual void onStart() final { next->onEnter();  last->onLeave(); timer.reset(); }
+    virtual void onStart() final { last->onLeave(); next->onEnter(); timer.reset(); }
 
     virtual void onUpdate(double elapsed) final {
       if (last) last->onUpdate(elapsed);
