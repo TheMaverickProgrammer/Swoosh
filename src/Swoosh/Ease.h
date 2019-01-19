@@ -5,7 +5,7 @@ namespace swoosh {
     static constexpr double pi = 3.14159265358979323846;
     
     template<typename T>
-    static constexpr T radians(T degrees) { return (degrees * pi) / (T)180.0;  }
+    static constexpr T radians(T degrees) { return (T)((double)degrees * pi) / (T)180.0;  }
 
     template<typename T>
     static constexpr T interpolate(T factor, T a, T b) {
@@ -14,7 +14,7 @@ namespace swoosh {
 
     template<typename T>
     static constexpr T linear(T delta, T length, T power) {
-      T normal = 1.0 / length;
+      T normal = (T)(1.0 / (double)length);
 
       T x = delta * normal;
 
@@ -40,7 +40,7 @@ namespace swoosh {
     */
     template<typename T>
     static constexpr T inOut(T delta, T length) {
-      T normal = 1.0 / length;
+      T normal = (T)(1.0 / (double)length);
 
       T x = delta * normal;
 
@@ -54,7 +54,7 @@ namespace swoosh {
 
     template<typename T>
     static constexpr T wideParabola(T delta, T length, T power) {
-      T normal = 2.0 / length;
+      T normal = (T)(2.0 / (double)length);
 
       // Convert seconds elapsed to x values of 0 -> 2
       T x = delta * normal;
@@ -66,14 +66,14 @@ namespace swoosh {
       }
 
       // y = 1 - (x ^ 2 - 2x + 1) ^ n
-      T poly = (x*x) - (2 * x) + 1;
+      T poly = (double)(x*x) - (2.0 * (double)x) + 1.0;
       T exponential = poly;
 
       for (int i = 1; i < power; i++) {
         exponential *= exponential;
       }
 
-      T y = 1 - exponential;
+      T y = (T)(1.0 - (double)exponential);
 
       return y;
     }
@@ -85,7 +85,7 @@ namespace swoosh {
     */
     template<typename T>
     static constexpr T bezierPopIn(T delta, T length) {
-      T normal = 1.0 / length;
+      T normal = (T)(1.0 / (double)length);
 
       T x = delta * normal;
 
@@ -94,8 +94,8 @@ namespace swoosh {
       }
 
     
-      T part1 = 3.0 * x * x;
-      T part2 = 2.0 * x * x * x * x;
+      T part1 = 3.0 * (double)x * (double)x;
+      T part2 = 2.0 * (double)x * (double)x * (double)x * (double)x;
 
       T y = part1 - part2;
 
@@ -109,7 +109,7 @@ namespace swoosh {
   */
     template<typename T>
     static constexpr T bezierPopOut(T delta, T length) {
-      T normal = 1.0 / length;
+      T normal = (T)(1.0 / (double)length);
 
       T x = delta * normal;
 
@@ -117,9 +117,9 @@ namespace swoosh {
         x = 1;
       }
 
-      x = (1.0 - x);
-      T part1 = 3.0 * x * x;
-      T part2 = 2.0 * x * x * x * x;
+      x = (1.0 - (double)x);
+      T part1 = 3.0 * (double)x * (double)x;
+      T part2 = 2.0 * (double)x * (double)x * (double)x * (double)x;
 
       T y = part1 - part2;
 
@@ -131,7 +131,7 @@ namespace swoosh {
     */
     template<typename T>
     static constexpr T sinuoidBounceOut(T delta, T length) {
-      T normal = 3.0 / length;
+      T normal = (T)(3.0 / (double)length);
 
       T x = delta * normal;
 
@@ -139,10 +139,10 @@ namespace swoosh {
         x = 3;
       }
 
-      T y = 1.0 - (sin(x + 90.0)*cos(-2.0 * x));
+      T y = 1.0 - (sin((double)x + 90.0)*cos(-2.0 * (double)x));
 
       // Transform y into canonical [0,1] values
-      y /= 2.0;
+      y = (T)((double)y / 2.0);
 
       return y;
     }

@@ -101,10 +101,10 @@ private:
         vertex.color = sf::Color::White;
 
         sf::Vector2f pos[4] = {
-          sf::Vector2f(i*cellSize      , j*cellSize),
-          sf::Vector2f(i*cellSize      , (j + 1)*cellSize),
-          sf::Vector2f((i + 1)*cellSize, (j + 1)*cellSize),
-          sf::Vector2f((i + 1)*cellSize, j*cellSize)
+          sf::Vector2f((float)i*cellSize      , (float)j*cellSize),
+          sf::Vector2f((float)i*cellSize      , (float)(j + 1)*cellSize),
+          sf::Vector2f((float)(i + 1)*cellSize, (float)(j + 1)*cellSize),
+          sf::Vector2f((float)(i + 1)*cellSize, (float)j*cellSize)
         };
 
 
@@ -153,13 +153,13 @@ public:
     float theta2 = 15.0f;
     float theta3 = 10.01f;
 
-    float f1, f2, dt;
+    float dt;
     double theta = 90.f;
     double A = 0.0f;
 
     double rho = alpha * (ease::pi*0.5);
 
-    dt = alpha;
+    dt = (float)alpha;
     theta = ease::interpolate(dt, angle1, angle2);
     A = ease::interpolate(dt, A1, A2);
 
@@ -206,7 +206,7 @@ public:
     temp = nullptr;
     shader.loadFromMemory(::TURN_PAGE_VERT_SHADER, ::TURN_PAGE_FRAG_SHADER);
     auto size = getController().getWindow().getView().getSize();
-    triangleStripulate(size.x, size.y, paper, 10);
+    triangleStripulate((int)size.x, (int)size.y, paper, 10);
   }
 
   virtual ~PageTurn() { ; }

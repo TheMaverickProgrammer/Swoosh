@@ -17,8 +17,8 @@ public:
       this->drawNextActivity(surface);
 
     sf::RectangleShape whiteout;
-    whiteout.setSize(sf::Vector2f(surface.getTexture().getSize().x, surface.getTexture().getSize().y));
-    whiteout.setFillColor(sf::Color(255, 255, 255, alpha*255));
+    whiteout.setSize(sf::Vector2f((float)surface.getTexture().getSize().x, (float)surface.getTexture().getSize().y));
+    whiteout.setFillColor(sf::Color(255, 255, 255, (sf::Uint8)(alpha*255.0)));
     surface.draw(whiteout);
   }
 

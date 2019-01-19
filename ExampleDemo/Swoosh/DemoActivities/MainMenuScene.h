@@ -93,7 +93,7 @@ public:
 
     menuText.setFillColor(sf::Color::White); 
 
-    screenMid = getController().getWindow().getSize().x / 2.0;
+    screenMid = getController().getWindow().getSize().x / 2.0f;
 
     // Create the buttons
     button menuOption;
@@ -124,17 +124,17 @@ public:
 
   virtual void onUpdate(double elapsed) {
     if (!inFocus && fadeMusic) {
-      themeMusic.setVolume(themeMusic.getVolume() * 0.90); // quieter
+      themeMusic.setVolume(themeMusic.getVolume() * 0.90f); // quieter
     }
 
     int i = 0;
     for (auto& p : particles) {
       p.speed = sf::Vector2f(p.speed.x * p.friction.x, p.speed.y * p.friction.y);
-      p.pos += sf::Vector2f(p.speed.x * elapsed, p.speed.y * elapsed);
+      p.pos += sf::Vector2f(p.speed.x * (float)elapsed, p.speed.y * (float)elapsed);
 
       p.sprite.setPosition(p.pos);
-      p.sprite.setScale(2.0*(p.life / p.lifetime), 2.0*(p.life / p.lifetime));
-      p.sprite.setColor(sf::Color(p.sprite.getColor().r, p.sprite.getColor().g, p.sprite.getColor().b, 255 * p.life / p.lifetime));
+      p.sprite.setScale((sf::Uint8)(.0*(p.life / p.lifetime)), (sf::Uint8)(2.0*(p.life / p.lifetime)));
+      p.sprite.setColor(sf::Color(p.sprite.getColor().r, p.sprite.getColor().g, p.sprite.getColor().b, (sf::Uint8)(255.0 * p.life / p.lifetime)));
       p.life -= elapsed;
 
       if (p.life <= 0) {
@@ -208,8 +208,8 @@ public:
 
       particle p;
       p.sprite = sf::Sprite(*starTexture);
-      p.pos = sf::Vector2f(rand() % getController().getVirtualWindowSize().x, getController().getVirtualWindowSize().y);
-      p.speed = sf::Vector2f(randSpeedX, -randSpeedY);
+      p.pos = sf::Vector2f((float)(rand() % getController().getVirtualWindowSize().x), (float)(getController().getVirtualWindowSize().y));
+      p.speed = sf::Vector2f((float)randSpeedX, (float)-randSpeedY);
       p.friction = sf::Vector2f(0.99999f, 0.9999f);
       p.life = 3.0;
       p.lifetime = 3.0;
@@ -231,7 +231,7 @@ public:
     int i = 0;
     menuText.setFillColor(sf::Color::Black);
     for (auto& b : buttons) {
-      b.draw(surface, menuText, screenMid, 200 + (i++*100));
+      b.draw(surface, menuText, screenMid, (float)(200 + (i++*100)));
     }
 
     // First set the text as the it would render as a full string
@@ -262,7 +262,7 @@ public:
       // Include spaces
       if (menuText.getString() == ' ') { offset += menuText.getCharacterSize(); }
 
-      menuText.setPosition(sf::Vector2f(startX + offset, startY));
+      menuText.setPosition(sf::Vector2f((float)(startX + offset), (float)startY));
       surface.draw(menuText);
     }
   }

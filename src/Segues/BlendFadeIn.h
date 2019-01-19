@@ -31,8 +31,8 @@ public:
     surface.display(); // flip and ready the buffer
     sf::Sprite right(surface.getTexture());
 
-    left.setColor(sf::Color(255, 255, 255, (1.0-alpha) * 255.0));
-    right.setColor(sf::Color(255, 255, 255, alpha * 255.0));
+    left.setColor(sf::Color(255, 255, 255, (sf::Uint8)((1.0-alpha) * 255.0)));
+    right.setColor(sf::Color(255, 255, 255, (sf::Uint8)(alpha * 255.0)));
 
     getController().getWindow().draw(left);
     getController().getWindow().draw(right);

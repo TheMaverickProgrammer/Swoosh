@@ -25,11 +25,11 @@ public:
 
     sf::Sprite top(*temp); 
     top.setTextureRect(sf::IntRect(0, 0, windowSize.x, windowSize.y / 2));
-    top.setPosition(direction * alpha * top.getTexture()->getSize().x, 0);
+    top.setPosition((float)(direction * alpha * top.getTexture()->getSize().x), 0.0f);
 
     sf::Sprite bottom(*temp);
     bottom.setTextureRect(sf::IntRect(0, windowSize.y / 2, windowSize.x, windowSize.y));
-    bottom.setPosition(direction * -alpha * bottom.getTexture()->getSize().x, windowSize.y/2);
+    bottom.setPosition((float)(direction * -alpha * bottom.getTexture()->getSize().x), (float)(windowSize.y/2.0f));
 
     surface.clear();
 

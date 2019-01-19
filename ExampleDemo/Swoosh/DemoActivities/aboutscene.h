@@ -70,14 +70,14 @@ public:
 
     sfmlTexture = loadTexture(SFML_PATH);
     sfml = sf::Sprite(*sfmlTexture);
-    sfml.setScale(0.7, 0.7);
-    setOrigin(sfml, 0.5, 0.60);
+    sfml.setScale(0.7f, 0.7f);
+    setOrigin(sfml, 0.5f, 0.60f);
 
     sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
-    screenBottom = windowSize.y;
-    screenMid = windowSize.x / 2.0;
-    screenDiv = windowSize.y / 4.0;
+    screenBottom = (float)windowSize.y;
+    screenMid = windowSize.x / 2.0f;
+    screenDiv = windowSize.y / 4.0f;
 
     // Load sounds
     buffer.loadFromFile(SHIELD_UP_SFX_PATH);
@@ -102,8 +102,8 @@ public:
 
     sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
-    sfml.setPosition(100 + (offset * (windowSize.x - 300)), 100);
-    sfml.setRotation(offset * 360 * 2);
+    sfml.setPosition(100.0f + (float)(offset * (windowSize.x - 300)), 100.0f);
+    sfml.setRotation((float)(offset * 360 * 2));
 
     goback.update(getController().getWindow());
 

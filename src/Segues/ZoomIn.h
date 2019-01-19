@@ -25,8 +25,8 @@ public:
 
     sf::Sprite left(*temp); 
     game::setOrigin(left, 0.5f, 0.5f);
-    left.setPosition(windowSize.x/2.0f, windowSize.y/2.0f);
-    left.setScale(alpha, alpha);
+    left.setPosition((float)(windowSize.x/2.0f), (float)(windowSize.y/2.0f));
+    left.setScale((float)alpha, (float)alpha);
 
     surface.clear();
 

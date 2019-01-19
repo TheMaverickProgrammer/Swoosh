@@ -63,9 +63,9 @@ public:
     meteorSmall = loadTexture(METEOR_SMALL_PATH);
     meteorTiny = loadTexture(METEOR_TINY_PATH);
 
-    screenBottom = windowSize.y;
-    screenMid = windowSize.x / 2.0;
-    screenDiv = windowSize.x / 4.0;
+    screenBottom = (float)windowSize.y;
+    screenMid = windowSize.x / 2.0f;
+    screenDiv = windowSize.x / 4.0f;
 
     if (hiscore.empty()) {
       hiscore.writeToFile(SAVE_FILE_PATH);
@@ -116,7 +116,7 @@ public:
 
     for (auto& m : meteors) {
       sf::Vector2f prevPos = m.pos;
-      m.pos += sf::Vector2f(m.speed.x * elapsed, m.speed.y * elapsed);
+      m.pos += sf::Vector2f(m.speed.x * (float)elapsed, m.speed.y * (float)elapsed);
       m.sprite.setPosition(m.pos);
       m.sprite.setRotation(m.pos.x);
     }
@@ -158,10 +158,10 @@ public:
         p.sprite = sf::Sprite(*meteorTiny);
       }
 
-      p.pos = sf::Vector2f(rand() % getController().getWindow().getSize().x, rand() % getController().getWindow().getSize().y);
+      p.pos = sf::Vector2f((float)(rand() % getController().getWindow().getSize().x), (float)(rand() % getController().getWindow().getSize().y));
       p.sprite.setPosition(p.pos);
 
-      p.speed = sf::Vector2f(randSpeedX, randSpeedY);
+      p.speed = sf::Vector2f((float)randSpeedX, (float)randSpeedY);
       meteors.push_back(p);
     }
   }
@@ -173,7 +173,7 @@ public:
     sf::RenderWindow& window = getController().getWindow();
 
     sf::RectangleShape black;
-    black.setSize(sf::Vector2f(surface.getTexture().getSize().x, surface.getTexture().getSize().y));
+    black.setSize(sf::Vector2f((float)surface.getTexture().getSize().x, (float)surface.getTexture().getSize().y));
     black.setFillColor(sf::Color::Black);
     surface.draw(black);
 
@@ -194,12 +194,12 @@ public:
       int score = hiscore.scores[i];
 
       text.setString(name);
-      text.setPosition(sf::Vector2f(screenDiv, 200 + (i*100) - scrollOffset));
+      text.setPosition(sf::Vector2f((float)(screenDiv), (float)(200 + (i*100) - scrollOffset)));
       setOrigin(text, 0.5, 0.5);
       surface.draw(text);
 
       text.setString(std::to_string(score));
-      text.setPosition(sf::Vector2f(screenDiv * 3, 200 + (i*100) - scrollOffset));
+      text.setPosition(sf::Vector2f((float)(screenDiv * 3), (float)(200 + (i*100) - scrollOffset)));
       setOrigin(text, 0.5, 0.5);
       surface.draw(text);
     }

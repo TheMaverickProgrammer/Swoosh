@@ -23,12 +23,12 @@ public:
     temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
 
     sf::Sprite left(*temp); 
-    left.setTextureRect(sf::IntRect(0, 0, windowSize.x/2.0, windowSize.y));
-    left.setPosition(-alpha * left.getTextureRect().width, 0);
+    left.setTextureRect(sf::IntRect(0, 0, (int)(windowSize.x/2.0f), windowSize.y));
+    left.setPosition((float)-alpha * (float)left.getTextureRect().width, 0.0f);
 
     sf::Sprite right(*temp);
-    right.setTextureRect(sf::IntRect(windowSize.x/2.0, 0, windowSize.x, windowSize.y));
-    right.setPosition(windowSize.x/2.0 + (alpha * (right.getTextureRect().width-right.getTextureRect().left)), 0);
+    right.setTextureRect(sf::IntRect((int)(windowSize.x/2.0f), 0, windowSize.x, windowSize.y));
+    right.setPosition((float)(windowSize.x/2.0f) + ((float)alpha * (right.getTextureRect().width-right.getTextureRect().left)), 0.0f);
 
     surface.clear();
 

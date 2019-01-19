@@ -130,8 +130,8 @@ public:
 
     alpha = ease::linear(elapsed, duration, 1.0);
 
-    sprite.setColor(sf::Color(255, 255, 255, 255 * (1-alpha)));
-    sprite2.setColor(sf::Color(255, 255, 255, 255 * alpha));
+    sprite.setColor(sf::Color(255, 255, 255, (sf::Uint8)(255.0 * (1-alpha))));
+    sprite2.setColor(sf::Color(255, 255, 255, (sf::Uint8)(255.0 * alpha)));
 
     window.draw(sprite);
     window.draw(sprite2);
