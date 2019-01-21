@@ -1,5 +1,5 @@
 ![logo](https://i.imgur.com/tri24Y5.png)
-# Swoosh
+# Swoosh v1.0
 Header-only SFML Activity and Segue Mini Library
 
 ## Get Jump Started
