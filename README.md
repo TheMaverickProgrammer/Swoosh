@@ -1,5 +1,5 @@
 ![logo](https://i.imgur.com/tri24Y5.png)
-# Swoosh
+# Swoosh v1.0
 Header-only SFML Activity and Segue Mini Library
 
 ## Get Jump Started
@@ -11,10 +11,10 @@ See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/mast
 ![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
 
 # Technology
-SFML 2.5, C++14, GLSL 1.10
+SFML 2.5, C++17, GLSL 1.10
 
 ## Optional
-Includes visual studio project but not needed. Source code will work on other operating systems as long as it has C++14 support. You will need to provide your own build scripts to run the project. Swoosh header files require _zero_ building.
+Includes visual studio project but not needed. Source code will work on other operating systems as long as it has C++17 support. You will need to provide your own build scripts to run the project. Swoosh header files require _zero_ building.
 
 # Video
 Click the gif for the full video!
