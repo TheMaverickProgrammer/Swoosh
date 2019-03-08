@@ -45,7 +45,7 @@ private:
 
   bool inFocus;
 public:
-  HiScoreScene(ActivityController& controller, save& data) : hiscore(data), Activity(controller) {
+  HiScoreScene(ActivityController& controller, save& data) : hiscore(data), Activity(&controller) {
     std::cout << "savefile address is " << &data << std::endl;
 
     auto windowSize = getController().getVirtualWindowSize();

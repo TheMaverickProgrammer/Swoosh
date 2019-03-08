@@ -1,6 +1,6 @@
 #pragma once
-#include <Swoosh\Segue.h>
-#include <Swoosh\Ease.h>
+#include <Swoosh/Segue.h>
+#include <Swoosh/Ease.h>
 
 using namespace swoosh;
 
@@ -18,7 +18,7 @@ public:
 
     sf::RectangleShape whiteout;
     whiteout.setSize(sf::Vector2f((float)surface.getTexture().getSize().x, (float)surface.getTexture().getSize().y));
-    whiteout.setFillColor(sf::Color(0, 0, 0, (sf::Uint8)(alpha*255.0)));
+    whiteout.setFillColor(sf::Color(0, 0, 0, (sf::Uint8)(alpha*255)));
     surface.draw(whiteout);
   }
 

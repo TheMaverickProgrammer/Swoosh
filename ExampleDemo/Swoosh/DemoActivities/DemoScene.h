@@ -73,7 +73,7 @@ private:
 
   save& savefile;
 public:
-  DemoScene(ActivityController& controller, save& savefile) : savefile(savefile), Activity(controller) { 
+  DemoScene(ActivityController& controller, save& savefile) : savefile(savefile), Activity(&controller) { 
     mousePressed = mouseRelease = inFocus = isExtraLifeSpawned = false;
 
     ingameMusic.openFromFile(INGAME_MUSIC_PATH);

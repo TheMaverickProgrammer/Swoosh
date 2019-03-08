@@ -1,5 +1,6 @@
 #pragma once
 #include "Timer.h"
+#include "Activity.h"
 #include <SFML/Graphics.hpp>
 
 namespace swoosh {
@@ -13,9 +14,9 @@ namespace swoosh {
     Activity* next;
     sf::Time duration;
     Timer timer;
-    
+
     // Hack to make this lib header-only
-    void (ActivityController::*setActivityViewFunc)(sf::RenderTexture& surface, Activity* activity);
+    void (ActivityController::*setActivityViewFunc)(sf::RenderTexture& surface, swoosh::Activity* activity);
     void (ActivityController::*resetViewFunc)(sf::RenderTexture& surface);
 
   protected:
@@ -24,20 +25,20 @@ namespace swoosh {
 
     void drawLastActivity(sf::RenderTexture& surface) {
       if (last) {
-        (controller.*setActivityViewFunc)(surface, last);
+        (this->getController().*setActivityViewFunc)(surface, last);
         last->onDraw(surface);
-        (controller.*resetViewFunc)(surface);
+        (this->getController().*resetViewFunc)(surface);
       }
     }
 
     void drawNextActivity(sf::RenderTexture& surface) {
-      (controller.*setActivityViewFunc)(surface, next);
+      (this->getController().*setActivityViewFunc)(surface, next);
       next->onDraw(surface);
-      (controller.*resetViewFunc)(surface);
+      (this->getController().*resetViewFunc)(surface);
     }
 
   public:
-    virtual void onStart() final { last->onLeave(); next->onEnter(); timer.reset(); }
+    virtual void onStart() final { next->onEnter();  last->onLeave(); timer.reset(); }
 
     virtual void onUpdate(double elapsed) final {
       if (last) last->onUpdate(elapsed);
@@ -52,7 +53,7 @@ namespace swoosh {
     virtual void onEnd() final { last->onExit(); }
 
     Segue() = delete;
-    Segue(sf::Time duration, Activity* last, Activity* next) : duration(duration), last(last), next(next), Activity(next->controller) { /* ... */ }
+    Segue(sf::Time duration, Activity* last, Activity* next) : duration(duration), last(last), next(next), Activity(&next->getController()) { /* ... */ }
     virtual ~Segue() { }
   };
 }

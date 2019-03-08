@@ -71,7 +71,7 @@ private:
   Timer timer; // for onscreen effects. Or we could have stored the total elapsed from the update function
   save savefile;
 public:
-  MainMenuScene(ActivityController& controller) : Activity(controller) { 
+  MainMenuScene(ActivityController& controller) : Activity(&controller) { 
     setView(sf::View());
 
     savefile.loadFromFile(SAVE_FILE_PATH);

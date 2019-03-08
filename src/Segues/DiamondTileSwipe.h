@@ -1,7 +1,7 @@
 #pragma once
-#include <Swoosh\EmbedGLSL.h>
-#include <Swoosh\Segue.h>
-#include <Swoosh\Ease.h>
+#include <Swoosh/EmbedGLSL.h>
+#include <Swoosh/Segue.h>
+#include <Swoosh/Ease.h>
 
 using namespace swoosh;
 
@@ -26,22 +26,16 @@ namespace {
       vec2 pos = vec2(modulo(posI.x, 2.0), modulo(posI.y, 2.0)) - vec2(1.0, 1.0);
       float size;
 
-      switch (direction) {
-        case 0: // Left Swipe
+      if(direction == 0) {
           size = pow(range - (1.0 - gl_TexCoord[0].x), 3.0);
-          break;
-        case 1: // Right Swipe
+      } else if(direction == 1) {
           size = pow(range - gl_TexCoord[0].x, 3.0);
-          break;
-        case 2: // Up Swipe
+      } else if(direction == 2) {
           size = pow(range - (1.0 - gl_TexCoord[0].y), 3.0);
-          break;
-        case 3: // Down Swipe
+      } else if(direction == 3) {
           size = pow(range - gl_TexCoord[0].y, 3.0);
-          break;
-        default: // Default to Left swipe
+      } else {
           size = pow(range - (1.0 - gl_TexCoord[0].x), 3.0);
-          break;
       }
 
       size = abs(size);

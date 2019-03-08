@@ -54,7 +54,7 @@ private:
   bool inFocus;
   bool canClick;
 public:
-  AboutScene(ActivityController& controller) : Activity(controller) {
+  AboutScene(ActivityController& controller) : Activity(&controller) {
     canClick = false;
 
     font.loadFromFile(GAME_FONT);

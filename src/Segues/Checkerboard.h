@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include <Swoosh\Segue.h>
-#include <Swoosh\Ease.h>
-#include <Swoosh\EmbedGLSL.h>
+#include <Swoosh/Segue.h>
+#include <Swoosh/Ease.h>
+#include <Swoosh/EmbedGLSL.h>
 
 using namespace swoosh;
 
@@ -67,6 +67,8 @@ public:
     states.shader = &shader;
 
     surface.draw(sprite, states);
+
+    delete temp2;
   }
 
   CheckerboardCustom(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
