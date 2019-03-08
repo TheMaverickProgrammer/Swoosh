@@ -9,4 +9,5 @@ c:\users\bountyhunter\code\swoosh\src\swoosh\ease.h(9): warning C4244: 'return':
           [
               T=float
           ]
+  LINK : C:\Users\Bountyhunter\Code\Swoosh\ExampleDemo\x64\Debug\Swoosh.exe not found or not built by the last incremental link; performing full link
   Swoosh.vcxproj -> C:\Users\Bountyhunter\Code\Swoosh\ExampleDemo\x64\Debug\Swoosh.exe
