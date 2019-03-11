@@ -1,6 +1,6 @@
 #pragma once
-#include <Swoosh\Segue.h>
-#include <Swoosh\Ease.h>
+#include <Swoosh/Segue.h>
+#include <Swoosh/Ease.h>
 
 using namespace swoosh;
 
