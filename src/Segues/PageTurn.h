@@ -1,9 +1,8 @@
-
 #pragma once
-#include <Swoosh\Segue.h>
-#include <Swoosh\Ease.h>
-#include <Swoosh\Game.h>
-#include <Swoosh\EmbedGLSL.h>
+#include <Swoosh/Segue.h>
+#include <Swoosh/Ease.h>
+#include <Swoosh/Game.h>
+#include <Swoosh/EmbedGLSL.h>
 
 using namespace swoosh;
 

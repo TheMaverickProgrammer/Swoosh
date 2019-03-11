@@ -1,17 +1,17 @@
 #pragma once
-#include <Swoosh\ActivityController.h>
-#include <Swoosh\Game.h>
-#include <SFML\Graphics.hpp>
-#include <SFML\Audio.hpp>
+#include <Swoosh/ActivityController.h>
+#include <Swoosh/Game.h>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "TextureLoader.h"
 #include "Particle.h"
 #include "Button.h"
 #include "ResourcePaths.h"
 #include "SaveFile.h"
 
-#include <Segues\PushIn.h>
-#include <Segues\BlendFadeIn.h>
-#include <Segues\Cube3D.h>
+#include <Segues/PushIn.h>
+#include <Segues/BlendFadeIn.h>
+#include <Segues/Cube3D.h>
 
 #include <iostream>
 
