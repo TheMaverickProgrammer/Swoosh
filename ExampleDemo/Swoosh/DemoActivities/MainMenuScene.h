@@ -28,6 +28,7 @@
 #include <Segues/Morph.h>
 #include <Segues/RadialCCW.h>
 #include <Segues/Cube3D.h>
+#include <Segues/RetroBlit.h>
 
 #include "DemoScene.h"
 #include "HiScoreScene.h"
@@ -156,7 +157,7 @@ public:
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          using segue = segue<ZoomFadeInBounce, sec<1>>;
+          using segue = segue<RetroBlit, sec<2>>;
           using intent = segue::to<HiScoreScene>;
 
           getController().push<intent>(savefile);

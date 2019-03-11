@@ -1,13 +1,2 @@
 ﻿  Demo.cpp
-c:\users\bountyhunter\code\swoosh\src\swoosh\ease.h(9): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-  c:\users\bountyhunter\code\swoosh\src\segues\pageturn.h(142): note: see reference to function template instantiation 'T swoosh::ease::radians<float>(T)' being compiled
-          with
-          [
-              T=float
-          ]
-  LINK : C:\Users\Bountyhunter\Code\Swoosh\ExampleDemo\x64\Debug\Swoosh.exe not found or not built by the last incremental link; performing full link
   Swoosh.vcxproj -> C:\Users\Bountyhunter\Code\Swoosh\ExampleDemo\x64\Debug\Swoosh.exe

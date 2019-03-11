@@ -191,6 +191,7 @@
     <ClInclude Include="DemoActivities\MainMenuScene.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ResourcePaths.h" />
+    <ClInclude Include="RetroBlit.h" />
     <ClInclude Include="SaveFile.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="pch.h" />

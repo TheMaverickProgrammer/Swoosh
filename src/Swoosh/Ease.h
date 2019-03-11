@@ -6,7 +6,7 @@ namespace swoosh {
     static double pi = 3.14159265358979323846;
 
     template<typename T>
-    static T radians(T degrees) { return (degrees * pi) / (T)180.0; }
+    static T radians(T degrees) { return (T)((double)degrees * pi) / (T)180.0; }
 
     template<typename T>
     static T interpolate(T factor, T a, T b) {
