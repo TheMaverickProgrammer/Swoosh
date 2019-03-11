@@ -1,14 +1,14 @@
 #pragma once
-#include <Swoosh\ActivityController.h>
-#include <Swoosh\Game.h>
+#include <Swoosh/ActivityController.h>
+#include <Swoosh/Game.h>
 
-#include <SFML\Graphics.hpp>
-#include "..\TextureLoader.h"
-#include "..\Particle.h"
-#include "..\ResourcePaths.h"
-#include "..\SaveFile.h"
+#include <SFML/Graphics.hpp>
+#include "../TextureLoader.h"
+#include "../Particle.h"
+#include "../ResourcePaths.h"
+#include "../SaveFile.h"
 
-#include <Segues\Checkerboard.h>
+#include <Segues/Checkerboard.h>
 
 #include <iostream>
 #include <assert.h>

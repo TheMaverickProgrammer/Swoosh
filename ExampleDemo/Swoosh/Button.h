@@ -1,6 +1,6 @@
 #pragma once
-#include <SFML\Graphics.hpp>
-#include <Swoosh\Game.h>
+#include <SFML/Graphics.hpp>
+#include <Swoosh/Game.h>
 
 // Custom class definitions
 struct button;
