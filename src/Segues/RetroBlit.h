@@ -25,11 +25,12 @@ auto RETRO_BLIT_SHADER = GLSL(
     vec4 color = texture2D(texture, p.xy);
     float r = rand(floor(vec2(size) * color.xy));
     float m = smoothstep(0.0, 0.0, r - (progress * (1.0)));
-    gl_FragColor = mix(color, vec4(0.0, 0.0, 0.0, 1.0), m);
+    gl_FragColor = mix(color, vec4(0.0, 0.0, 0.0, 0.0), m);
   }
 );
 
 // krows and kcols determine kernel size that each is interpolated over. 
+// It can be thought of as color tolerance
 // For a dissolving effect, using high krows and kcols
 // For a retro effect, use less
 template<int krows, int kcols>
@@ -54,7 +55,7 @@ public:
 
       sf::Sprite sprite(*temp);
 
-      surface.clear(sf::Color::Transparent);
+      surface.clear(this->getLastActivityBGColor());
 
       shader.setUniform("texture", *temp);
       shader.setUniform("progress", (0.5f - (float)alpha)/0.5f);
@@ -65,7 +66,6 @@ public:
       surface.draw(sprite, states);
     }
     else {
-
       this->drawNextActivity(surface);
 
       surface.display(); // flip and ready the buffer
@@ -73,6 +73,8 @@ public:
       sf::Texture* temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
 
       sf::Sprite sprite(*temp);
+
+      surface.clear(this->getNextActivityBGColor());
 
       shader.setUniform("texture", *temp);
       shader.setUniform("progress", ((float)alpha - 0.5f)/0.5f);

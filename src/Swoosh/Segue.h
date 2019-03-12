@@ -20,9 +20,10 @@ namespace swoosh {
     void (ActivityController::*resetViewFunc)(sf::RenderTexture& surface);
 
   protected:
-    const sf::Time getDuration() { return duration; }
+    const sf::Time getDuration() const { return duration; }
     const sf::Time getElapsed() { return timer.getElapsed(); }
-
+    const sf::Color getLastActivityBGColor() const { return last->getBGColor();  }
+    const sf::Color getNextActivityBGColor() const { return next->getBGColor(); }
     void drawLastActivity(sf::RenderTexture& surface) {
       if (last) {
         (this->getController().*setActivityViewFunc)(surface, last);

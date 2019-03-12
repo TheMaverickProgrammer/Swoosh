@@ -49,7 +49,7 @@ namespace {
     }
 
     vec4 bgColor(vec2 p, vec2 pfr, vec2 pto) {
-      vec4 c = vec4(0.0, 0.0, 0.0, 1.0);
+      vec4 c = vec4(0.0, 0.0, 0.0, 0.0);
 
       pfr = project(pfr);
 
@@ -173,7 +173,6 @@ public:
 
     sf::Sprite sprite(*temp);
 
-    surface.clear(sf::Color::Transparent);
     this->drawLastActivity(surface);
 
     surface.display(); // flip and ready the buffer
@@ -195,6 +194,8 @@ public:
 
     sf::RenderStates states;
     states.shader = &shader;
+
+    surface.clear(getLastActivityBGColor());
 
     surface.draw(sprite, states);
 

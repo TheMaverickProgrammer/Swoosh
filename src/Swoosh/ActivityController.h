@@ -354,6 +354,9 @@ namespace swoosh {
       // Capture buffer in a drawable context
       sf::Sprite post(surface->getTexture());
 
+      // Fill in the bg color
+      handle.clear(activities.top()->bgColor);
+
       // drawbuffer on top of the scene
       handle.draw(post);
 
@@ -366,6 +369,10 @@ namespace swoosh {
         return;
 
       external.setView(activities.top()->view);
+
+      // Fill in the bg color
+      handle.clear(activities.top()->bgColor);
+
       activities.top()->onDraw(external);
     }
 

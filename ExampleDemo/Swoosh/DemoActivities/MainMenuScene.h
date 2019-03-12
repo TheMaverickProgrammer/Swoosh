@@ -116,6 +116,9 @@ public:
     //themeMusic.openFromFile(INGAME_MUSIC_PATH);
 
     timer.reset();
+
+    this->setBGColor(sf::Color(56, 7, 67));
+
   }
 
   virtual void onStart() {

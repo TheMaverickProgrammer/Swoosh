@@ -10,6 +10,7 @@ namespace swoosh {
   protected:
     ActivityController* controller;
     sf::View view;
+    sf::Color bgColor;
 
   public:
     Activity() = delete;
@@ -23,8 +24,10 @@ namespace swoosh {
     virtual void onDraw(sf::RenderTexture& surface) = 0;
     virtual void onEnd() = 0;
     virtual ~Activity() { ; }
-    void setView(sf::View view) { this->view = view; }
+    void setView(const sf::View view) { this->view = view; }
+    void setBGColor(const sf::Color color) { this->bgColor = color;  }
     const sf::View getView() const { return this->view; }
+    const sf::Color getBGColor() const { return this->bgColor; }
     ActivityController& getController() { return *controller; }
   };
 }

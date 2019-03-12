@@ -81,6 +81,9 @@ public:
     selectFX.setBuffer(buffer);
 
     inFocus = false;
+
+    this->setBGColor(sf::Color::Black);
+
   }
 
   virtual void onStart() {
@@ -175,10 +178,10 @@ public:
   virtual void onDraw(sf::RenderTexture& surface) {
     sf::RenderWindow& window = getController().getWindow();
 
-    sf::RectangleShape black;
-    black.setSize(sf::Vector2f((float)surface.getTexture().getSize().x, (float)surface.getTexture().getSize().y));
-    black.setFillColor(sf::Color::Black);
-    surface.draw(black);
+    //sf::RectangleShape black;
+    //black.setSize(sf::Vector2f((float)surface.getTexture().getSize().x, (float)surface.getTexture().getSize().y));
+    //black.setFillColor(sf::Color::Black);
+    //surface.draw(black);
 
     for (auto& m : meteors) {
       surface.draw(m.sprite);
