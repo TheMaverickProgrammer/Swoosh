@@ -44,20 +44,17 @@ public:
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
 
-    sf::Texture* temp = nullptr;
-
     if (alpha <= 0.5) {
       this->drawLastActivity(surface);
 
       surface.display(); // flip and ready the buffer
 
-      temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
-
-      sf::Sprite sprite(*temp);
+      sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+      sf::Sprite sprite(temp);
 
       surface.clear(this->getLastActivityBGColor());
 
-      shader.setUniform("texture", *temp);
+      shader.setUniform("texture", temp);
       shader.setUniform("progress", (0.5f - (float)alpha)/0.5f);
 
       sf::RenderStates states;
@@ -70,13 +67,12 @@ public:
 
       surface.display(); // flip and ready the buffer
 
-      sf::Texture* temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
-
-      sf::Sprite sprite(*temp);
+      sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+      sf::Sprite sprite(temp);
 
       surface.clear(this->getNextActivityBGColor());
 
-      shader.setUniform("texture", *temp);
+      shader.setUniform("texture", temp);
       shader.setUniform("progress", ((float)alpha - 0.5f)/0.5f);
 
       sf::RenderStates states;
@@ -84,8 +80,6 @@ public:
 
       surface.draw(sprite, states);
     }
-
-    delete temp;
   }
 
   RetroBlitCustom(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

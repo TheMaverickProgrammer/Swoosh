@@ -7,7 +7,6 @@ using namespace swoosh;
 
 class VerticalOpen : public Segue {
 private:
-  sf::Texture* temp;
   sf::Vector2u windowSize;
 public:
   virtual void onDraw(sf::RenderTexture& surface) {
@@ -19,8 +18,7 @@ public:
 
     surface.display(); // flip and ready the buffer
 
-    if (temp) delete temp;
-    temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture* temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
 
     sf::Sprite left(*temp); 
     left.setTextureRect(sf::IntRect(0, 0, (int)(windowSize.x/2.0f), windowSize.y));
@@ -43,13 +41,14 @@ public:
     window.draw(right);
 
     surface.clear(sf::Color::Transparent);
+
+    delete temp;
   }
 
   VerticalOpen(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */ 
-    temp = nullptr;
     windowSize = getController().getVirtualWindowSize();
   }
 
-  virtual ~VerticalOpen() { if(temp) delete temp; }
+  virtual ~VerticalOpen() {}
 };

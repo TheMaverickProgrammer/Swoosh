@@ -7,7 +7,6 @@ using namespace swoosh;
 
 class ZoomIn : public Segue {
 private:
-  sf::Texture* temp;
   sf::Vector2u windowSize;
 
 public:
@@ -20,8 +19,7 @@ public:
 
     surface.display(); // flip and ready the buffer
 
-    if (temp) delete temp;
-    temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture* temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
 
     sf::Sprite left(*temp); 
     game::setOrigin(left, 0.5f, 0.5f);
@@ -40,13 +38,14 @@ public:
     window.draw(left);
 
     surface.clear(sf::Color::Transparent);
+  
+    delete temp;
   }
 
   ZoomIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */ 
-    temp = nullptr;
     windowSize = getController().getVirtualWindowSize();
   }
 
-  virtual ~ZoomIn() { if(temp) delete temp; }
+  virtual ~ZoomIn() { }
 };

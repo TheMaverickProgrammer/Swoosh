@@ -7,7 +7,6 @@ using namespace swoosh;
 
 class VerticalSlice : public Segue {
 private:
-  sf::Texture* temp;
   sf::Vector2u windowSize;
   int direction;
 
@@ -20,9 +19,7 @@ public:
     this->drawLastActivity(surface);
 
     surface.display(); // flip and ready the buffer
-
-    if (temp) delete temp;
-    temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture* temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
 
     sf::Sprite left(*temp); 
     left.setTextureRect(sf::IntRect(0, 0, (int)(windowSize.x/2.0), windowSize.y));
@@ -45,14 +42,15 @@ public:
     window.draw(right);
 
     surface.clear(sf::Color::Transparent);
+
+    delete temp;
   }
 
   VerticalSlice(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */ 
-    temp = nullptr;
     windowSize = getController().getVirtualWindowSize();
     direction = rand() % 2 == 0 ? -1 : 1;
   }
 
-  virtual ~VerticalSlice() { if(temp) delete temp; }
+  virtual ~VerticalSlice() { }
 };

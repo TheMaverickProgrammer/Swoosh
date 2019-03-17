@@ -135,9 +135,6 @@
     <ClInclude Include="..\..\src\Segues\ZoomFadeInBounce.h">
       <Filter>Source Files\Demo\Segues</Filter>
     </ClInclude>
-    <ClInclude Include="RetroBlit.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

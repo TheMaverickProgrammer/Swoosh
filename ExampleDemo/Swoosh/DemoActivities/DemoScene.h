@@ -286,7 +286,7 @@ public:
       i++;
     }
 
-    if (rand() % 50 == 0 && enemies.size() < 10) {
+    if (rand() % 50 == 0 && enemies.size() < 10 && inFocus) {
       spawnEnemy();
 
       if (rand() % 30 == 0 && !isExtraLifeSpawned) {

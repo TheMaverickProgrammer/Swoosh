@@ -5,31 +5,9 @@
 
 using namespace swoosh;
 
-namespace {
-  auto ZOOM_FADEIN_FRAG_SHADER = GLSL
-  (
-    110,
-    uniform sampler2D texture;
-    uniform sampler2D texture2;
-    uniform float progress;
-
-    vec2 zoom(vec2 uv, float amount) {
-      return 0.5 + ((uv - 0.5) * (1.0 - amount));
-    }
-
-    void main() {
-      gl_FragColor = mix(
-        texture2D(texture, zoom(gl_TexCoord[0].xy, smoothstep(0.0, 0.75, progress))),
-        texture2D(texture2, gl_TexCoord[0].xy),
-        smoothstep(0.55, 1.0, progress)
-      );
-    }
-   );
-}
-
 class ZoomFadeIn : public Segue {
 private:
-  sf::Texture* temp;
+  std::string ZOOM_FADEIN_FRAG_SHADER;
   sf::Shader shader;
 
 public:
@@ -42,8 +20,7 @@ public:
 
     surface.display(); // flip and ready the buffer
 
-    if (temp) delete temp;
-    temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture* temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
 
     sf::Sprite sprite(*temp);
 
@@ -62,13 +39,33 @@ public:
     states.shader = &shader;
 
     surface.draw(sprite, states);
+
+    delete temp; delete temp2;
   }
 
   ZoomFadeIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */
-    temp = nullptr;
+    auto ZOOM_FADEIN_FRAG_SHADER = GLSL
+    (
+      110,
+      uniform sampler2D texture;
+      uniform sampler2D texture2;
+      uniform float progress;
 
-    shader.loadFromMemory(::ZOOM_FADEIN_FRAG_SHADER, sf::Shader::Fragment);
+      vec2 zoom(vec2 uv, float amount) {
+        return 0.5 + ((uv - 0.5) * (1.0 - amount));
+      }
+
+      void main() {
+        gl_FragColor = mix(
+          texture2D(texture, zoom(gl_TexCoord[0].xy, smoothstep(0.0, 0.75, progress))),
+          texture2D(texture2, gl_TexCoord[0].xy),
+          smoothstep(0.55, 1.0, progress)
+        );
+      }
+    );
+ 
+    shader.loadFromMemory(ZOOM_FADEIN_FRAG_SHADER, sf::Shader::Fragment);
   }
 
   virtual ~ZoomFadeIn() { ; }

@@ -27,6 +27,7 @@ namespace swoosh {
     void drawLastActivity(sf::RenderTexture& surface) {
       if (last) {
         (this->getController().*setActivityViewFunc)(surface, last);
+        surface.clear(last->getBGColor());
         last->onDraw(surface);
         (this->getController().*resetViewFunc)(surface);
       }
@@ -34,6 +35,7 @@ namespace swoosh {
 
     void drawNextActivity(sf::RenderTexture& surface) {
       (this->getController().*setActivityViewFunc)(surface, next);
+      surface.clear(next->getBGColor());
       next->onDraw(surface);
       (this->getController().*resetViewFunc)(surface);
     }

@@ -8,7 +8,6 @@ using namespace swoosh;
 template<int direction>
 class SwipeIn : public Segue {
 private:
-  sf::Texture* temp;
   sf::Vector2u windowSize;
 public:
   virtual void onDraw(sf::RenderTexture& surface) {
@@ -16,16 +15,17 @@ public:
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
 
+    surface.clear(this->getLastActivityBGColor());
     this->drawLastActivity(surface);
 
     surface.display(); // flip and ready the buffer
 
-    if (temp) delete temp;
-    temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
 
     sf::Sprite bottom(*temp); 
     surface.clear();
 
+    surface.clear(this->getLastActivityBGColor());
     this->drawNextActivity(surface);
 
     surface.display(); // flip and ready the buffer
@@ -75,18 +75,15 @@ public:
 
     top.setTextureRect(sf::IntRect(l, u, r, d));
 
-    sf::RenderWindow& window = getController().getWindow();
-    window.draw(bottom);
-    window.draw(top);
-
-    surface.clear(sf::Color::Transparent);
+    surface.clear();
+    surface.draw(bottom);
+    surface.draw(top);
   }
 
   SwipeIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */ 
-    temp = nullptr;
     windowSize = getController().getInitialWindowSize();
   }
 
-  virtual ~SwipeIn() { if(temp) delete temp; }
+  virtual ~SwipeIn() {; }
 };
