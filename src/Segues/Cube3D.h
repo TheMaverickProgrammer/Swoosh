@@ -98,7 +98,7 @@ public:
       }
 
       vec4 bgColor(vec2 p, vec2 pfr, vec2 pto) {
-        vec4 c = vec4(0.0, 0.0, 0.0, 0.0);
+        vec4 c = vec4(0.0, 0.0, 0.0, 1.0);
 
         pfr = project(pfr);
 

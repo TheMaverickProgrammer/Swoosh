@@ -10,7 +10,7 @@
 #include "SaveFile.h"
 
 #include <Segues/SlideIn.h>
-#include <Segues/CircleOpen.h>
+#include <Segues/CircleClose.h>
 #include <Segues/RetroBlit.h>
 
 #include <iostream>
@@ -99,7 +99,7 @@ public:
       // Rewind lets us pop back to a particular scene in our stack history 
       // bool found = getController().queueRewind<segue<Cube3D<direction::down>, sec<2>>::to<MainMenuScene>>();
 
-      bool found = getController().queueRewind<segue<RetroBlit, sec<2>>::to<MainMenuScene>>();
+      bool found = getController().queueRewind<segue<CircleClose, sec<2>>::to<MainMenuScene>>();
 
       // should never happen
       // but your games may need to check so here it is an example
@@ -177,11 +177,6 @@ public:
 
   virtual void onDraw(sf::RenderTexture& surface) {
     sf::RenderWindow& window = getController().getWindow();
-
-    //sf::RectangleShape black;
-    //black.setSize(sf::Vector2f((float)surface.getTexture().getSize().x, (float)surface.getTexture().getSize().y));
-    //black.setFillColor(sf::Color::Black);
-    //surface.draw(black);
 
     for (auto& m : meteors) {
       surface.draw(m.sprite);

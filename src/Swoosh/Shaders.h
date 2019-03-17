@@ -14,7 +14,12 @@ namespace swoosh {
     
     // Base class for all shaders
     class Shader {
+    protected:
+      sf::Shader shader;
+
     public:
+      const sf::Shader& getShader() const { return shader; }
+
       virtual ~Shader() { ; }
       virtual void apply(sf::RenderTexture& surface) = 0;
     };
@@ -25,7 +30,6 @@ namespace swoosh {
     class FastGaussianBlur final : public Shader {
     private:
       std::string FAST_BLUR_SHADER;
-      sf::Shader shader;
       sf::Texture* texture;
       float power;
 
@@ -111,14 +115,77 @@ namespace swoosh {
       virtual ~FastGaussianBlur() { }
     };
     class Checkerboard final : public Shader {
-      virtual void apply(sf::RenderTexture& surface) {
+    private:
+      std::string CHECKERBOARD_SHADER;
+      float alpha;
+      int cols, rows;
+      float smoothness;
+      sf::Texture *texture1, *texture2;
 
+    public:
+      void setAlpha(float alpha) { this->alpha = alpha; } 
+      void setCols(int cols) { this->cols = cols; }
+      void setRows(int rows) { this->rows = rows; }
+      void setSmoothness(float smoothness) { this->smoothness = smoothness; }
+      void setTexture1(sf::Texture* tex) { this->texture1 = tex; }
+      void setTexture2(sf::Texture* tex) { this->texture2 = tex; }
+
+      virtual void apply(sf::RenderTexture& surface) {
+        if (!(texture1 && texture2)) return;
+
+        shader.setUniform("progress", (float)alpha);
+        shader.setUniform("texture2", *texture2);
+        shader.setUniform("texture", *texture1);
+        shader.setUniform("smoothness", smoothness);
+        shader.setUniform("cols", cols);
+        shader.setUniform("rows", rows);
+
+        sf::RenderStates states;
+        states.shader = &shader;
+
+        sf::Sprite sprite;
+        sprite.setTexture(*texture1);
+
+        surface.draw(sprite, states);
       }
+
+      Checkerboard(int cols = 10, int rows = 10) {
+        this->cols = cols;
+        this->rows = rows;
+        this->alpha = 0;
+        this->smoothness = 0.0f;
+        this->texture1 = this->texture2 = nullptr;
+
+        this->CHECKERBOARD_SHADER = GLSL(
+          110,
+          uniform sampler2D texture;
+          uniform sampler2D texture2;
+          uniform float progress;
+          uniform float smoothness;
+          uniform int cols;
+          uniform int rows;
+
+          float rand(vec2 co) {
+            return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+          }
+
+          void main() {
+            vec2 p = gl_TexCoord[0].xy;
+            vec2 size = vec2(cols, rows);
+            float r = rand(floor(vec2(size) * p));
+            float m = smoothstep(0.0, -smoothness, r - (progress * (1.0 + smoothness)));
+            gl_FragColor = mix(texture2D(texture, p.xy), texture2D(texture2, p.xy), m);
+          }
+        );
+
+        shader.loadFromMemory(this->CHECKERBOARD_SHADER, sf::Shader::Fragment);
+      }
+
+      virtual ~Checkerboard() { ; }
     };
     class CircleMask final : public Shader {
     private:
       std::string CIRCLE_MASK_SHADER;
-      sf::Shader shader;
       sf::Texture* texture;
       float alpha; 
       float aspectRatio;
@@ -183,13 +250,69 @@ namespace swoosh {
       virtual ~CircleMask() { ; }
     };
     class RetroBlit final : public Shader {
-      virtual void apply(sf::RenderTexture& surface) {
+    private:
+      std::string RETRO_BLIT_SHADER;
+      int kernelCols, kernelRows;
+      float alpha;
+      sf::Texture* texture;
 
+    public:
+      void setTexture(sf::Texture* tex) { texture = tex; }
+      void setAlpha(float alpha) { this->alpha = alpha; }
+      void setKernelCols(int kcols) { this->kernelCols = kcols; }
+      void setKernelRows(int krows) { this->kernelRows = krows; }
+
+      virtual void apply(sf::RenderTexture& surface) {
+        if (!texture) return;
+
+        sf::RenderStates states;
+        states.shader = &shader;
+
+        shader.setUniform("texture", *texture);
+        shader.setUniform("progress", alpha);
+        shader.setUniform("cols", kernelCols);
+        shader.setUniform("rows", kernelRows);
+
+        sf::Sprite sprite;
+        sprite.setTexture(*texture);
+
+        surface.draw(sprite, states);
       }
+
+      RetroBlit(int kcols = 10, int krows = 10) {
+        this->RETRO_BLIT_SHADER = GLSL(
+          110,
+          uniform sampler2D texture;
+          uniform float progress;
+          uniform int cols;
+          uniform int rows;
+
+          float rand(vec2 co) {
+            return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+          }
+
+          void main() {
+            vec2 p = gl_TexCoord[0].xy;
+            vec2 size = vec2(cols, rows);
+            vec4 color = texture2D(texture, p.xy);
+            float r = rand(floor(vec2(size) * color.xy));
+            float m = smoothstep(0.0, 0.0, r - (progress * (1.0)));
+            gl_FragColor = mix(color, vec4(0.0, 0.0, 0.0, 0.0), m);
+          }
+        );
+
+        shader.loadFromMemory(this->RETRO_BLIT_SHADER, sf::Shader::Fragment);
+
+        kernelCols = kcols;
+        kernelRows = krows;
+        texture = nullptr;
+        alpha = 0;
+      }
+
+      virtual ~RetroBlit() { ; }
     };
     class CrossZoom final : public Shader {
     private:
-      sf::Shader shader;
       std::string CROSS_ZOOM_SHADER;
       sf::Texture* texture1, *texture2;
       float power;
@@ -306,7 +429,6 @@ namespace swoosh {
     class Morph final : public Shader {
     private:
       std::string MORPH_SHADER;
-      sf::Shader shader;
       sf::Texture* texture1, *texture2;
       float strength;
       float alpha;
@@ -386,7 +508,6 @@ namespace swoosh {
     */
     class PageTurn final : public Shader {
     private:
-      sf::Shader shader;
       sf::Texture* texture;
       sf::Vector2u size;
       float alpha;
@@ -559,7 +680,6 @@ namespace swoosh {
     class Pixelate final : public Shader {
     private:
       std::string PIXELATE_SHADER;
-      sf::Shader shader;
       sf::Texture* texture;
       float threshold;
 
@@ -608,7 +728,6 @@ namespace swoosh {
     class RadialCCW final : public Shader {
     private:
       std::string RADIAL_CCW_SHADER;
-      sf::Shader shader;
       sf::Texture* texture1;
       sf::Texture* texture2;
       float alpha;

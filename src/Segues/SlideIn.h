@@ -34,9 +34,10 @@ public:
     this->drawNextActivity(surface);
 
     surface.display(); // flip and ready the buffer
-    sf::Sprite right(surface.getTexture());
+    sf::Texture temp2(surface.getTexture());
+    sf::Sprite right(temp2);
 
-    right.setPosition(-lr * (1-alpha) * right.getTexture()->getSize().x, -ud * (1-alpha) * right.getTexture()->getSize().y);
+    right.setPosition((float)-lr * (1.0f-(float)alpha) * right.getTexture()->getSize().x, (float)-ud * (1.0f-(float)alpha) * right.getTexture()->getSize().y);
 
     surface.draw(left);
     surface.draw(right);

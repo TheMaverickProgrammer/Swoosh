@@ -2,6 +2,7 @@
 #include <Swoosh/ActivityController.h>
 #include <Swoosh/Game.h>
 // #include <Swoosh/ActionList.h>
+#include <Segues/BlackWashFade.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <Segues/CrossZoom.h>
@@ -156,7 +157,7 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<segue<CircleClose, sec<4>>::to<DemoScene>>(savefile);
+          getController().push<segue<RadialCCW, sec<1>>::to<DemoScene>>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
@@ -166,7 +167,7 @@ public:
           getController().push<intent>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
-          getController().push<segue<Morph, sec<2>>::to<AboutScene>>();
+          getController().push<segue<VerticalSlice, sec<2>>::to<AboutScene>>();
         }
       }
     }

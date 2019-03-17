@@ -20,27 +20,25 @@ public:
 
     surface.display(); // flip and ready the buffer
 
-    sf::Texture* temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
 
-    sf::Sprite sprite(*temp);
+    sf::Sprite sprite(temp);
 
     surface.clear(sf::Color::Transparent);
     this->drawNextActivity(surface);
 
     surface.display(); // flip and ready the buffer
 
-    sf::Texture* temp2 = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture temp2(surface.getTexture()); // Make a copy of the source texture
 
     shader.setUniform("progress", (float)alpha);
-    shader.setUniform("texture2", *temp2);
-    shader.setUniform("texture", *temp);
+    shader.setUniform("texture2", temp2);
+    shader.setUniform("texture", temp);
 
     sf::RenderStates states;
     states.shader = &shader;
 
     surface.draw(sprite, states);
-
-    delete temp; delete temp2;
   }
 
   ZoomFadeIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

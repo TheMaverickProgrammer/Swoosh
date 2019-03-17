@@ -31,7 +31,8 @@ public:
     this->drawNextActivity(surface);
 
     surface.display(); // flip and ready the buffer
-    sf::Sprite right(surface.getTexture());
+    sf::Texture temp2(surface.getTexture());
+    sf::Sprite right(temp2);
 
     surface.draw(right);
     surface.draw(left);

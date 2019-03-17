@@ -18,13 +18,13 @@ public:
 
     surface.display(); // flip and ready the buffer
 
-    sf::Texture* temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
 
-    sf::Sprite left(*temp); 
+    sf::Sprite left(temp); 
     left.setTextureRect(sf::IntRect(0, 0, (int)(windowSize.x/2.0f), windowSize.y));
     left.setPosition((float)-alpha * (float)left.getTextureRect().width, 0.0f);
 
-    sf::Sprite right(*temp);
+    sf::Sprite right(temp);
     right.setTextureRect(sf::IntRect((int)(windowSize.x/2.0f), 0, windowSize.x, windowSize.y));
     right.setPosition((float)(windowSize.x/2.0f) + ((float)alpha * (right.getTextureRect().width-right.getTextureRect().left)), 0.0f);
 
@@ -33,16 +33,12 @@ public:
     this->drawNextActivity(surface);
 
     surface.display(); // flip and ready the buffer
-    sf::Sprite next(surface.getTexture());
+    sf::Texture temp2(surface.getTexture());
+    sf::Sprite next(temp2);
 
-    sf::RenderWindow& window = getController().getWindow();
-    window.draw(next);
-    window.draw(left);
-    window.draw(right);
-
-    surface.clear(sf::Color::Transparent);
-
-    delete temp;
+    surface.draw(next);
+    surface.draw(left);
+    surface.draw(right);
   }
 
   VerticalOpen(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

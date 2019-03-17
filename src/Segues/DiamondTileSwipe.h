@@ -27,9 +27,9 @@ public:
 
     sf::Texture temp (surface.getTexture()); // Make a copy of the source texture
 
-    sf::Sprite sprite(*temp);
+    sf::Sprite sprite(temp);
 
-    shader.setUniform("texture", *temp);
+    shader.setUniform("texture", temp);
     shader.setUniform("direction", direction);
     shader.setUniform("time", (float)alpha);
 

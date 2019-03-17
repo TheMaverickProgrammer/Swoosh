@@ -1,34 +1,32 @@
 #pragma once
 #include <sstream>
-#include <cstring>
+#include <string.h>
 
 #include <iostream>
 
 namespace swoosh {
   namespace glsl{
-
-    /*
-    On VS you need to add _CRT_SECURE_NO_WARNINGS to your preprocessor definitions
-    */
     static std::string formatGLSL(const char* glsl) {
       std::stringstream ss;
 
-
-      char* input = new char[strlen(glsl) + 1];
+      std::size_t size = strlen(glsl) + 1;
+      char* input = new char[size];
       char delim[] = ";";
-      strcpy(input, glsl);
+      memcpy(input, glsl, size);
+      input[size] = '\0';
 
-      char* line = strtok(input, delim);
+      rsize_t strmax = sizeof input;
+      char* next_token;
+
+      char* line = strtok_s(input, delim, &next_token);
 
       while (line != 0)
       {
         ss << line << ";\n";
-        line = strtok(0, delim);
+        line = strtok_s(0, delim, &next_token);
       }
 
-      delete[] input;
-
-
+      // delete[] input;
 
       std::string output = ss.str(); //Get the string stream as a std::string
       std::size_t found = output.find('\n'); // Find the first line break, this is the #version decl
