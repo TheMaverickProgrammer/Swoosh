@@ -1,8 +1,9 @@
 ![logo](https://i.imgur.com/tri24Y5.png)
-# Swoosh v1.1
+# Swoosh v1.2
 Header-only SFML Activity and Segue Mini Library
 
 Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX operating systems.
+[See what else comes with Swoosh](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces)
 
 ## Get Jump Started
 See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
@@ -11,6 +12,8 @@ See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/mast
 
 # Updates
 ![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
+
+[See Changelog](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Changelog).
 
 # Technology
 SFML 2.5, C++14, GLSL 1.10
