@@ -34,16 +34,19 @@ namespace swoosh {
       float power;
 
     public:
-      void setPower(float power) { this->power = power; }
-      void setTexture(sf::Texture* tex) { this->texture = tex; }
+      void setPower(float power) { this->power = power; shader.setUniform("power", power); }
+      void setTexture(sf::Texture* tex) { 
+        if (!tex) return;
+
+        this->texture = tex; 
+
+        shader.setUniform("texture", *texture);
+        shader.setUniform("textureSizeW", (float)texture->getSize().x);
+        shader.setUniform("textureSizeH", (float)texture->getSize().y);
+      }
 
       virtual void apply(sf::RenderTexture& surface) {
         if (!texture) return;
-
-        shader.setUniform("texture", *texture);
-        shader.setUniform("power", power);
-        shader.setUniform("textureSizeW", (float)texture->getSize().x);
-        shader.setUniform("textureSizeH", (float)texture->getSize().y);
 
         sf::RenderStates states;
         states.shader = &shader;
@@ -123,22 +126,15 @@ namespace swoosh {
       sf::Texture *texture1, *texture2;
 
     public:
-      void setAlpha(float alpha) { this->alpha = alpha; } 
-      void setCols(int cols) { this->cols = cols; }
-      void setRows(int rows) { this->rows = rows; }
-      void setSmoothness(float smoothness) { this->smoothness = smoothness; }
-      void setTexture1(sf::Texture* tex) { this->texture1 = tex; }
-      void setTexture2(sf::Texture* tex) { this->texture2 = tex; }
+      void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", (float)alpha); }
+      void setCols(int cols) { this->cols = cols;       shader.setUniform("cols", cols); }
+      void setRows(int rows) { this->rows = rows;       shader.setUniform("rows", rows); }
+      void setSmoothness(float smoothness) { this->smoothness = smoothness;         shader.setUniform("smoothness", smoothness);  }
+      void setTexture1(sf::Texture* tex) { if (!tex) return;  this->texture1 = tex; shader.setUniform("texture",  *texture1); }
+      void setTexture2(sf::Texture* tex) { if (!tex) return;  this->texture2 = tex; shader.setUniform("texture2", *texture2); }
 
       virtual void apply(sf::RenderTexture& surface) {
         if (!(texture1 && texture2)) return;
-
-        shader.setUniform("progress", (float)alpha);
-        shader.setUniform("texture2", *texture2);
-        shader.setUniform("texture", *texture1);
-        shader.setUniform("smoothness", smoothness);
-        shader.setUniform("cols", cols);
-        shader.setUniform("rows", rows);
 
         sf::RenderStates states;
         states.shader = &shader;
@@ -191,16 +187,12 @@ namespace swoosh {
       float aspectRatio;
 
     public:
-      void setAlpha(float alpha) { this->alpha = alpha; }
-      void setAspectRatio(float aspectRatio) { this->aspectRatio = aspectRatio; }
-      void setTexture(sf::Texture* tex) { this->texture = tex; }
+      void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("time", (float)alpha); }
+      void setAspectRatio(float aspectRatio) { this->aspectRatio = aspectRatio;  shader.setUniform("ratio", aspectRatio); }
+      void setTexture(sf::Texture* tex) { if (!tex) return; this->texture = tex; shader.setUniform("texture", *texture); }
 
       virtual void apply(sf::RenderTexture& surface) {
         if (!texture) return;
-
-        shader.setUniform("ratio", aspectRatio);
-        shader.setUniform("texture", *texture);
-        shader.setUniform("time", (float)alpha);
 
         sf::RenderStates states;
         states.shader = &shader;
@@ -257,21 +249,16 @@ namespace swoosh {
       sf::Texture* texture;
 
     public:
-      void setTexture(sf::Texture* tex) { texture = tex; }
-      void setAlpha(float alpha) { this->alpha = alpha; }
-      void setKernelCols(int kcols) { this->kernelCols = kcols; }
-      void setKernelRows(int krows) { this->kernelRows = krows; }
+      void setTexture(sf::Texture* tex) { if (!tex) return; texture = tex; shader.setUniform("texture", *texture); }
+      void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", alpha); }
+      void setKernelCols(int kcols) { this->kernelCols = kcols; shader.setUniform("cols", kernelCols); }
+      void setKernelRows(int krows) { this->kernelRows = krows; shader.setUniform("rows", kernelRows); }
 
       virtual void apply(sf::RenderTexture& surface) {
         if (!texture) return;
 
         sf::RenderStates states;
         states.shader = &shader;
-
-        shader.setUniform("texture", *texture);
-        shader.setUniform("progress", alpha);
-        shader.setUniform("cols", kernelCols);
-        shader.setUniform("rows", kernelRows);
 
         sf::Sprite sprite;
         sprite.setTexture(*texture);
@@ -319,18 +306,13 @@ namespace swoosh {
       float alpha;
 
     public:
-      void setTexture1(sf::Texture* tex) { texture1 = tex; }
-      void setTexture2(sf::Texture* tex) { texture2 = tex; }
-      void setAlpha(float alpha) { this->alpha = alpha; }
-      void setPower(float power) { this->power = power; }
+      void setTexture1(sf::Texture* tex) { if (!tex) return; texture1 = tex; shader.setUniform("texture", *texture1); }
+      void setTexture2(sf::Texture* tex) { if (!tex) return; texture2 = tex; shader.setUniform("texture2", *texture2); }
+      void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", (float)alpha); }
+      void setPower(float power) { this->power = power; shader.setUniform("strength", power); }
 
       virtual void apply(sf::RenderTexture& surface) {
         if (!(texture1 && texture2)) return;
-
-        shader.setUniform("strength", power);
-        shader.setUniform("progress", (float)alpha);
-        shader.setUniform("texture2", *texture2);
-        shader.setUniform("texture", *texture1);
 
         sf::RenderStates states;
         states.shader = &shader;
@@ -434,18 +416,13 @@ namespace swoosh {
       float alpha;
     public:
 
-      void setTexture1(sf::Texture* tex) { texture1 = tex; }
-      void setTexture2(sf::Texture* tex) { texture2 = tex; }
-      void setAlpha(float alpha) { this->alpha = alpha; }
-      void setStrength(float strength) { this->strength = strength; }
+      void setTexture1(sf::Texture* tex) { if (!tex) return; texture1 = tex; shader.setUniform("texture", *texture1); }
+      void setTexture2(sf::Texture* tex) { if (!tex) return; texture2 = tex; shader.setUniform("texture2", *texture2); }
+      void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("alpha", (float)alpha); }
+      void setStrength(float strength) { this->strength = strength; shader.setUniform("strength", strength); }
 
       virtual void apply(sf::RenderTexture& surface) {
         if (!(texture1 && texture2)) return;
-
-        shader.setUniform("strength", strength);
-        shader.setUniform("texture2", *texture2);
-        shader.setUniform("texture", *texture1);
-        shader.setUniform("alpha", (float)alpha);
 
         sf::RenderStates states;
         states.shader = &shader;
@@ -567,14 +544,10 @@ namespace swoosh {
 
     public:
 
-      void setTexture(sf::Texture* tex) { this->texture = tex; }
+      void setTexture(sf::Texture* tex) { if (!tex) return;  this->texture = tex; shader.setUniform("texture", *texture); }
 
       void setAlpha(float alpha) {
         this->alpha = alpha; 
-      }
-
-      virtual void apply(sf::RenderTexture& surface) {
-        if (!(this->texture)) return;
 
         /*
         these are hard-coded values that make the effect look natural
@@ -608,7 +581,10 @@ namespace swoosh {
         shader.setUniform("A", (float)A);
         shader.setUniform("theta", (float)theta);
         shader.setUniform("rho", (float)rho);
-        shader.setUniform("texture", *texture);
+      }
+
+      virtual void apply(sf::RenderTexture& surface) {
+        if (!(this->texture)) return;
 
         sf::RenderStates states;
         states.shader = &shader;
@@ -686,9 +662,7 @@ namespace swoosh {
     public:
       virtual void apply(sf::RenderTexture& surface) {
         if (!this->texture) return;
-
-        shader.setUniform("texture", *this->texture);
-        shader.setUniform("pixel_threshold", threshold);
+        
         sf::RenderStates states;
         states.shader = &shader;
 
@@ -698,8 +672,8 @@ namespace swoosh {
         surface.draw(sprite, states);
       }
 
-      void setTexture(sf::Texture* tex) { this->texture = tex; }
-      void setThreshold(float t) { this->threshold = t; }
+      void setTexture(sf::Texture* tex) { if (!tex) return; this->texture = tex; shader.setUniform("texture", *this->texture); }
+      void setThreshold(float t) { this->threshold = t; shader.setUniform("pixel_threshold", threshold); }
 
       Pixelate() {
         threshold = 0;
@@ -735,9 +709,6 @@ namespace swoosh {
     public:
       virtual void apply(sf::RenderTexture& surface) {
         if (!(this->texture1 && this->texture2)) return;
-        shader.setUniform("texture", *texture1);
-        shader.setUniform("texture2", *texture2);
-        shader.setUniform("time", (float)alpha);
 
         sf::RenderStates states;
         states.shader = &shader;
@@ -749,9 +720,9 @@ namespace swoosh {
         surface.draw(sprite, states);
       }
 
-      void setTexture1(sf::Texture* tex) { this->texture1 = tex; }
-      void setTexture2(sf::Texture* tex) { this->texture2 = tex; }
-      void setAlpha(float alpha) { this->alpha = alpha; }
+      void setTexture1(sf::Texture* tex) { if (!tex) return; this->texture1 = tex; shader.setUniform("texture", *texture1); }
+      void setTexture2(sf::Texture* tex) { if (!tex) return; this->texture2 = tex; shader.setUniform("texture2", *texture2);}
+      void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("time", (float)alpha); }
 
       RadialCCW() {
         alpha = 0;
