@@ -50,11 +50,11 @@ namespace swoosh {
     }
 
     static void setOrigin(sf::Sprite& sprite, double fx, double fy) {
-      sprite.setOrigin(sf::Vector2f(sprite.getGlobalBounds().width * fx, sprite.getGlobalBounds().height * fy));
+      sprite.setOrigin(sf::Vector2f(sprite.getGlobalBounds().width * (float)fx, sprite.getGlobalBounds().height * (float)fy));
     }
 
     static void setOrigin(sf::Text& text, double fx, double fy) {
-      text.setOrigin(sf::Vector2f(text.getGlobalBounds().width * fx, text.getGlobalBounds().height * fy));
+      text.setOrigin(sf::Vector2f(text.getGlobalBounds().width * (float)fx, text.getGlobalBounds().height * (float)fy));
     }
   }
 }

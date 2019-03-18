@@ -1,5 +1,6 @@
 #pragma once
 #include "Timer.h"
+#include "Activity.h"
 #include <SFML/Graphics.hpp>
 
 namespace swoosh {
@@ -13,27 +14,30 @@ namespace swoosh {
     Activity* next;
     sf::Time duration;
     Timer timer;
-    
+
     // Hack to make this lib header-only
-    void (ActivityController::*setActivityViewFunc)(sf::RenderTexture& surface, Activity* activity);
+    void (ActivityController::*setActivityViewFunc)(sf::RenderTexture& surface, swoosh::Activity* activity);
     void (ActivityController::*resetViewFunc)(sf::RenderTexture& surface);
 
   protected:
-    const sf::Time getDuration() { return duration; }
+    const sf::Time getDuration() const { return duration; }
     const sf::Time getElapsed() { return timer.getElapsed(); }
-
+    const sf::Color getLastActivityBGColor() const { return last->getBGColor();  }
+    const sf::Color getNextActivityBGColor() const { return next->getBGColor(); }
     void drawLastActivity(sf::RenderTexture& surface) {
       if (last) {
-        (controller.*setActivityViewFunc)(surface, last);
+        (this->getController().*setActivityViewFunc)(surface, last);
+        surface.clear(last->getBGColor());
         last->onDraw(surface);
-        (controller.*resetViewFunc)(surface);
+        (this->getController().*resetViewFunc)(surface);
       }
     }
 
     void drawNextActivity(sf::RenderTexture& surface) {
-      (controller.*setActivityViewFunc)(surface, next);
+      (this->getController().*setActivityViewFunc)(surface, next);
+      surface.clear(next->getBGColor());
       next->onDraw(surface);
-      (controller.*resetViewFunc)(surface);
+      (this->getController().*resetViewFunc)(surface);
     }
 
   public:
@@ -52,7 +56,7 @@ namespace swoosh {
     virtual void onEnd() final { last->onExit(); }
 
     Segue() = delete;
-    Segue(sf::Time duration, Activity* last, Activity* next) : duration(duration), last(last), next(next), Activity(next->controller) { /* ... */ }
+    Segue(sf::Time duration, Activity* last, Activity* next) : duration(duration), last(last), next(next), Activity(&next->getController()) { /* ... */ }
     virtual ~Segue() { }
   };
 }

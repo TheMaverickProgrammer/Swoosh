@@ -1,6 +1,10 @@
 ![logo](https://i.imgur.com/tri24Y5.png)
-# Swoosh
+# Swoosh v1.2
 Header-only SFML Activity and Segue Mini Library
+
+Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX operating systems.
+
+[See what else comes with Swoosh](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces)
 
 ## Get Jump Started
 See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
@@ -9,6 +13,8 @@ See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/mast
 
 # Updates
 ![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
+
+[See Changelog](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Changelog).
 
 # Technology
 SFML 2.5, C++14, GLSL 1.10
@@ -196,9 +202,9 @@ Sometimes you may need to step over the render surface and draw directly to the 
 
 * `getController()` returns the ActivityController that owns it
 * `getController().getWindow()` returns sf::RenderWindow
-* `getController().getInitialWindowSize()` returns sf::Vector2u of the window when your app is created. 
+* `getController().getVirtualWindowSize()` returns sf::Vector2u of the window when your app is created. 
 
-_getInitialWindowSize()_ is useful when wanting to keep your graphics consistent with scale.
+_getVirtualWindowSize()_ is useful when wanting to keep your graphics consistent with scale. By default it is the same value as your window when it is first created. 
 
 ## Drawing To The Screen
 Segues are made up of two Activities: the last and the next. For most segues you need to draw one and then the other with some applied effect.

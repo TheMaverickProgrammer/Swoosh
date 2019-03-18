@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Activity.h"
 #include "Segue.h"
 #include "Timer.h"
@@ -7,16 +8,15 @@
 #include <functional>
 #include <utility>
 
-
 namespace swoosh {
   class ActivityController {
     friend class swoosh::Segue;
 
   private:
-    std::stack<Activity*> activities;
+    std::stack<swoosh::Activity*> activities;
     mutable sf::RenderTexture* surface;
     sf::RenderWindow& handle;
-    sf::Vector2u initWindowSize;
+    sf::Vector2u virtualWindowSize;
 
     bool willLeave;
 
@@ -28,10 +28,19 @@ namespace swoosh {
 
   public:
     ActivityController(sf::RenderWindow& window) : handle(window) {
-      initWindowSize = handle.getSize();
+      virtualWindowSize = handle.getSize();
 
       surface = new sf::RenderTexture();
       surface->create((unsigned int)handle.getSize().x, (unsigned int)handle.getSize().y);
+      willLeave = false;
+      segueAction = SegueAction::NONE;
+    }
+
+    ActivityController(sf::RenderWindow& window, sf::Vector2u virtualWindowSize) : handle(window) {
+      this->virtualWindowSize = virtualWindowSize;
+
+      surface = new sf::RenderTexture();
+      surface->create((unsigned int)virtualWindowSize.x, (unsigned int)virtualWindowSize.y);
       willLeave = false;
       segueAction = SegueAction::NONE;
     }
@@ -49,7 +58,7 @@ namespace swoosh {
       }
 
       while (!activities.empty()) {
-        Activity* activity = activities.top();
+        swoosh::Activity* activity = activities.top();
         activities.pop();
         delete activity;
       }
@@ -57,8 +66,13 @@ namespace swoosh {
       delete surface;
     }
 
+    [[deprecated("Replaced by getVirtualWindowSize()")]]
     const sf::Vector2u getInitialWindowSize() const {
-      return initWindowSize;
+      return virtualWindowSize;
+    }
+
+    const sf::Vector2u getVirtualWindowSize() const {
+      return virtualWindowSize;
     }
 
     sf::RenderWindow& getWindow() {
@@ -69,10 +83,10 @@ namespace swoosh {
     class segue {
     public:
       void delegateActivityPop(ActivityController& owner) {
-        Activity* last = owner.activities.top();
+        swoosh::Activity* last = owner.activities.top();
         owner.activities.pop();
 
-        Activity* next = owner.activities.top();
+        swoosh::Activity* next = owner.activities.top();
         owner.activities.pop();
 
         swoosh::Segue* effect = new T(DurationType::value(), last, next);
@@ -92,8 +106,8 @@ namespace swoosh {
         template<typename... Args >
         void delegateActivityPush(ActivityController& owner, Args&&... args) {
           bool hasLast = (owner.activities.size() > 0);
-          Activity* last = hasLast ? owner.activities.top() : nullptr;
-          Activity* next = new U(owner, std::forward<Args>(args)...);
+          swoosh::Activity* last = hasLast ? owner.activities.top() : nullptr;
+          swoosh::Activity* next = new U(owner, std::forward<Args>(args)...);
           next->setView(owner.handle.getDefaultView());
 
           swoosh::Segue* effect = new T(DurationType::value(), last, next);
@@ -107,16 +121,16 @@ namespace swoosh {
 
         template<typename... Args >
         bool delegateActivityRewind(ActivityController& owner, Args&&... args) {
-          std::stack<Activity*> original;
+          std::stack<swoosh::Activity*> original;
 
           bool hasMore = (owner.activities.size() > 1);
 
           if (!hasMore) { return false; }
 
-          Activity* last = owner.activities.top();
+          swoosh::Activity* last = owner.activities.top();
           owner.activities.pop();
 
-          Activity* next = owner.activities.top();
+          swoosh::Activity* next = owner.activities.top();
 
           while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1) {
             original.push(next);
@@ -138,7 +152,7 @@ namespace swoosh {
 
           // We did find it, call on end to everything and free memory
           while (original.size() > 0) {
-            Activity* top = original.top();
+            swoosh::Activity* top = original.top();
             top->onEnd();
             delete top;
             original.pop();
@@ -163,7 +177,7 @@ namespace swoosh {
     template <class T>
     struct ActivityTypeQuery
     {
-      static char is_to(Activity*) {}
+      static char is_to(swoosh::Activity*) {}
 
       static double is_to(...) { ; }
 
@@ -175,7 +189,7 @@ namespace swoosh {
     struct ResolvePushSegueIntent
     {
       ResolvePushSegueIntent(ActivityController& owner) {
-        static_assert("Swoosh could not handle the segue intent");
+        //static_assert("Swoosh could not handle the segue intent");
       }
     };
 
@@ -198,8 +212,8 @@ namespace swoosh {
       template<typename... Args>
       ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
         bool hasLast = (owner.activities.size() > 0);
-        Activity* last = hasLast ? owner.activities.top() : nullptr;
-        Activity* next = new T(owner, std::forward<Args>(args)...);
+        swoosh::Activity* last = hasLast ? owner.activities.top() : nullptr;
+        swoosh::Activity* next = new T(owner, std::forward<Args>(args)...);
         next->setView(owner.handle.getDefaultView());
 
         if (hasLast) {
@@ -243,7 +257,7 @@ namespace swoosh {
     struct ResolveRewindSegueIntent
     {
       ResolveRewindSegueIntent(ActivityController& owner) {
-        static_assert("Swoosh could not handle the segue intent");
+        //static_assert("Swoosh could not handle the segue intent");
       }
 
       bool RewindSuccessful;
@@ -271,24 +285,24 @@ namespace swoosh {
 
       template<typename... Args>
       ResolveRewindSegueIntent(ActivityController& owner, Args&&... args) {
-        std::stack<Activity*> original;
+        std::stack<swoosh::Activity*> original;
 
         bool hasLast = (owner.activities.size() > 0);
 
         if (!hasLast) { RewindSuccessful = false; return; }
 
-        Activity* next = owner.activities.top();
+        swoosh::Activity* next = owner.activities.top();
 
         while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1) {
           original.push(next);
-          activities.pop();
+          owner.activities.pop();
           next = owner.activities.top();
         }
 
-        if (activities.empty()) {
+        if (owner.activities.empty()) {
           // We did not find it, push the states back on the list and return false
           while (original.size() > 0) {
-            activities.push(original.top());
+            owner.activities.push(original.top());
             original.pop();
           }
 
@@ -340,6 +354,9 @@ namespace swoosh {
       // Capture buffer in a drawable context
       sf::Sprite post(surface->getTexture());
 
+      // Fill in the bg color
+      handle.clear(activities.top()->bgColor);
+
       // drawbuffer on top of the scene
       handle.draw(post);
 
@@ -352,11 +369,15 @@ namespace swoosh {
         return;
 
       external.setView(activities.top()->view);
+
+      // Fill in the bg color
+      handle.clear(activities.top()->bgColor);
+
       activities.top()->onDraw(external);
     }
 
   private:
-    void setActivityView(sf::RenderTexture& surface, Activity* activity) {
+    void setActivityView(sf::RenderTexture& surface, swoosh::Activity* activity) {
       surface.setView(activity->getView());
     }
 
@@ -368,14 +389,14 @@ namespace swoosh {
       segue->onEnd();
       activities.pop();
 
-      Activity* next = segue->next;
+      swoosh::Activity* next = segue->next;
 
       if (segueAction == SegueAction::PUSH) {
         next->onStart(); // new item on stack first time call
       }
       else if (segueAction == SegueAction::POP) {
         // We're removing an item from the stack
-        Activity* last = segue->last;
+        swoosh::Activity* last = segue->last;
         last->onEnd();
         next->onResume();
         delete last;
@@ -387,7 +408,7 @@ namespace swoosh {
     }
 
     void pop() {
-      Activity* activity = activities.top();
+      swoosh::Activity* activity = activities.top();
       activity->onEnd();
       activities.pop();
 

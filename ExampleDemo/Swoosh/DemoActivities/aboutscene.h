@@ -1,17 +1,17 @@
 #pragma once
-#include <Swoosh\ActivityController.h>
-#include <Swoosh\Game.h>
-#include <SFML\Graphics.hpp>
-#include <SFML\Audio.hpp>
+#include <Swoosh/ActivityController.h>
+#include <Swoosh/Game.h>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "TextureLoader.h"
 #include "Particle.h"
 #include "Button.h"
 #include "ResourcePaths.h"
 #include "SaveFile.h"
 
-#include <Segues\PushIn.h>
-#include <Segues\BlendFadeIn.h>
-#include <Segues\Cube3D.h>
+#include <Segues/PushIn.h>
+#include <Segues/BlendFadeIn.h>
+#include <Segues/Cube3D.h>
 
 #include <iostream>
 
@@ -54,7 +54,7 @@ private:
   bool inFocus;
   bool canClick;
 public:
-  AboutScene(ActivityController& controller) : Activity(controller) {
+  AboutScene(ActivityController& controller) : Activity(&controller) {
     canClick = false;
 
     font.loadFromFile(GAME_FONT);
@@ -70,14 +70,14 @@ public:
 
     sfmlTexture = loadTexture(SFML_PATH);
     sfml = sf::Sprite(*sfmlTexture);
-    sfml.setScale(0.7, 0.7);
-    setOrigin(sfml, 0.5, 0.60);
+    sfml.setScale(0.7f, 0.7f);
+    setOrigin(sfml, 0.5f, 0.60f);
 
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
-    screenBottom = windowSize.y;
-    screenMid = windowSize.x / 2.0;
-    screenDiv = windowSize.y / 4.0;
+    screenBottom = (float)windowSize.y;
+    screenMid = windowSize.x / 2.0f;
+    screenDiv = windowSize.y / 4.0f;
 
     // Load sounds
     buffer.loadFromFile(SHIELD_UP_SFX_PATH);
@@ -100,10 +100,10 @@ public:
       offset = ease::wideParabola(timer.getElapsed().asMilliseconds()-3000.0, 5000.0, 0.9);
     }
 
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
-    sfml.setPosition(100 + (offset * (windowSize.x - 300)), 100);
-    sfml.setRotation(offset * 360 * 2);
+    sfml.setPosition(100.0f + (float)(offset * (windowSize.x - 300)), 100.0f);
+    sfml.setRotation((float)(offset * 360 * 2));
 
     goback.update(getController().getWindow());
 

@@ -1,14 +1,13 @@
 #pragma once
-#include <Swoosh\Segue.h>
-#include <Swoosh\Game.h>
-#include <Swoosh\Ease.h>
+#include <Swoosh/Segue.h>
+#include <Swoosh/Game.h>
+#include <Swoosh/Ease.h>
 
 using namespace swoosh;
 
 template<int direction>
 class SwipeIn : public Segue {
 private:
-  sf::Texture* temp;
   sf::Vector2u windowSize;
 public:
   virtual void onDraw(sf::RenderTexture& surface) {
@@ -16,20 +15,22 @@ public:
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
 
+    surface.clear(this->getLastActivityBGColor());
     this->drawLastActivity(surface);
 
     surface.display(); // flip and ready the buffer
 
-    if (temp) delete temp;
-    temp = new sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
 
-    sf::Sprite bottom(*temp); 
+    sf::Sprite bottom(temp); 
     surface.clear();
 
+    surface.clear(this->getLastActivityBGColor());
     this->drawNextActivity(surface);
 
     surface.display(); // flip and ready the buffer
-    sf::Sprite top(surface.getTexture());
+    sf::Texture temp2(surface.getTexture());
+    sf::Sprite top(temp2);
 
     int l = 0;
     int r = 0;
@@ -39,17 +40,17 @@ public:
     // left
     if (direction == 0) {
       r = bottom.getTexture()->getSize().x;
-      l = r - (alpha * r);
+      l = (int)(r - (alpha * (double)r));
       u = 0;
       d = bottom.getTexture()->getSize().y;
 
 
-      top.setPosition(l, 0);
+      top.setPosition((float)l, 0);
     }
 
     // right
     if (direction == 1) {
-      r = bottom.getTexture()->getSize().x * alpha;
+      r = (int)((double)bottom.getTexture()->getSize().x * alpha);
       l = 0;
       u = 0;
       d = bottom.getTexture()->getSize().y;
@@ -60,9 +61,9 @@ public:
       r = bottom.getTexture()->getSize().x;
       l = 0;
       d = bottom.getTexture()->getSize().y;
-      u = d - (alpha * d);
+      u = (int)((double)d - (alpha * (double)d));
 
-      top.setPosition(0, u);
+      top.setPosition(0, (float)u);
     }
 
     // down 
@@ -70,23 +71,20 @@ public:
       r = bottom.getTexture()->getSize().x;
       l = 0;
       u = 0;
-      d = bottom.getTexture()->getSize().y * alpha;
+      d = (int)((double)bottom.getTexture()->getSize().y * alpha);
     }
 
     top.setTextureRect(sf::IntRect(l, u, r, d));
 
-    sf::RenderWindow& window = getController().getWindow();
-    window.draw(bottom);
-    window.draw(top);
-
-    surface.clear(sf::Color::Transparent);
+    surface.clear();
+    surface.draw(bottom);
+    surface.draw(top);
   }
 
   SwipeIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */ 
-    temp = nullptr;
-    windowSize = getController().getInitialWindowSize();
+    windowSize = getController().getVirtualWindowSize();
   }
 
-  virtual ~SwipeIn() { if(temp) delete temp; }
+  virtual ~SwipeIn() {; }
 };

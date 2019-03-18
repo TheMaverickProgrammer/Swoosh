@@ -1,14 +1,14 @@
 #pragma once
-#include <Swoosh\ActivityController.h>
-#include <Swoosh\Game.h>
+#include <Swoosh/ActivityController.h>
+#include <Swoosh/Game.h>
 
-#include <SFML\Graphics.hpp>
-#include "..\TextureLoader.h"
-#include "..\Particle.h"
-#include "..\ResourcePaths.h"
-#include "..\SaveFile.h"
+#include <SFML/Graphics.hpp>
+#include "../TextureLoader.h"
+#include "../Particle.h"
+#include "../ResourcePaths.h"
+#include "../SaveFile.h"
 
-#include <Segues\Checkerboard.h>
+#include <Segues/Checkerboard.h>
 
 #include <iostream>
 #include <assert.h>
@@ -73,7 +73,7 @@ private:
 
   save& savefile;
 public:
-  DemoScene(ActivityController& controller, save& savefile) : savefile(savefile), Activity(controller) { 
+  DemoScene(ActivityController& controller, save& savefile) : savefile(savefile), Activity(&controller) { 
     mousePressed = mouseRelease = inFocus = isExtraLifeSpawned = false;
 
     ingameMusic.openFromFile(INGAME_MUSIC_PATH);
@@ -90,7 +90,7 @@ public:
     gameOverChannel.setBuffer(gameOverFX);
     extraLifeChannel.setBuffer(extraLifeFX);
 
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
     bgTexture = loadTexture(PURPLE_BG_PATH);
     bgTexture->setRepeated(true);
@@ -142,13 +142,13 @@ public:
     enemy.sprite = sf::Sprite(*enemyTexture);
     setOrigin(enemy.sprite, 0.5, 0.5);
 
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
     int side = rand() % 2;
     if(side == 0)
-      enemy.pos = sf::Vector2f((rand() % 2) * windowSize.x, rand() % windowSize.y);
+      enemy.pos = sf::Vector2f((float)((rand() % 2) * windowSize.x), (float)(rand() % windowSize.y));
     else 
-      enemy.pos = sf::Vector2f(rand() % windowSize.x, (rand() % 2) * windowSize.y);
+      enemy.pos = sf::Vector2f((float)(rand() % windowSize.x), (float)((rand() % 2) * windowSize.y));
 
     enemy.lifetime = 0; // this enemy stays alive until a lifetime is provided
     enemy.sprite.setPosition(enemy.pos);
@@ -157,9 +157,9 @@ public:
 
   void resetPlayer() {
     // start is in the center of the screen
-    sf::Vector2u windowSize = getController().getInitialWindowSize();
+    sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
-    player.pos = sf::Vector2f(windowSize.x / 2.0, windowSize.y / 2.0);
+    player.pos = sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f);
     player.speed = sf::Vector2f(0, 0);
     player.sprite.setPosition(player.pos);
     player.friction = sf::Vector2f(0.96f, 0.96f);
@@ -175,14 +175,14 @@ public:
 
   virtual void onUpdate(double elapsed) {
     sf::RenderWindow& window = getController().getWindow();
-    auto windowSize = getController().getInitialWindowSize();
+    auto windowSize = getController().getVirtualWindowSize();
 
     if (lives < 0) {
       getController().push<segue<Checkerboard, milli<900>>::to<HiScoreScene>>(savefile);
     }
 
     for (auto& m : meteors) {
-      m.pos += sf::Vector2f(m.speed.x * elapsed, m.speed.y * elapsed);
+      m.pos += sf::Vector2f(m.speed.x * (float)elapsed, m.speed.y * (float)elapsed);
       m.sprite.setPosition(m.pos);
       m.sprite.setRotation(m.pos.x);
     }
@@ -190,8 +190,8 @@ public:
     int i = 0;
     for (auto& t : trails) {
       t.sprite.setPosition(t.pos);
-      t.sprite.setScale((t.life / t.lifetime), (t.life / t.lifetime));
-      t.sprite.setColor(sf::Color(t.sprite.getColor().r, t.sprite.getColor().g, t.sprite.getColor().b, 10 * t.life / t.lifetime));
+      t.sprite.setScale((float)(t.life / t.lifetime), (float)(t.life / t.lifetime));
+      t.sprite.setColor(sf::Color(t.sprite.getColor().r, t.sprite.getColor().g, t.sprite.getColor().b, (sf::Uint8)(10.0f * (t.life / t.lifetime))));
       t.life -= elapsed;
 
       if (t.life <= 0) {
@@ -244,7 +244,7 @@ public:
 
         double angle = angleTo(player.pos, e.pos);
 
-        e.sprite.setRotation(90.0f + angle);
+        e.sprite.setRotation(90.0f + (float)angle);
         e.sprite.setPosition(e.pos);
 
         sf::Vector2f dir = directionTo<float>(player.pos, e.pos);
@@ -256,27 +256,27 @@ public:
 
       if (e.lifetime > 0) {
         e.life -= 2*elapsed;
-        double scale = e.life / e.lifetime;
+        float scale = (float)(e.life / e.lifetime);
         e.sprite.setScale(scale, scale);
         e.speed.x = e.speed.y = 0;
       } 
 
-      e.pos += sf::Vector2f(e.speed.x * elapsed, e.speed.y * elapsed);
+      e.pos += sf::Vector2f(e.speed.x * (float)elapsed, e.speed.y * (float)elapsed);
       e.sprite.setPosition(e.pos);
       i++;
     }
 
     i = 0;
     for (auto& l : lasers) {
-      l.pos.x += l.speed.x * elapsed;
-      l.pos.y += l.speed.y * elapsed;
+      l.pos.x += l.speed.x * (float)elapsed;
+      l.pos.y += l.speed.y * (float)elapsed;
       l.sprite.setPosition(l.pos);
       l.life -= elapsed;
 
       double ratio = 3*l.life / l.lifetime;
       ratio = std::min(ratio, 1.0);
 
-      l.sprite.setColor(sf::Color(ratio*l.sprite.getColor().r, ratio*l.sprite.getColor().g, ratio*l.sprite.getColor().b, 255));
+      l.sprite.setColor(sf::Color((sf::Uint8)(ratio*l.sprite.getColor().r), (sf::Uint8)(ratio*l.sprite.getColor().g), (sf::Uint8)(ratio*l.sprite.getColor().b), 255));
 
       if (l.life <= 0) {
         lasers.erase(lasers.begin() + i);
@@ -286,17 +286,17 @@ public:
       i++;
     }
 
-    if (rand() % 50 == 0 && enemies.size() < 10) {
+    if (rand() % 50 == 0 && enemies.size() < 10 && inFocus) {
       spawnEnemy();
 
       if (rand() % 30 == 0 && !isExtraLifeSpawned) {
         isExtraLifeSpawned = true;
 
-        star.setPosition(rand() % windowSize.x, rand() % windowSize.y);
+        star.setPosition((float)(rand() % windowSize.x), (float)(rand() % windowSize.y));
 
         // do not spawn on top of player
         while (doesCollide(star, player.sprite)) {
-          star.setPosition(rand() % windowSize.x, rand() % windowSize.y);
+          star.setPosition((float)(rand() % windowSize.x), (float)(rand() % windowSize.y));
         }
       }
     }
@@ -315,13 +315,13 @@ public:
     sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     double angle = angleTo(mousepos, player.pos);
 
-    player.sprite.setRotation(90.0 + angle);
+    player.sprite.setRotation(90.0f + (float)angle);
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
       sf::Vector2f dir = directionTo<float>(mousepos, player.pos);
       sf::Vector2f delta = player.speed;
-      delta.x += dir.x * 30 * elapsed;
-      delta.y += dir.y * 30 * elapsed;
+      delta.x += dir.x * 30.0f * (float)elapsed;
+      delta.y += dir.y * 30.0f * (float)elapsed;
 
       player.speed = delta;
 
@@ -352,7 +352,7 @@ public:
     alpha += 50 * elapsed;
 
     alpha = std::min(alpha, 255.0);
-    player.sprite.setColor(sf::Color(255, 255, 255, alpha));
+    player.sprite.setColor(sf::Color(255, 255, 255, (sf::Uint8)alpha));
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && inFocus) {
       if (!mousePressed) {
@@ -360,7 +360,7 @@ public:
         laser.sprite = sf::Sprite(*laserTexture);
         setOrigin(laser.sprite, 0.5, 0.5);
         laser.pos = player.pos;
-        laser.sprite.setRotation(90.0f + angle);
+        laser.sprite.setRotation(90.0f + (float)angle);
         laser.sprite.setPosition(laser.pos);
 
         sf::Vector2f dir = directionTo<float>(mousepos, laser.pos);
@@ -429,11 +429,11 @@ public:
         p.sprite = sf::Sprite(*meteorTiny);
       }
 
-      auto windowSize = getController().getInitialWindowSize();
-      p.pos = sf::Vector2f(rand() % windowSize.x, rand() % windowSize.y);
+      auto windowSize = getController().getVirtualWindowSize();
+      p.pos = sf::Vector2f((float)(rand() % windowSize.x), (float)(rand() % windowSize.y));
       p.sprite.setPosition(p.pos);
 
-      p.speed = sf::Vector2f(randSpeedX, randSpeedY);
+      p.speed = sf::Vector2f((float)randSpeedX, (float)randSpeedY);
       meteors.push_back(p);
     }
   }
@@ -464,11 +464,11 @@ public:
       surface.draw(l.sprite);
     }
     
-    auto windowSize = getController().getInitialWindowSize();
+    auto windowSize = getController().getVirtualWindowSize();
 
     text.setString(std::string("score: ") + std::to_string(score));
     setOrigin(text, 1, 0);
-    text.setPosition(sf::Vector2f(windowSize.x - 50, 0));
+    text.setPosition(sf::Vector2f((float)windowSize.x - 50.0f, 0.0f));
 
     if (alpha < 255) {
       text.setFillColor(sf::Color::Red);
