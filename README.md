@@ -2,7 +2,7 @@
 # Swoosh v1.2
 Header-only SFML Activity and Segue Mini Library
 
-Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX operating systems.
+Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and Android operating systems.
 
 [See what else comes with Swoosh](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces)
 
