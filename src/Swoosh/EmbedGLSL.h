@@ -1,6 +1,12 @@
 #pragma once
 #include <sstream>
+
+#ifdef __ANDROID__
+#include <sstream>
+#include <cstring>
+#elif
 #include <string.h>
+#endif
 
 #include <iostream>
 
@@ -9,6 +15,22 @@ namespace swoosh {
     static std::string formatGLSL(const char* glsl) {
       std::stringstream ss;
 
+#ifdef __ANDROID__
+      char* input = new char[strlen(glsl) + 1];
+      char delim[] = ";";
+      strcpy(input, glsl);
+
+      char* line = strtok(input, delim);
+
+      while (line != 0)
+      {
+        ss << line << ";\n";
+        line = strtok(0, delim);
+      }
+
+      delete[] input;
+
+#elif 
       std::size_t size = strlen(glsl) + 1;
       char* input = new char[size];
       char delim[] = ";";
@@ -25,8 +47,7 @@ namespace swoosh {
         ss << line << ";\n";
         line = strtok_s(0, delim, &next_token);
       }
-
-      // delete[] input;
+#endif
 
       std::string output = ss.str(); //Get the string stream as a std::string
       std::size_t found = output.find('\n'); // Find the first line break, this is the #version decl
