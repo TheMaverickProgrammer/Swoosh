@@ -30,7 +30,7 @@ namespace swoosh {
 
       delete[] input;
 
-#elif 
+#else 
       std::size_t size = strlen(glsl) + 1;
       char* input = new char[size];
       char delim[] = ";";
