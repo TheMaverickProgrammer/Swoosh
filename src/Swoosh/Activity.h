@@ -7,6 +7,9 @@ namespace swoosh {
   class Activity {
     friend class ActivityController;
 
+  private:
+    bool started;
+
   protected:
     ActivityController* controller;
     sf::View view;
@@ -14,7 +17,7 @@ namespace swoosh {
 
   public:
     Activity() = delete;
-    Activity(ActivityController* controller) : controller(controller) { ; }
+    Activity(ActivityController* controller) : controller(controller) { started = false; }
     virtual void onStart() = 0;
     virtual void onUpdate(double elapsed) = 0;
     virtual void onLeave() = 0;
