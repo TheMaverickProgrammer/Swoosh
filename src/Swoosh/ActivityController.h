@@ -18,6 +18,8 @@ namespace swoosh {
     sf::RenderWindow& handle;
     sf::Vector2u virtualWindowSize;
 
+    swoosh::Activity* last;
+
     bool willLeave;
 
     enum class SegueAction : int {
@@ -40,6 +42,8 @@ namespace swoosh {
       surface->create((unsigned int)handle.getSize().x, (unsigned int)handle.getSize().y);
       willLeave = false;
       segueAction = SegueAction::NONE;
+
+      last = nullptr;
     }
 
     ActivityController(sf::RenderWindow& window, sf::Vector2u virtualWindowSize) : handle(window) {
@@ -50,6 +54,8 @@ namespace swoosh {
       willLeave = false;
       segueAction = SegueAction::NONE;
       stackModifiedAction = StackModifiedAction::NONE;
+
+      last = nullptr;
     }
 
     ~ActivityController() {
@@ -222,6 +228,10 @@ namespace swoosh {
         swoosh::Activity* next = new T(owner, std::forward<Args>(args)...);
         next->setView(owner.handle.getDefaultView());
 
+        if (owner.last == nullptr && owner.activities.size() != 0) {
+          owner.last = owner.activities.top();
+        }
+
         owner.activities.push(next);
         owner.stackModifiedAction = StackModifiedAction::PUSH;
       }
@@ -335,11 +345,9 @@ namespace swoosh {
         return;
 
       if (stackModifiedAction == StackModifiedAction::PUSH) {
-        if (activities.size() > 1) {
-          // probably makes more sense to have an active point to the next and last activities...
-          auto next = activities.top(); activities.pop();
-          activities.top()->onExit();
-          activities.push(next);
+        if (activities.size() > 1 && last) {
+          last->onExit();
+          last = nullptr;
         }
 
         activities.top()->onStart();
