@@ -4,7 +4,7 @@
 #ifdef __ANDROID__
 #include <sstream>
 #include <cstring>
-#elif
+#elseif
 #include <string.h>
 #endif
 
