@@ -106,7 +106,7 @@ namespace swoosh {
         effect->setActivityViewFunc = &ActivityController::setActivityView;
         effect->resetViewFunc = &ActivityController::resetView;
         effect->onStart();
-
+        effect->started = true;
         owner.activities.push(effect);
       }
 
@@ -128,7 +128,7 @@ namespace swoosh {
           effect->resetViewFunc = &ActivityController::resetView;
 
           effect->onStart();
-
+          effect->started = true;
           owner.activities.push(effect);
         }
 
@@ -179,7 +179,7 @@ namespace swoosh {
           effect->resetViewFunc = &ActivityController::resetView;
 
           effect->onStart();
-
+          effect->started = true;
           owner.activities.push(effect);
 
           return true;
@@ -351,7 +351,7 @@ namespace swoosh {
         }
 
         activities.top()->onStart();
-
+        activities.top()->started = true;
         stackModifiedAction = StackModifiedAction::NONE;
       }
 
@@ -416,6 +416,7 @@ namespace swoosh {
 
       if (segueAction == SegueAction::PUSH) {
         next->onStart(); // new item on stack first time call
+        next->started = true;
       }
       else if (segueAction == SegueAction::POP) {
         // We're removing an item from the stack
