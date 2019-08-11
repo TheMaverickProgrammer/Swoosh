@@ -20,11 +20,17 @@ namespace swoosh {
 
     bool willLeave;
 
-    enum SegueAction {
+    enum class SegueAction : int {
       POP,
       PUSH,
       NONE
     } segueAction;
+
+    enum class StackModifiedAction : int {
+      POP,
+      PUSH,
+      NONE
+    } stackModifiedAction;
 
   public:
     ActivityController(sf::RenderWindow& window) : handle(window) {
@@ -43,6 +49,7 @@ namespace swoosh {
       surface->create((unsigned int)virtualWindowSize.x, (unsigned int)virtualWindowSize.y);
       willLeave = false;
       segueAction = SegueAction::NONE;
+      stackModifiedAction = StackModifiedAction::NONE;
     }
 
     ~ActivityController() {
@@ -212,16 +219,11 @@ namespace swoosh {
       template<typename... Args>
       ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
         bool hasLast = (owner.activities.size() > 0);
-        swoosh::Activity* last = hasLast ? owner.activities.top() : nullptr;
         swoosh::Activity* next = new T(owner, std::forward<Args>(args)...);
         next->setView(owner.handle.getDefaultView());
 
-        if (hasLast) {
-          last->onExit();
-        }
-
-        next->onStart();
         owner.activities.push(next);
+        owner.stackModifiedAction = StackModifiedAction::PUSH;
       }
     };
 
@@ -332,6 +334,19 @@ namespace swoosh {
       if (activities.size() == 0)
         return;
 
+      if (stackModifiedAction == StackModifiedAction::PUSH) {
+        if (activities.size() > 1) {
+          // probably makes more sense to have an active point to the next and last activities...
+          auto next = activities.top(); activities.pop();
+          activities.top()->onExit();
+          activities.push(next);
+        }
+
+        activities.top()->onStart();
+
+        stackModifiedAction = StackModifiedAction::NONE;
+      }
+
       activities.top()->onUpdate(elapsed);
 
       if (segueAction != SegueAction::NONE) {
@@ -398,7 +413,16 @@ namespace swoosh {
         // We're removing an item from the stack
         swoosh::Activity* last = segue->last;
         last->onEnd();
-        next->onResume();
+
+        if (next->started) {
+          next->onResume();
+        }
+        else {
+          // We may have never started this activity because it existed
+          // in the activity stack before being used...
+          next->onStart();
+          next->started = true;
+        }
         delete last;
       }
 
