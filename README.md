@@ -87,15 +87,6 @@ getController().push<intent>();
 
 Much more elegant!
 
-## Less Typing!
-There are 3 wrappers and each have a shorthand alias
-
-`.......seconds<int val>` -> `sec<int val>`
-
-`milliseconds<Int32 val>` -> `milli<Int32 val>`
-
-`microseconds<Int64 val>` -> `micro<Int64 val>`
-
 ## Supplying Additional Arguments
 Your activity classes may be dependant on external information like loading your game from a save file or displaying important business data exported from another screen. 
 
