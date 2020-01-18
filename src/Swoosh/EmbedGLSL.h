@@ -2,9 +2,21 @@
 #include <sstream>
 
 #ifdef __ANDROID__
+#define SWOOSH_GLSL_USE_SAFE 1
+#endif
+
+#ifdef __APPLE__
+#define SWOOSH_GLSL_USE_SAFE 1
+#endif
+
+#ifndef SWOOSH_GLSL_USE_SAFE
+#define SWOOSH_GLSL_USE_SAFE 0
+#endif
+
+#if SWOOSH_GLSL_USE_SAFE
 #include <sstream>
 #include <cstring>
-#elseif
+#elif
 #include <string.h>
 #endif
 
@@ -15,7 +27,7 @@ namespace swoosh {
     static std::string formatGLSL(const char* glsl) {
       std::stringstream ss;
 
-#ifdef __ANDROID__
+#ifdef SWOOSH_GLSL_USE_SAFE
       char* input = new char[strlen(glsl) + 1];
       char delim[] = ";";
       strcpy(input, glsl);
