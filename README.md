@@ -240,3 +240,6 @@ It might help to remember that when a segue begins, the current activity is leav
 
 ## Inheriting the AC (Activity Controller)
 You can inherit the activity controller to extend and supply more complex data to your applications. For instance, you could extend the AC to know about your TextureResource class or AudioResource class so that each Activity instance has a way to load your game's media.
+
+## Optimizing for Mobile
+Mobile hardware cannot capture the screen, draw to it, and write back onto the frame buffer as quickly as we can on PC. There are some ways to do this faster but not with SFML at this time. In order to solve this, the AC has a new function pair `isOptimizedForPerformance()` and `optimizeForPerformance(bool enabled)` that will allow you to query if you should go easy on the target device's GPU. These 2 functions by themselves do nothing but it can be queries in both your custom Activities and your custom Segue effects.
