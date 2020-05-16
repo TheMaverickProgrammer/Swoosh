@@ -6,7 +6,7 @@ Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and And
 
 [See what else comes with Swoosh](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces)
 
-## Get Jump Started
+## ✨ Get Jump Started
 See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
 See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
@@ -32,18 +32,24 @@ See the pokemon demo using just swoosh!
 [![clip](https://media.giphy.com/media/1WbJank711TIIMmVr4/giphy.gif)](https://streamable.com/vyfhq)
 
 
-# Integrating Swoosh into your SFML application
+# ✔️ Integrating Swoosh into your SFML application
 Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
 
 Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/Demo.cpp)
 
-# Philosophy 
+## ⚙️ Inheriting the AC (Activity Controller)
+You can inherit the activity controller to extend and supply more complex data to your applications. For instance, you could extend the AC to know about your TextureResource class or AudioResource class so that each Activity instance has a way to load your game's media.
+
+## 📱 Optimizing for Mobile
+Mobile hardware cannot capture the screen, draw to it, and write back onto the frame buffer as quickly as we can on PC. There are some ways to do this faster but not with SFML at this time. In order to solve this, the AC has a new function pair `isOptimizedForPerformance()` and `optimizeForPerformance(bool enabled)` that will allow you to query if you should go easy on the target device's GPU. These 2 functions by themselves do nothing but it can be queries in both your custom Activities and your custom Segue effects.
+
+# 💡 Philosophy 
 When creating polished applications it should not be a concern to the user how to handle the memory for a scene or video game level. 
 These activities are just shells around the incoming or outgoing data in visual form; a container for the important stuff that shows up 
 on the target device's screen. The biggest goal when designing this software was allowing user's to write complex transitions as simple as possible 
 and have the syntax to perform said action be human readable.
 
-# Syntax
+# 📝 Syntax
 Swoosh addresses these issues by wrapping push and pop calls with templated types that expect either a class derived from `Activity` for screens or `Segue` for transition effects.
 
 For example
@@ -61,7 +67,7 @@ controller.push<segue<BlendFadeIn>::to<AppSettingsScene>>();
 
 The syntax is human readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: writing the application!
 
-## Changing Time
+## ⏰ Changing Time
 The `Segue` class takes in two arguments: the next activity type, and the duration for the transition to last. By default the transition is set to 1 second. 
 This may be too fast or too slow for your needs. The `DurationType` class takes a templated wrapper for SFML time functions. They are found in the `swoosh::intent` namespace.
 
@@ -72,7 +78,7 @@ using namespace swoosh::intent;
 controller.push<segue<Cube3D<direction::left>, seconds<5>>::to<DramaticIntroScene>>();
 ```
 
-## Writing Clearer Intents
+## 🔍 Writing Clearer Intents
 The last example had a segue that required directional input and the syntax was longer than we'd like. 
 Although Swoosh is doing a ton behind the scenes for us, we lost some clarity.
 
@@ -87,7 +93,7 @@ getController().push<intent>();
 
 Much more elegant!
 
-## Supplying Additional Arguments
+## 🏭 Supplying Additional Arguments
 Your activity classes may be dependant on external information like loading your game from a save file or displaying important business data exported from another screen. 
 
 ```c++
@@ -112,7 +118,7 @@ LobbyInfo data = queryLobbyServer().get(); // blocking future request
 controller.push<intent>(data);
 ```
 
-# Leaving Activities
+# ⏏️ Leaving Activities
 The `ActivityController` class can _push_ and _pop_ states but only when it's safe to do so. It does not pop in the middle of a cycle and does not push when in the middle of a segue.
 Make sure your activity controller calls are in an Activity's `onUpdate(double elapsed)` function to avoid having _push_ or _pop_ intents discarded.
 
@@ -131,7 +137,7 @@ controller.queuePop();
 controller.queuePop<segue<BlurFadeIn>>();
 ```
 
-## Rewinding
+## ⏪ Rewinding
 Rewinding is useful when you have an inactive Activity lingering in your stack from before and you wish to go back to that point. Rewinding the activity stack pops and ends all previous activities until it finds the first matching activity type. _queuePop_ is an intent to pop once where _queueRewind_ is an intent to pop _many times_.
 
 Example: jumping from the menu to the battle screen to a hiscore screen back to the menu. 
@@ -162,7 +168,7 @@ if(restartLevel == true) {
 }
 ```
 
-# Writing Activities
+# 🧠 Writing Activities
 An activity has 7 states it can be in:
 * Starting for the first time
 * Entering the focus of the app
@@ -177,7 +183,7 @@ An activity has 7 states it can be in:
 ## Defining a View
 If you need to define a view for one activity without affecting another you use that Activity's `setView(sf::View view)` function. You can set once and forget! The controller will make sure everything looks right.
 
-# Writing Segues
+# ✨ Writing Segues
 When writing transitions or action-dependant software, one of the worst things that can happen is to have a buggy action. 
 If one action depends on another to finish, but never does, the app will hang in limbo. 
 
@@ -237,9 +243,3 @@ _OR_
 * onStart -> the **next** scene when the segue ends after a _Push_ intent
 
 It might help to remember that when a segue begins, the current activity is leaving and the other is entering. When the segue ends, the current activity exits and the other begins.
-
-## Inheriting the AC (Activity Controller)
-You can inherit the activity controller to extend and supply more complex data to your applications. For instance, you could extend the AC to know about your TextureResource class or AudioResource class so that each Activity instance has a way to load your game's media.
-
-## Optimizing for Mobile
-Mobile hardware cannot capture the screen, draw to it, and write back onto the frame buffer as quickly as we can on PC. There are some ways to do this faster but not with SFML at this time. In order to solve this, the AC has a new function pair `isOptimizedForPerformance()` and `optimizeForPerformance(bool enabled)` that will allow you to query if you should go easy on the target device's GPU. These 2 functions by themselves do nothing but it can be queries in both your custom Activities and your custom Segue effects.
