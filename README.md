@@ -1,5 +1,5 @@
 ![logo](https://i.imgur.com/tri24Y5.png)
-# Swoosh v1.2.1
+# Swoosh v1.2.2
 Header-only SFML Activity and Segue Mini Library
 
 Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and Android operating systems.
@@ -151,6 +151,17 @@ if(!found) {
 }
 ```
 
+## Replacing
+Sometimes you need to directly modify the current item on the stack. Some games let you restart levels. Others have dozens in a row and tracking each one would eat up too much memory!
+
+Now you can replace the current activity safely like so:
+
+```c++
+if(restartLevel == true) {
+    controller.replace<MyLevel>();
+}
+```
+
 # Writing Activities
 An activity has 7 states it can be in:
 * Starting for the first time
@@ -226,3 +237,6 @@ _OR_
 * onStart -> the **next** scene when the segue ends after a _Push_ intent
 
 It might help to remember that when a segue begins, the current activity is leaving and the other is entering. When the segue ends, the current activity exits and the other begins.
+
+## Inheriting the AC (Activity Controller)
+You can inherit the activity controller to extend and supply more complex data to your applications. For instance, you could extend the AC to know about your TextureResource class or AudioResource class so that each Activity instance has a way to load your game's media.
