@@ -167,13 +167,13 @@ public:
     hasShield = true;
   }
 
-  virtual void onStart() {
+  void onStart() override {
     std::cout << "DemoScene OnStart called" << std::endl;
     ingameMusic.play();
     inFocus = true;
   }
 
-  virtual void onUpdate(double elapsed) {
+  void onUpdate(double elapsed) override {
     sf::RenderWindow& window = getController().getWindow();
     auto windowSize = getController().getVirtualWindowSize();
 
@@ -327,7 +327,7 @@ public:
 
       particle trail = player;
       trail.life = trail.lifetime = 1.0; // secs
-      trails.push_back(trail);
+      trails.insert(trails.begin(), trail);
     }
     else {
       // apply the brakes
@@ -384,21 +384,21 @@ public:
       hasShield = false;
   }
 
-  virtual void onLeave() {
+  void onLeave() override {
     std::cout << "DemoScene OnLeave called" << std::endl;
     ingameMusic.stop();
     inFocus = false;
   }
 
-  virtual void onExit() {
+  void onExit() override {
     std::cout << "DemoScene OnExit called" << std::endl;
 
-    savefile.names.insert(savefile.names.begin(), "ZZZ");
+    savefile.names.insert(savefile.names.begin(), "YOU");
     savefile.scores.insert(savefile.scores.begin(), score);
     savefile.writeToFile(SAVE_FILE_PATH);
   }
 
-  virtual void onEnter() {
+  void onEnter() override {
     std::cout << "DemoScene OnEnter called" << std::endl;
 
     for (int i = 50; i > 0; i--) {
@@ -438,12 +438,12 @@ public:
     }
   }
 
-  virtual void onResume() {
+  void onResume() override {
     std::cout << "DemoScene OnResume called" << std::endl;
 
   }
 
-  virtual void onDraw(sf::RenderTexture& surface) {
+  void onDraw(sf::RenderTexture& surface) override {
     sf::RenderWindow& window = getController().getWindow();
 
     surface.draw(bg);
@@ -504,9 +504,9 @@ public:
     }
   }
 
-  virtual void onEnd() {
+  void onEnd() override {
     std::cout << "DemoScene OnEnd called" << std::endl;
   }
 
-  virtual ~DemoScene() { delete bgTexture;; }
+  ~DemoScene() { delete bgTexture;; }
 };

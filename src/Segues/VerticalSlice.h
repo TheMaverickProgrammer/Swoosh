@@ -11,7 +11,7 @@ private:
   int direction;
 
 public:
-  virtual void onDraw(sf::RenderTexture& surface) {
+ void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = 1.0 - ease::bezierPopOut(elapsed, duration);

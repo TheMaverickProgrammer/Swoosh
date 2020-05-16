@@ -71,7 +71,7 @@ public:
     sfmlTexture = loadTexture(SFML_PATH);
     sfml = sf::Sprite(*sfmlTexture);
     sfml.setScale(0.7f, 0.7f);
-    setOrigin(sfml, 0.5f, 0.60f);
+    setOrigin(sfml, 0.60f, 0.60f);
 
     sf::Vector2u windowSize = getController().getVirtualWindowSize();
 
@@ -88,11 +88,12 @@ public:
     timer.start();
   }
 
-  virtual void onStart() {
+  void onStart() override {
     inFocus = true;
   }
 
-  virtual void onUpdate(double elapsed) {
+  void onUpdate(double elapsed) override {
+    timer.update(elapsed);
 
     double offset = 0;
     if (timer.getElapsed().asSeconds() > 3) {
@@ -113,7 +114,7 @@ public:
         selectFX.play();
 
         if (goback.text == "FIN") {
-          getController().queuePop<segue<Cube3D<direction::right>, sec<5>>>();
+          getController().queuePop<segue<Cube3D<direction::right>, sec<2>>>();
         }
         else {
           goback.text = "FIN";
@@ -128,21 +129,21 @@ public:
     }
   }
 
-  virtual void onLeave() {
+  void onLeave() override {
     inFocus = false;
   }
 
-  virtual void onExit() {
+  void onExit() override {
   }
 
-  virtual void onEnter() {
+  void onEnter() override {
     
   }
 
-  virtual void onResume() {
+  void onResume() override {
   }
 
-  virtual void onDraw(sf::RenderTexture& surface) {
+  void onDraw(sf::RenderTexture& surface) override {
     sf::RenderWindow& window = getController().getWindow();
 
     surface.clear(sf::Color::Black);
@@ -163,8 +164,8 @@ public:
     goback.draw(surface, text, screenMid, screenBottom - 40);
   }
 
-  virtual void onEnd() {
+  void onEnd() override {
   }
 
-  virtual ~AboutScene() { delete btn; }
+  ~AboutScene() { delete btn; }
 };

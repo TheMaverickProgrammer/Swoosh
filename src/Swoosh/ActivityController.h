@@ -5,8 +5,10 @@
 #include "Timer.h"
 #include <SFML/Graphics.hpp>
 #include <stack>
+#include <list>
 #include <functional>
 #include <utility>
+#include <cstddef>
 
 namespace swoosh {
   class ActivityController {
@@ -14,23 +16,26 @@ namespace swoosh {
 
   private:
     std::stack<swoosh::Activity*> activities;
+
     mutable sf::RenderTexture* surface;
     sf::RenderWindow& handle;
     sf::Vector2u virtualWindowSize;
-
     swoosh::Activity* last;
 
     bool willLeave;
+    bool shouldOptimizeForPerformance;
 
     enum class SegueAction : int {
       POP,
       PUSH,
+      REPLACE,
       NONE
     } segueAction;
 
     enum class StackModifiedAction : int {
       POP,
       PUSH,
+      REPLACE,
       NONE
     } stackModifiedAction;
 
@@ -42,6 +47,9 @@ namespace swoosh {
       surface->create((unsigned int)handle.getSize().x, (unsigned int)handle.getSize().y);
       willLeave = false;
       segueAction = SegueAction::NONE;
+      stackModifiedAction = StackModifiedAction::NONE;
+
+      shouldOptimizeForPerformance = false;
 
       last = nullptr;
     }
@@ -55,12 +63,14 @@ namespace swoosh {
       segueAction = SegueAction::NONE;
       stackModifiedAction = StackModifiedAction::NONE;
 
+      shouldOptimizeForPerformance = true;
+
       last = nullptr;
     }
 
-    ~ActivityController() {
+    virtual ~ActivityController() {
       if (segueAction != SegueAction::NONE) {
-        swoosh::Segue* effect = dynamic_cast<swoosh::Segue*>(activities.top());
+        swoosh::Segue* effect = static_cast<swoosh::Segue*>(activities.top());
 
         if (segueAction == SegueAction::PUSH) {
           delete effect->next;
@@ -79,7 +89,6 @@ namespace swoosh {
       delete surface;
     }
 
-    [[deprecated("Replaced by getVirtualWindowSize()")]]
     const sf::Vector2u getInitialWindowSize() const {
       return virtualWindowSize;
     }
@@ -90,6 +99,22 @@ namespace swoosh {
 
     sf::RenderWindow& getWindow() {
       return handle;
+    }
+
+    sf::RenderTexture* getSurface() {
+      return surface;
+    }
+
+    const std::size_t getStackSize() const {
+      return activities.size();
+    }
+
+    void optimizeForPerformance(bool enabled = true) {
+      shouldOptimizeForPerformance = enabled;
+    }
+
+    const bool isOptimizedForPerformance() const {
+      return shouldOptimizeForPerformance;
     }
 
     template<typename T, typename DurationType>
@@ -199,12 +224,7 @@ namespace swoosh {
     };
 
     template <typename T, bool U>
-    struct ResolvePushSegueIntent
-    {
-      ResolvePushSegueIntent(ActivityController& owner) {
-        //static_assert("Swoosh could not handle the segue intent");
-      }
-    };
+    struct ResolvePushSegueIntent;
 
     template<typename T>
     struct ResolvePushSegueIntent<T, false>
@@ -242,6 +262,26 @@ namespace swoosh {
       ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value> intent(*this, std::forward<Args>(args)...);
     }
 
+    template<typename T, typename... Args>
+    void replace(Args&&... args) {
+      size_t before = this->activities.size();
+      ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value> intent(*this, std::forward<Args>(args)...);
+      size_t after = this->activities.size();
+
+      // quick feature hack
+      // We check if the push intent was resolved (+1 activity stack)
+      // And then figure out which event was called (segue or direct stack modification?)
+      // And flip that flag to become REPLACE
+      if (before < after) {
+        if (segueAction != SegueAction::NONE) {
+          segueAction = SegueAction::REPLACE;
+        }
+        else if (stackModifiedAction != StackModifiedAction::NONE) {
+          stackModifiedAction = StackModifiedAction::REPLACE;
+        }
+      }
+    }
+
     template<typename T>
     const bool queuePop() {
       // Have to have more than 1 on the stack...
@@ -269,7 +309,6 @@ namespace swoosh {
     struct ResolveRewindSegueIntent
     {
       ResolveRewindSegueIntent(ActivityController& owner) {
-        //static_assert("Swoosh could not handle the segue intent");
       }
 
       bool RewindSuccessful;
@@ -328,6 +367,8 @@ namespace swoosh {
 
     template<typename T, typename... Args>
     bool queueRewind(Args&&... args) {
+      if (this->activities.size() <= 1) return false;
+
       ResolveRewindSegueIntent<T, ActivityTypeQuery<T>::value> intent(*this, std::forward<Args>(args)...);
       return intent.RewindSuccessful;
     }
@@ -344,21 +385,31 @@ namespace swoosh {
       if (activities.size() == 0)
         return;
 
-      if (stackModifiedAction == StackModifiedAction::PUSH) {
+      if (stackModifiedAction == StackModifiedAction::PUSH || stackModifiedAction == StackModifiedAction::REPLACE) {
         if (activities.size() > 1 && last) {
           last->onExit();
+
+          if (stackModifiedAction == StackModifiedAction::REPLACE) {
+            auto top = activities.top();
+            activities.pop(); // top
+            activities.pop(); // last, to be replaced by top
+            activities.push(top); // fin
+            delete last;
+          }
+
           last = nullptr;
         }
 
         activities.top()->onStart();
         activities.top()->started = true;
+
         stackModifiedAction = StackModifiedAction::NONE;
       }
 
       activities.top()->onUpdate(elapsed);
 
       if (segueAction != SegueAction::NONE) {
-        swoosh::Segue* segue = dynamic_cast<swoosh::Segue*>(activities.top());
+        swoosh::Segue* segue = static_cast<swoosh::Segue*>(activities.top());
         if (segue->timer.getElapsed().asMilliseconds() >= segue->duration.asMilliseconds()) {
           endSegue(segue);
         }
@@ -414,11 +465,7 @@ namespace swoosh {
 
       swoosh::Activity* next = segue->next;
 
-      if (segueAction == SegueAction::PUSH) {
-        next->onStart(); // new item on stack first time call
-        next->started = true;
-      }
-      else if (segueAction == SegueAction::POP) {
+      if (segueAction == SegueAction::POP || segueAction == SegueAction::REPLACE) {
         // We're removing an item from the stack
         swoosh::Activity* last = segue->last;
         last->onEnd();
@@ -432,7 +479,16 @@ namespace swoosh {
           next->onStart();
           next->started = true;
         }
+
+        if (segueAction == SegueAction::REPLACE) {
+          activities.pop(); // remove last
+        }
+
         delete last;
+      }
+      else if (segueAction == SegueAction::PUSH) {
+        next->onStart(); // new item on stack first time call
+        next->started = true;
       }
 
       delete segue;
@@ -449,6 +505,12 @@ namespace swoosh {
         activities.top()->onResume();
 
       delete activity;
+    }
+
+  protected:
+    const swoosh::Activity* getCurrentActivity() const {
+      if (getStackSize() > 0) return activities.top();
+      return nullptr;
     }
   };
 

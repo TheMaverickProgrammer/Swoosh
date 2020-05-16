@@ -10,7 +10,7 @@ private:
   sf::Vector2u windowSize;
 
 public:
-  virtual void onDraw(sf::RenderTexture& surface) {
+ void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::bezierPopOut(elapsed, duration);

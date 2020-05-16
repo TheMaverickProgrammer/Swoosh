@@ -86,11 +86,13 @@ public:
 
   }
 
-  virtual void onStart() {
+  void onStart() override {
     inFocus = true;
   }
 
-  virtual void onUpdate(double elapsed) {
+  void onUpdate(double elapsed) override {
+    waitTime.update(elapsed);
+
     goback.update(getController().getWindow());
 
     if (goback.isClicked && inFocus) {
@@ -128,14 +130,14 @@ public:
     }
   }
 
-  virtual void onLeave() {
+  void onLeave() override {
     inFocus = false;
   }
 
-  virtual void onExit() {
+  void onExit() override {
   }
 
-  virtual void onEnter() {
+  void onEnter() override {
     for (int i = 50; i > 0; i--) {
       int randNegativeX = rand() % 2 == 0 ? -1 : 1;
       int randNegativeY = rand() % 2 == 0 ? -1 : 1;
@@ -172,10 +174,10 @@ public:
     }
   }
 
-  virtual void onResume() {
+  void onResume() override {
   }
 
-  virtual void onDraw(sf::RenderTexture& surface) {
+  void onDraw(sf::RenderTexture& surface) override {
     sf::RenderWindow& window = getController().getWindow();
 
     for (auto& m : meteors) {
@@ -209,8 +211,8 @@ public:
     goback.draw(surface, text, screenMid, screenBottom - 40);
   }
 
-  virtual void onEnd() {
+  void onEnd() override {
   }
 
-  virtual ~HiScoreScene() { delete btn; }
+  ~HiScoreScene() { delete btn; }
 };

@@ -41,19 +41,21 @@ namespace swoosh {
     }
 
   public:
-    virtual void onStart() final { next->onEnter();  last->onLeave(); timer.reset(); }
+    void onStart() override final { next->onEnter();  last->onLeave(); timer.reset(); }
 
-    virtual void onUpdate(double elapsed) final {
+    void onUpdate (double elapsed) override final {
+      timer.update(elapsed);
+
       if (last) last->onUpdate(elapsed);
       next->onUpdate(elapsed);
     }
 
-    virtual void onLeave() final { timer.pause(); }
-    virtual void onExit() final { ; }
-    virtual void onEnter() final { ; }
-    virtual void onResume() final { timer.start(); }
+    void onLeave() override final { timer.pause(); }
+    void onExit() override final { ; }
+    void onEnter() override final { ; }
+    void onResume() override final { timer.start(); }
     virtual void onDraw(sf::RenderTexture& surface) = 0;
-    virtual void onEnd() final { last->onExit(); }
+    void onEnd() override final { last->onExit(); }
 
     Segue() = delete;
     Segue(sf::Time duration, Activity* last, Activity* next) : duration(duration), last(last), next(next), Activity(&next->getController()) { /* ... */ }

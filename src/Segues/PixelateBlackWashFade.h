@@ -12,7 +12,7 @@ private:
   float factor;
 
 public:
-  virtual void onDraw(sf::RenderTexture& surface) {
+ void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);

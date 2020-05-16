@@ -2,45 +2,52 @@
 #include <SFML/System.hpp>
 
 namespace swoosh {
-  class Timer {
-    sf::Clock clock;
+  struct Timer {
     sf::Int32 elapsed;
     bool paused;
+
+    Timer(const Timer& rhs) = default;
+    ~Timer() = default;
 
   public:
     Timer() {
       paused = true;
       elapsed = 0;
-      clock.restart();
     }
 
     void reset() {
-      clock.restart();
       elapsed = 0;
       paused = false;
     }
 
     void start() {
       if (paused) {
-        clock.restart();
       }
       paused = false;
     }
 
     void pause() {
-      if (!paused) {
-        elapsed += clock.getElapsedTime().asMilliseconds();
-      }
       paused = true;
     }
 
-    bool isPaused() { return paused; }
+    bool isPaused() { 
+      return paused; 
+    }
 
     sf::Time getElapsed() {
-      if (!paused) {
-        return sf::milliseconds(elapsed + clock.getElapsedTime().asMilliseconds());
-      }
       return sf::milliseconds(elapsed);
+    }
+
+    void update(double seconds) {
+      if (!paused) {
+        elapsed += static_cast<sf::Int32>(seconds * 1000);
+      }
+    }
+
+    void update(sf::Int32 milliseconds) {
+      if (!paused) {
+        elapsed += milliseconds;
+      }
     }
   };
 }

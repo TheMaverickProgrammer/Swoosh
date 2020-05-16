@@ -122,12 +122,14 @@ public:
 
   }
 
-  virtual void onStart() {
+  void onStart() override {
     std::cout << "MainMenuScene OnStart called" << std::endl;
     themeMusic.play();
   }
 
-  virtual void onUpdate(double elapsed) {
+  void onUpdate(double elapsed) override {
+    timer.update(elapsed);
+
     if (!inFocus && fadeMusic) {
       themeMusic.setVolume(themeMusic.getVolume() * 0.90f); // quieter
     }
@@ -173,12 +175,12 @@ public:
     }
   }
 
-  virtual void onLeave() {
+  void onLeave() override {
     std::cout << "MainMenuScene OnLeave called" << std::endl;
     inFocus = false;
   }
 
-  virtual void onExit() {
+  void onExit() override {
     std::cout << "MainMenuScene OnExit called" << std::endl;
 
     if (fadeMusic) {
@@ -186,13 +188,13 @@ public:
     }
   }
 
-  virtual void onEnter() {
+  void onEnter() override {
     std::cout << "MainMenuScene OnEnter called" << std::endl;
 
   }
 
 
-  virtual void onResume() {
+  void onResume() override {
     inFocus = true;
 
     // We were coming from demo, the music changes
@@ -224,7 +226,7 @@ public:
     }
   }
 
-  virtual void onDraw(sf::RenderTexture& surface) {
+  void onDraw(sf::RenderTexture& surface) override {
     sf::RenderWindow& window = getController().getWindow();
 
     surface.draw(bg);
@@ -272,7 +274,7 @@ public:
     }
   }
 
-  virtual void onEnd() {
+  void onEnd() override {
     std::cout << "MainMenuScene OnEnd called" << std::endl;
 
     while (!particles.empty()) {
@@ -280,7 +282,7 @@ public:
     }
   }
 
-  virtual ~MainMenuScene() {
+  ~MainMenuScene() {
     delete bgTexture;
 
     while (!particles.empty()) {

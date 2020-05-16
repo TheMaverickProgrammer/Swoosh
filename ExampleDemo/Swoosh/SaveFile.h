@@ -5,7 +5,7 @@
 
 struct save {
   std::vector<std::string> names;
-  std::vector<long> scores;
+  std::vector<int> scores;
 
   const bool empty() { return names.empty(); }
 
@@ -14,26 +14,26 @@ struct save {
 
     if (!outfile) { outfile.close(); return; }
 
+    // create some fake highscores if first time playing
     if (names.empty()) {
-      for (int i = 0; i < 5; i++) {
-        char buffer[4];
-        strcpy_s(buffer, "AAA\0");
-        outfile.write(buffer, 4);
-        outfile << 0;
+      for (int i = 0; i < 10; i++) {
+        for (auto letter : { 0,1,2 }) {
+          outfile << "A";
+        }
+        
+        outfile << (int)rand()%2000;
       }
     }
     else {
+      // just update the records
       for (int i = 0; i < names.size(); i++) {
-        char buffer[4];
-        strcpy_s(buffer, 4, names[i].c_str());
-        buffer[3] = '\0';
-        outfile.write(buffer, 4);
+        for (auto letters : { 0,1,2 }) {
+          outfile << names[i][letters];
+        }
+
         outfile << scores[i];
       }
     }
-
-    names.clear();
-    scores.clear();
 
     outfile.close();
   }
@@ -49,7 +49,12 @@ struct save {
     if (!infile) { infile.close();  return; }
    
     while (infile) {
-      infile.read(name, 4);
+      for (auto letters : { 0,1,2 }) {
+        infile >> name[letters];
+      }
+
+      name[3] = '\0';
+
       infile >> score;
 
       //std::cout << name << ", " << score << std::endl;

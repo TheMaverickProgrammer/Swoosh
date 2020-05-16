@@ -16,7 +16,7 @@
 #if SWOOSH_GLSL_USE_SAFE
 #include <sstream>
 #include <cstring>
-#elif
+#else
 #include <string.h>
 #endif
 
@@ -27,7 +27,7 @@ namespace swoosh {
     static std::string formatGLSL(const char* glsl) {
       std::stringstream ss;
 
-#ifdef SWOOSH_GLSL_USE_SAFE
+#if SWOOSH_GLSL_USE_SAFE
       char* input = new char[strlen(glsl) + 1];
       char delim[] = ";";
       strcpy(input, glsl);
