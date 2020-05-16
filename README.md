@@ -122,7 +122,7 @@ LobbyInfo data = queryLobbyServer().get(); // blocking future request
 controller.push<intent>(data);
 ```
 
-# ⏏️ Leaving Activities
+# ⏏️ Actions & Leaving Activities
 The `ActivityController` class can _push_ and _pop_ states but only when it's safe to do so. It does not pop in the middle of a cycle and does not push when in the middle of a segue.
 Make sure your activity controller calls are in an Activity's `onUpdate(double elapsed)` function to avoid having _push_ or _pop_ intents discarded.
 
@@ -171,6 +171,8 @@ if(restartLevel == true) {
     controller.replace<MyLevel>();
 }
 ```
+
+This works like any other action and so it will work with segues too!
 
 # 🧠 Writing Activities
 An activity has 7 states it can be in:
