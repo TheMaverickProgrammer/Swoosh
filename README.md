@@ -6,6 +6,10 @@ Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and And
 
 [See what else comes with Swoosh](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces)
 
+> 🚨 Critical changes from v1.2.1
+> 1. Timer must now invoke `update(...)` to track elapsed time. This may break previous user's custom segues and scenes
+> 2. All functions marked depricated from last version have been removed finally
+
 ## ✨ Get Jump Started
 See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
