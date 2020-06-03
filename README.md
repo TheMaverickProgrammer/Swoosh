@@ -82,15 +82,15 @@ using namespace swoosh::intent;
 controller.push<segue<Cube3D<direction::left>, seconds<5>>::to<DramaticIntroScene>>();
 ```
 
-## 🔍 Writing Clearer Intents
-The last example had a segue that required directional input and the syntax was longer than we'd like. 
-Although Swoosh is doing a ton behind the scenes for us, we lost some clarity.
+## 🔍 Writing Clearer Code
+The last example had a segue that required directional input and the line of code was longer than we'd like. 
+Although Swoosh is doing a ton behind the scenes for us, we lost clarity.
 
-We can clean up the intent by creating our own segue typename alias. 
+We can clean up the code by creating our own typename aliases. Later, modifying your screen transition effect is as easy as changing one line.
 
 ```c++
-using segue  = segue<Cube3D<direction::up>, sec<2>>;
-using intent = segue::to<DramaticIntroScene>;
+using effect = segue<Cube3D<direction::up>, sec<2>>;
+using intent = effect::to<DramaticIntroScene>;
 
 getController().push<intent>();
 ```
@@ -112,9 +112,9 @@ This is the same for segues
 ```c++
 ActivityController& controller = getController();
 
-// write clear intents
-using segue  = segue<CheckerboardEffect, sec<3>>;
-using intent = segue::to<MatchMakingLobby>;
+// write cleaner code
+using effect  = segue<CheckerboardEffect, sec<3>>;
+using intent = effect::to<MatchMakingLobby>;
 
 LobbyInfo data = queryLobbyServer().get(); // blocking future request
 
@@ -151,8 +151,8 @@ This is useful to simulate persistent behavior such as in a top-down adventure g
 The syntax is close to _push_ except if it succeeds, activities are ended and discarded.
 
 ```c++
-using segue = segue<BlackWashFadeIn>;
-using intent = segue::to<LOZOverworld>;
+using effect = segue<BlackWashFadeIn>;
+using intent = effect::to<LOZOverworld>;
 
 bool found = controller.queueRewind<intent>();
 
