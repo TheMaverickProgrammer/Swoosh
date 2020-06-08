@@ -8,12 +8,12 @@ Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and And
 
 > 🚨 Critical changes from v1.2.1
 > 1. Timer must now invoke `update(...)` to track elapsed time. This may break previous user's custom segues and scenes
-> 2. All functions marked depricated from last version have been removed finally
+> 2. All functions marked deprecated from last version have finally been removed
 
 ## ✨ Get Jump Started
-See all the effects and more that comes with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
+See all the effects and more that come with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
-See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use. You can also copy the segues in the source folder and use them immediately into your games with no extra configuration.
+See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use Swoosh. You can also copy the segues in the source folder and use them immediately in your games with no extra configuration.
 
 # Updates
 ![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
@@ -24,14 +24,14 @@ See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/mast
 SFML 2.5, C++14, GLSL 1.10
 
 ## Optional
-Includes visual studio project but not needed. Source code will work on other operating systems as long as it has C++14 support. You will need to provide your own build scripts to run the project. Swoosh header files require _zero_ building.
+Includes visual studio project, but it's not required. Source code will work on other operating systems as long as they have C++14 support. You will need to provide your own build scripts to run the project. Swoosh header files require _zero_ building.
 
 # Video
 Click the gif for the full video!
 
 [![SlideIn Segue](https://media.giphy.com/media/2jsQgGNqmHU3HB3tZN/giphy.gif)](https://streamable.com/qb023)
 
-See the pokemon demo using just swoosh!
+See the pokemon demo using just Swoosh!
 
 [![clip](https://media.giphy.com/media/1WbJank711TIIMmVr4/giphy.gif)](https://streamable.com/vyfhq)
 
@@ -49,9 +49,7 @@ Mobile hardware cannot capture the screen, draw to it, and write back onto the f
 
 # 💡 Philosophy 
 When creating polished applications it should not be a concern to the user how to handle the memory for a scene or video game level. 
-These activities are just shells around the incoming or outgoing data in visual form; a container for the important stuff that shows up 
-on the target device's screen. The biggest goal when designing this software was allowing user's to write complex transitions as simple as possible 
-and have the syntax to perform said action be human readable.
+These activities are just shells around the incoming or outgoing data in visual form; a container for the important stuff that shows up on the target device's screen. The biggest goal when designing this software was allowing users to write complex transitions as simple as possible and have the syntax to perform said action be human-readable.
 
 # 📝 Syntax
 Swoosh addresses these issues by wrapping push and pop calls with templated types that expect either a class derived from `Activity` for screens or `Segue` for transition effects.
@@ -69,10 +67,10 @@ using intent::segue;
 controller.push<segue<BlendFadeIn>::to<AppSettingsScene>>();
 ```
 
-The syntax is human readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: writing the application!
+The syntax is human-readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: Writing the application!
 
 ## ⏰ Changing Time
-The `Segue` class takes in two arguments: the next activity type, and the duration for the transition to last. By default the transition is set to 1 second. 
+The `Segue` class takes in two arguments: The next activity type, and the duration for the transition to last. By default the transition is set to 1 second. 
 This may be too fast or too slow for your needs. The `DurationType` class takes a templated wrapper for SFML time functions. They are found in the `swoosh::intent` namespace.
 
 For example
@@ -133,8 +131,7 @@ controller.push<segue<FadeIn>::to<MyScene>>();
 ```
 
 ## Pop
-Pushed activities are added to the stack immediately. However there are steps involved in the controller's update loop that do not make this
-safe to do for _pop_. Instead, the function `queuePop()` is supplied, signalling the controller to pop as soon as it can.
+Pushed activities are added to the stack immediately. However there are steps involved in the controller's update loop that do not make this safe to do for _pop_. Instead, the function `queuePop()` is supplied, signalling the controller to pop as soon as it can.
 
 ```
 controller.queuePop(); 
@@ -236,7 +233,7 @@ Some post processing effects require samples as inputs. In order to make Swoosh 
 Learn [how to embed GLSL and textures here](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Embed-GLSL).
 
 ## Segue's & Activity States
-It's important to note that Segue's are responsible for triggering 6 of the 7 states in your activities.
+It's important to note that Segues are responsible for triggering 6 of the 7 states in your activities.
 
 * onLeave -> the last scene has lost focus
 * onExit  -> the last scene when the segue ends
