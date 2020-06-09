@@ -39,7 +39,7 @@ See the pokemon demo using just Swoosh!
 # ✔️ Integrating Swoosh into your SFML application
 Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
 
-Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/Demo.cpp)
+Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Demo.cpp) for how you should structure your main loop with the Activty Controller.
 
 ## ⚙️ Inheriting the AC (Activity Controller)
 You can inherit the activity controller to extend and supply more complex data to your applications. For instance, you could extend the AC to know about your TextureResource class or AudioResource class so that each Activity instance has a way to load your game's media.
