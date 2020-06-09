@@ -230,11 +230,11 @@ Learn [how to embed GLSL and textures here](https://github.com/TheMaverickProgra
 ## Segue's & Activity States
 It's important to note that Segues are responsible for triggering 6 of the 7 states in your activities.
 
-* onStart -> the next scene when the previous scene ends
+* onStart -> the next scene starts once when the previous scene ends
 * onLeave -> the previous scene has lost focus
 * onExit  -> the previous scene when the next scene starts
 * onEnd   -> the previous scene when the next scene starts after _pop_ intent (discards previous scene when finished)
 * onEnter -> the next scene has gained focus
-* onResume -> the next scene when the previous scene ends after a _pop_ intent (discards previous scene when finished)
+* onResume -> if the next scene had started before, it will resume after the previous scene ends from a _pop_ intent (discards previous scene when finished)
 
 It might help to remember during a segue, both scenes are replacing eachother in the same frame. When a segue begins, the current scene is leaving and the other is entering. When the segue ends, the current scene exits and the other begins. 
