@@ -49,7 +49,7 @@
 #define SCORE_OPTION "HiScore"
 #define ABOUT_OPTION "About"
 
-using namespace swoosh::intent;
+using namespace swoosh::types;
 
 class MainMenuScene : public Activity {
 private:

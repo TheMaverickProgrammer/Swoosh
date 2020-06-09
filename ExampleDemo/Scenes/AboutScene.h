@@ -28,7 +28,7 @@
                       ">> Collect stars for extra life\n\n"
 
 using namespace swoosh;
-using namespace swoosh::intent;
+using namespace swoosh::types;
 
 class AboutScene : public Activity {
 private:

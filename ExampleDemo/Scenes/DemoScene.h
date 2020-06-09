@@ -17,7 +17,7 @@ class HiScoreScene;
 
 using namespace swoosh;
 using namespace swoosh::game;
-using namespace swoosh::intent;
+using namespace swoosh::types;
 
 class DemoScene : public Activity {
 private:
@@ -178,7 +178,10 @@ public:
     auto windowSize = getController().getVirtualWindowSize();
 
     if (lives < 0) {
-      getController().push<segue<Checkerboard, milli<900>>::to<HiScoreScene>>(savefile);
+      // Some segues can be customized like Checkerboard effect
+      using custom = CheckerboardCustom<40, 40>;
+      using effect = segue<custom, milli<900>>;
+      getController().push<effect::to<HiScoreScene>>(savefile);
     }
 
     for (auto& m : meteors) {

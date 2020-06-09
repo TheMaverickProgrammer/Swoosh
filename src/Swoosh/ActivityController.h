@@ -13,6 +13,7 @@
 namespace swoosh {
   class ActivityController {
     friend class swoosh::Segue;
+    class WindowCopyActivity;
 
   private:
     std::stack<swoosh::Activity*> activities;
@@ -144,7 +145,7 @@ namespace swoosh {
         template<typename... Args >
         void delegateActivityPush(ActivityController& owner, Args&&... args) {
           bool hasLast = (owner.activities.size() > 0);
-          swoosh::Activity* last = hasLast ? owner.activities.top() : nullptr;
+          swoosh::Activity* last = hasLast ? owner.activities.top() : owner.generateActivityFromWindow();
           swoosh::Activity* next = new U(owner, std::forward<Args>(args)...);
           next->setView(owner.handle.getDefaultView());
 
@@ -212,22 +213,27 @@ namespace swoosh {
       };
     };
 
+    /**
+      This determines if this input type derives from Activity or Segues
+    */
     template <class T>
-    struct ActivityTypeQuery
+    struct IsSegueType
     {
       static char is_to(swoosh::Activity*) {}
 
       static double is_to(...) { ; }
 
       static T* t;
-      enum { value = sizeof(is_to(t)) == sizeof(char) };
+
+      // Returns true if type is Segue, false if otherwise
+      enum { value = sizeof(is_to(t)) != sizeof(char) };
     };
 
     template <typename T, bool U>
     struct ResolvePushSegueIntent;
 
     template<typename T>
-    struct ResolvePushSegueIntent<T, false>
+    struct ResolvePushSegueIntent<T, true>
     {
       template<typename... Args >
       ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
@@ -240,7 +246,7 @@ namespace swoosh {
     };
 
     template<typename T>
-    struct ResolvePushSegueIntent<T, true>
+    struct ResolvePushSegueIntent<T, false>
     {
       template<typename... Args>
       ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
@@ -259,13 +265,13 @@ namespace swoosh {
 
     template<typename T, typename... Args>
     void push(Args&&... args) {
-      ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value> intent(*this, std::forward<Args>(args)...);
+      ResolvePushSegueIntent<T, IsSegueType<T>::value> intent(*this, std::forward<Args>(args)...);
     }
 
     template<typename T, typename... Args>
     void replace(Args&&... args) {
       size_t before = this->activities.size();
-      ResolvePushSegueIntent<T, ActivityTypeQuery<T>::value> intent(*this, std::forward<Args>(args)...);
+      ResolvePushSegueIntent<T, IsSegueType<T>::value> intent(*this, std::forward<Args>(args)...);
       size_t after = this->activities.size();
 
       // quick feature hack
@@ -315,7 +321,7 @@ namespace swoosh {
     };
 
     template<typename T>
-    struct ResolveRewindSegueIntent<T, false>
+    struct ResolveRewindSegueIntent<T, true>
     {
       bool RewindSuccessful;
 
@@ -330,7 +336,7 @@ namespace swoosh {
     };
 
     template<typename T>
-    struct ResolveRewindSegueIntent<T, true>
+    struct ResolveRewindSegueIntent<T, false>
     {
       bool RewindSuccessful;
 
@@ -369,7 +375,7 @@ namespace swoosh {
     bool queueRewind(Args&&... args) {
       if (this->activities.size() <= 1) return false;
 
-      ResolveRewindSegueIntent<T, ActivityTypeQuery<T>::value> intent(*this, std::forward<Args>(args)...);
+      ResolveRewindSegueIntent<T, IsSegueType<T>::value> intent(*this, std::forward<Args>(args)...);
       return intent.RewindSuccessful;
     }
 
@@ -507,14 +513,51 @@ namespace swoosh {
       delete activity;
     }
 
+    /**
+     This private class will copy the window's framebuffer contents and use it as a "previous scene"
+     even if the programmer didn't create one before using swoosh.
+
+     Example use case: a segue fading in an intro screen when there were no previous scenes at launch
+   */
+    class WindowCopyActivity : public Activity {
+      sf::Texture framebuffer;
+      sf::Sprite drawable;
+    public:
+      WindowCopyActivity(ActivityController& ac) : Activity(&ac) {
+        auto& window = ac.getWindow();
+        sf::Vector2u windowSize = window.getSize();
+        framebuffer.create(windowSize.x, windowSize.y);
+        framebuffer.update(window);
+        drawable.setTexture(framebuffer, true);
+      }
+
+      ~WindowCopyActivity() { ; }
+
+      void onStart()  override { };
+      void onLeave()  override { };
+      void onExit()   override { };
+      void onEnter()  override { };
+      void onResume() override { };
+      void onEnd()    override { };
+      void onUpdate(double elapsed) override { };
+
+      void onDraw(sf::RenderTexture& surface) override {
+        surface.draw(drawable);
+      }
+    }; // WindowCopyActivity
+
+    Activity* generateActivityFromWindow() {
+      return new WindowCopyActivity(*this);
+    }
+
   protected:
     const swoosh::Activity* getCurrentActivity() const {
       if (getStackSize() > 0) return activities.top();
       return nullptr;
     }
-  };
+  }; // ActivityController
 
-  namespace intent {
+  namespace types {
     enum direction : int {
       left, right, up, down, max
     };

@@ -15,7 +15,7 @@
 #include <iostream>
 
 using namespace swoosh;
-using namespace swoosh::intent;
+using namespace swoosh::types;
 
 class MainMenuScene;
 
