@@ -1,5 +1,5 @@
 ![logo](https://i.imgur.com/tri24Y5.png)
-# Swoosh v1.2.2
+# Swoosh v1.2.3
 Header-only SFML Activity and Segue Mini Library
 
 Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and Android operating systems.
@@ -9,11 +9,14 @@ Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and And
 > 🚨 Critical changes from v1.2.1
 > 1. Timer must now invoke `update(...)` to track elapsed time. This may break previous user's custom segues and scenes
 > 2. All functions marked deprecated from last version have finally been removed
+> 3. namespace `intent` has been renamed to namespace `types`
+> 4. CMake scripts to build and launch the ExampleDemo in a matter of seconds!
+> 5. Segues will now work if they are the first item on the stack. Effects copy the screen buffer's current context as a screen. This is both a bugfix and a new feature.
 
 ## ✨ Get Jump Started
 See all the effects and more that come with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
-See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo/Swoosh) for examples on how to use Swoosh. You can also copy the segues in the source folder and use them immediately in your games with no extra configuration.
+See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo) for examples on how to use Swoosh. You can also copy the segues in the source folder and use them immediately in your games with no extra configuration.
 
 # Updates
 ![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
@@ -22,9 +25,6 @@ See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/mast
 
 # Technology
 SFML 2.5, C++14, GLSL 1.10
-
-## Optional
-Includes visual studio project, but it's not required. Source code will work on other operating systems as long as they have C++14 support. You will need to provide your own build scripts to run the project. Swoosh header files require _zero_ building.
 
 # Video
 Click the gif for the full video!
@@ -88,9 +88,7 @@ We can clean up the code by creating our own typename aliases. Later, modifying 
 
 ```c++
 using effect = segue<Cube3D<direction::up>, sec<2>>;
-using intent = effect::to<DramaticIntroScene>;
-
-getController().push<intent>();
+getController().push<effect::to<DramaticIntroScene>>();
 ```
 
 Much more elegant!
@@ -109,15 +107,12 @@ This is the same for segues
 
 ```c++
 ActivityController& controller = getController();
-
-// write cleaner code
-using effect  = segue<CheckerboardEffect, sec<3>>;
-using intent = effect::to<MatchMakingLobby>;
-
 LobbyInfo data = queryLobbyServer().get(); // blocking future request
 
+using effect  = segue<CheckerboardEffect, sec<3>>;
+
 // Go!
-controller.push<intent>(data);
+controller.push<effect::to<MatchMakingLobby>>(data);
 ```
 
 # ⏏️ Actions & Leaving Activities
@@ -149,9 +144,9 @@ The syntax is close to _push_ except if it succeeds, activities are ended and di
 
 ```c++
 using effect = segue<BlackWashFadeIn>;
-using intent = effect::to<LOZOverworld>;
+using action = effect::to<LOZOverworld>;
 
-bool found = controller.queueRewind<intent>();
+bool found = controller.queueRewind<action>();
 
 if(!found) {
     // Perhaps we're already in overworld. Certain teleport items cannot be used!
@@ -235,14 +230,11 @@ Learn [how to embed GLSL and textures here](https://github.com/TheMaverickProgra
 ## Segue's & Activity States
 It's important to note that Segues are responsible for triggering 6 of the 7 states in your activities.
 
+* onStart -> the next scene when the last scene ends
 * onLeave -> the last scene has lost focus
-* onExit  -> the last scene when the segue ends
-* onEnd   -> the last scene when the segue ends after a _Pop_ intent
-* onEnter -> the **next** scene when the segue begins
-* onResume -> the **next** scene when the segue ends after a _Pop_ intent
+* onExit  -> the last scene when the next scene starts
+* onEnd   -> the last scene when the next scene starts after _Pop_ intent (discards last scene when finished)
+* onEnter -> the next scene when the last scene ends
+* onResume -> the next scene when the last scene ends after a _Pop_ intent (discards last scene when finished)
 
-_OR_
-
-* onStart -> the **next** scene when the segue ends after a _Push_ intent
-
-It might help to remember that when a segue begins, the current activity is leaving and the other is entering. When the segue ends, the current activity exits and the other begins.
+It might help to remember that when a segue begins, the current activity is leaving and the other is entering. When the segue ends, the current activity exits and the other begins. Both screens are replacing eachother in the same frame.
