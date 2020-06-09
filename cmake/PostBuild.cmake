@@ -7,9 +7,8 @@ if(WIN32)
         TARGET ExampleDemo
         POST_BUILD
         COMMAND ${CMAKE_COMMAND}
-        ARGS -E copy_if_different 
-        
-        "${PROJECT_SOURCE_DIR}/extern/lib/win32/openal32.dll"
+        ARGS -E copy_if_different
+        "${PROJECT_SOURCE_DIR}/ExampleDemo/extern/SFML/extlibs/bin/x64/openal32.dll"
         
         "$<TARGET_FILE_DIR:ExampleDemo>/"
         
@@ -32,4 +31,25 @@ if(WIN32 OR UNIX)
         
         COMMENT "Copying resources\n"
     )
+endif()
+
+if(BUILD_SHARED_LIBS)
+
+    ADD_CUSTOM_COMMAND(
+        TARGET ExampleDemo
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+        ARGS -E copy_directory
+        
+        "$<TARGET_FILE_DIR:sfml-graphics>"
+        "$<TARGET_FILE_DIR:sfml-audio>"
+        "$<TARGET_FILE_DIR:sfml-network>"
+        "$<TARGET_FILE_DIR:sfml-system>"
+        "$<TARGET_FILE_DIR:sfml-window>"
+        
+        "$<TARGET_FILE_DIR:ExampleDemo>"
+        
+        COMMENT "Copying shared libraries\n"
+    )
+
 endif()

@@ -1,23 +1,30 @@
 cmake_minimum_required(VERSION 3.12)
     
 project(Swoosh-Demo)
+
 set (CMAKE_CXX_STANDARD 17)
 
-execute_process(COMMAND git submodule update --init -- extern/SFML
+execute_process(COMMAND git submodule update --init -- ExampleDemo/extern/SFML
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_subdirectory(extern/SFML)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake)
 
-file(GLOB_RECURSE Files CONFIGURE_DEPENDS
+add_subdirectory(ExampleDemo/extern/SFML)
+
+file(GLOB SwooshFiles CONFIGURE_DEPENDS
         "ExampleDemo/*.h"
+        "ExampleDemo/Scenes/*.h"
         "ExampleDemo/*.cpp"
+        "ExampleDemp/Scenes/*.cpp"
         )
 
-add_executable(ExampleDemo ExampleDemo/Demo.cpp ${Files})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_include_directories(ExampleDemo PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/Segues")
+add_executable(ExampleDemo ExampleDemo/Demo.cpp ${SwooshFiles})
 
-source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${Files})
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+
+source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SwooshFiles})
 
 target_link_libraries(ExampleDemo sfml-graphics sfml-audio sfml-network sfml-system sfml-window)
 
