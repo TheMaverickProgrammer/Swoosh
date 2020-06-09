@@ -1,18 +1,17 @@
 #pragma once
-#include <Swoosh/ActivityController.h>
-#include <Swoosh/Game.h>
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 #include "TextureLoader.h"
 #include "Particle.h"
 #include "Button.h"
 #include "ResourcePaths.h"
 #include "SaveFile.h"
 
+#include <Swoosh/ActivityController.h>
+#include <Swoosh/Game.h>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <Segues/SlideIn.h>
 #include <Segues/CircleClose.h>
 #include <Segues/RetroBlit.h>
-
 #include <iostream>
 
 using namespace swoosh;
@@ -47,8 +46,10 @@ private:
   bool inFocus;
 public:
   HiScoreScene(ActivityController& controller, save& data) : hiscore(data), Activity(&controller) {
+    // Proof that this is the same save file in memory as it is passed around the scenes
     std::cout << "savefile address is " << &data << std::endl;
 
+    // keep our window size dimensions consistent based on the initial window size when the AC was created
     auto windowSize = getController().getVirtualWindowSize();
 
     font.loadFromFile(GAME_FONT);
@@ -99,9 +100,8 @@ public:
       selectFX.play();
 
       // Rewind lets us pop back to a particular scene in our stack history 
-      // bool found = getController().queueRewind<segue<Cube3D<direction::down>, sec<2>>::to<MainMenuScene>>();
-
-      bool found = getController().queueRewind<segue<CircleClose, sec<2>>::to<MainMenuScene>>();
+      using effect = segue<CircleClose, sec<2>>;
+      bool found = getController().queueRewind<effect::to<MainMenuScene>>();
 
       // should never happen
       // but your games may need to check so here it is an example

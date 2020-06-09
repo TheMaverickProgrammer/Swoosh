@@ -46,8 +46,3 @@ constexpr auto THEME_MUSIC_PATH     = "resources/theme.ogg";
 constexpr auto INGAME_MUSIC_PATH    = "resources/ingame.ogg";
 
 constexpr auto SAVE_FILE_PATH       = "resources/hiscore.dat";
-
-constexpr auto SHADER_PATH          = "resources/shaders/checkerboard.frag";
-constexpr auto SHADER_PATTERN_PATH  = "resources/shaders/checkerboard.png";
-constexpr auto TURN_PAGE_FRAG_PATH  = "resources/shaders/pageturn.frag";
-constexpr auto TURN_PAGE_VERT_PATH  = "resources/shaders/pageturn.vert";

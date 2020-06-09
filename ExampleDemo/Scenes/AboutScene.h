@@ -1,8 +1,5 @@
 #pragma once
-#include <Swoosh/ActivityController.h>
-#include <Swoosh/Game.h>
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+
 #include "TextureLoader.h"
 #include "Particle.h"
 #include "Button.h"
@@ -12,7 +9,10 @@
 #include <Segues/PushIn.h>
 #include <Segues/BlendFadeIn.h>
 #include <Segues/Cube3D.h>
-
+#include <Swoosh/ActivityController.h>
+#include <Swoosh/Game.h>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 
 #define TEXT_BLOCK_INFO "Swoosh is an Activity and Segue mini library\n" \
@@ -37,9 +37,9 @@ private:
   sf::Sprite sfml;
   button goback;
 
-  sf::Font   manual;
-  sf::Font   font;
-  sf::Text   text;
+  sf::Font manual;
+  sf::Font font;
+  sf::Text text;
   std::string info;
 
   sf::SoundBuffer buffer;
@@ -97,8 +97,7 @@ public:
 
     double offset = 0;
     if (timer.getElapsed().asSeconds() > 3) {
-
-      offset = ease::wideParabola(timer.getElapsed().asMilliseconds()-3000.0, 5000.0, 0.9);
+      offset = ease::wideParabola(timer.getElapsed().asSeconds()-3.0, 5.0, 0.9);
     }
 
     sf::Vector2u windowSize = getController().getVirtualWindowSize();
@@ -114,7 +113,8 @@ public:
         selectFX.play();
 
         if (goback.text == "FIN") {
-          getController().queuePop<segue<Cube3D<direction::right>, sec<2>>>();
+          using effect = segue<Cube3D<direction::right>, sec<2>>;
+          getController().queuePop<effect>();
         }
         else {
           goback.text = "FIN";

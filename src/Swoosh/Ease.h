@@ -6,7 +6,7 @@ namespace swoosh {
     static double pi = 3.14159265358979323846;
 
     template<typename T>
-    static T radians(T degrees) { return (T)((double)degrees * pi) / (T)180.0; }
+    static T radians(T degrees) { return static_cast<T>((static_cast<double>(degrees) * pi) / 180.0); }
 
     template<typename T>
     static T interpolate(T factor, T a, T b) {
@@ -15,7 +15,7 @@ namespace swoosh {
 
     template<typename T>
     static T linear(T delta, T length, T power) {
-      T normal = (T)(1.0 / (double)length);
+      T normal = static_cast<T>(1.0 / static_cast<double>(length));
 
       T x = delta * normal;
 
@@ -23,13 +23,7 @@ namespace swoosh {
         x = 1;
       }
 
-      T exponential = x;
-
-      for (int i = 1; i < power; i++) {
-        exponential *= exponential;
-      }
-
-      T y = exponential;
+      T y = std::pow(x, power);
 
       return y;
     }
@@ -41,7 +35,7 @@ namespace swoosh {
     */
     template<typename T>
     static T inOut(T delta, T length) {
-      T normal = (T)(1.0 / (double)length);
+      T normal = static_cast<T>(1.0 / static_cast<double>(length));
 
       T x = delta * normal;
 
@@ -49,13 +43,13 @@ namespace swoosh {
         x = 1;
       }
 
-      T y = (1.0 - std::abs(2.0 - x * 4.0) + 1.0) / 2.0;
+      T y = static_cast<T>((1.0 - std::fabs(2.0 - static_cast<double>(x) * 4.0) + 1.0) / 2.0);
       return y;
     }
 
     template<typename T>
     static T wideParabola(T delta, T length, T power) {
-      T normal = (T)(2.0 / (double)length);
+      T normal = static_cast<T>(2.0 / static_cast<double>(length));
 
       // Convert seconds elapsed to x values of 0 -> 2
       T x = delta * normal;
@@ -67,14 +61,9 @@ namespace swoosh {
       }
 
       // y = 1 - (x ^ 2 - 2x + 1) ^ n
-      T poly = (double)(x*x) - (2.0 * (double)x) + 1.0;
-      T exponential = poly;
+      T poly = static_cast<double>((x*x) - (2.0 * static_cast<double>(x)) + 1.0);
 
-      for (int i = 1; i < power; i++) {
-        exponential *= exponential;
-      }
-
-      T y = (T)(1.0 - (double)exponential);
+      T y = static_cast<T>(1.0 - static_cast<double>(std::pow(poly, power)));
 
       return y;
     }
@@ -86,7 +75,7 @@ namespace swoosh {
     */
     template<typename T>
     static T bezierPopIn(T delta, T length) {
-      T normal = (T)(1.0 / (double)length);
+      T normal = static_cast<T>(1.0 / static_cast<double>(length));
 
       T x = delta * normal;
 
@@ -95,10 +84,10 @@ namespace swoosh {
       }
 
 
-      T part1 = 3.0 * (double)x * (double)x;
-      T part2 = 2.0 * (double)x * (double)x * (double)x * (double)x;
+      double part1 = static_cast<double>(3 * x * x);
+      double part2 = static_cast<double>(2 * x * x * x * x);
 
-      T y = part1 - part2;
+      T y = static_cast<T>(part1 - part2);
 
       return y;
     }
@@ -110,7 +99,7 @@ namespace swoosh {
   */
     template<typename T>
     static T bezierPopOut(T delta, T length) {
-      T normal = (T)(1.0 / (double)length);
+      T normal = static_cast<T>(1.0 / static_cast<double>(length));
 
       T x = delta * normal;
 
@@ -118,11 +107,11 @@ namespace swoosh {
         x = 1;
       }
 
-      x = (1.0 - (double)x);
-      T part1 = 3.0 * (double)x * (double)x;
-      T part2 = 2.0 * (double)x * (double)x * (double)x * (double)x;
+      double x2 = static_cast<T>(1.0 - static_cast<double>(x));
+      double part1 = 3 * x2 * x2;
+      double part2 = 2 * x2 * x2 * x2 * x2;
 
-      T y = part1 - part2;
+      T y = static_cast<T>(part1 - part2);
 
       return y;
     }
@@ -132,7 +121,7 @@ namespace swoosh {
     */
     template<typename T>
     static T sinuoidBounceOut(T delta, T length) {
-      T normal = (T)(3.0 / (double)length);
+      T normal = static_cast<T>(3.0 / static_cast<double>(length));
 
       T x = delta * normal;
 
@@ -140,12 +129,10 @@ namespace swoosh {
         x = 3;
       }
 
-      T y = 1.0 - (sin((double)x + 90.0)*cos(-2.0 * (double)x));
+      double y = 1.0 - (std::sin(static_cast<double>(x) + 90.0)*std::cos(-2.0 * static_cast<double>(x)));
 
       // Transform y into canonical [0,1] values
-      y = (T)((double)y / 2.0);
-
-      return y;
+      return static_cast<T>(y/2.0);
     }
   }
 }

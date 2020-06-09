@@ -58,7 +58,8 @@ namespace swoosh {
     void onEnd() override final { last->onExit(); }
 
     Segue() = delete;
-    Segue(sf::Time duration, Activity* last, Activity* next) : duration(duration), last(last), next(next), Activity(&next->getController()) { /* ... */ }
+    Segue(sf::Time duration, Activity* last, Activity* next) 
+      : setActivityViewFunc(nullptr), resetViewFunc(nullptr), duration(duration), last(last), next(next), Activity(&next->getController()) { /* ... */ }
     virtual ~Segue() { }
   };
 }

@@ -1,12 +1,16 @@
 #pragma once
-#include <Swoosh/ActivityController.h>
-#include <Swoosh/Game.h>
+
+#include "DemoScene.h"
+#include "HiScoreScene.h"
+#include "AboutScene.h"
+#include "TextureLoader.h"
+#include "Particle.h"
+#include "Button.h"
+#include "SaveFile.h"
 
 // You can use any of the included segues in the actions below
 // to see what they look like!
 #include <Segues/BlackWashFade.h>
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 #include <Segues/CrossZoom.h>
 #include <Segues/ZoomFadeIn.h>
 #include <Segues/ZoomFadeInBounce.h>
@@ -32,15 +36,12 @@
 #include <Segues/RadialCCW.h>
 #include <Segues/Cube3D.h>
 #include <Segues/RetroBlit.h>
+// end segue effects
 
-#include "DemoScene.h"
-#include "HiScoreScene.h"
-#include "AboutScene.h"
-#include "TextureLoader.h"
-#include "Particle.h"
-#include "Button.h"
-#include "SaveFile.h"
-
+#include <Swoosh/ActivityController.h>
+#include <Swoosh/Game.h>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 
 #define GAME_TITLE   "Swoosh Interactive Demo"
@@ -54,12 +55,12 @@ class MainMenuScene : public Activity {
 private:
   sf::Texture* bgTexture;
   sf::Texture* starTexture;
-  sf::Texture * blueButton, * redButton, * greenButton;
+  sf::Texture* blueButton, *redButton, *greenButton;
 
   sf::Sprite bg;
 
-  sf::Font   menuFont;
-  sf::Text   menuText;
+  sf::Font menuFont;
+  sf::Text menuText;
 
   sf::SoundBuffer buffer;
   sf::Sound selectFX;
@@ -74,6 +75,7 @@ private:
 
   Timer timer; // for onscreen effects. Or we could have stored the total elapsed from the update function
   save savefile;
+
 public:
   MainMenuScene(ActivityController& controller) : Activity(&controller) { 
     setView(sf::View());
@@ -93,8 +95,8 @@ public:
     greenButton = loadTexture(GREEN_BTN_PATH);
 
     menuFont.loadFromFile(GAME_FONT);
-    menuText.setFont(menuFont);
 
+    menuText.setFont(menuFont);
     menuText.setFillColor(sf::Color::White); 
 
     screenMid = getController().getWindow().getSize().x / 2.0f;
@@ -116,12 +118,11 @@ public:
     // Load sounds
     buffer.loadFromFile(SHIELD_UP_SFX_PATH);
     selectFX.setBuffer(buffer);
-    //themeMusic.openFromFile(INGAME_MUSIC_PATH);
+    themeMusic.openFromFile(THEME_MUSIC_PATH);
 
     timer.reset();
 
     this->setBGColor(sf::Color(56, 7, 67));
-
   }
 
   void onStart() override {
@@ -133,7 +134,7 @@ public:
     timer.update(elapsed);
 
     if (!inFocus && fadeMusic) {
-      themeMusic.setVolume(themeMusic.getVolume() * 0.90f); // quieter
+      themeMusic.setVolume(themeMusic.getVolume() * 0.90f); // fades out the music
     }
 
     int i = 0;
@@ -142,8 +143,13 @@ public:
       p.pos += sf::Vector2f(p.speed.x * (float)elapsed, p.speed.y * (float)elapsed);
 
       p.sprite.setPosition(p.pos);
-      p.sprite.setScale((sf::Uint8)(.0*(p.life / p.lifetime)), (sf::Uint8)(2.0*(p.life / p.lifetime)));
-      p.sprite.setColor(sf::Color(p.sprite.getColor().r, p.sprite.getColor().g, p.sprite.getColor().b, (sf::Uint8)(255.0 * p.life / p.lifetime)));
+      p.sprite.setScale(2.0f*static_cast<float>(p.life / p.lifetime), 2.0f*static_cast<float>(p.life / p.lifetime));
+
+      auto color = p.sprite.getColor();
+      color.a = (sf::Uint8)(255.0 * (p.life / p.lifetime));
+
+      p.sprite.setColor(color);
+
       p.life -= elapsed;
 
       if (p.life <= 0) {
@@ -199,7 +205,7 @@ public:
   void onResume() override {
     inFocus = true;
 
-    // We were coming from demo, the music changes
+    // If fadeMusic == true, then we were coming from demo, the music changes
     if (fadeMusic) {
       themeMusic.play();
       themeMusic.setVolume(100);
@@ -239,6 +245,7 @@ public:
 
     int i = 0;
     menuText.setFillColor(sf::Color::Black);
+
     for (auto& b : buttons) {
       b.draw(surface, menuText, screenMid, (float)(200 + (i++*100)));
     }
@@ -246,7 +253,9 @@ public:
     // First set the text as the it would render as a full string
     menuText.setString(GAME_TITLE);
     setOrigin(menuText, 0.5, 0.5);
-    menuText.setPosition(sf::Vector2f(screenMid, 100));
+
+    // -30 is a made up number offset to help it look right
+    menuText.setPosition(sf::Vector2f(screenMid-30.f, 100));
 
     // Get the global bounds information from that to pick out
     double startX = menuText.getGlobalBounds().left;
@@ -256,7 +265,7 @@ public:
     for (int i = 0; i < strlen(GAME_TITLE); i++) {
       menuText.setFillColor(sf::Color::White);
       menuText.setString(GAME_TITLE[i]);
-      setOrigin(menuText, 0.5, 0.5);
+      setOrigin(menuText, 0.5, 0.5); // origin is in the center of the letter
 
       // This creates our wave over all letters
       double ratio = (ease::pi) / strlen(GAME_TITLE);
@@ -266,7 +275,11 @@ public:
       double startY = 100 + ((wave > 0)? -wave * 50.0 : 0);
 
       // Each letter is separate so add back the spacing
-      offset += menuText.getGlobalBounds().width;
+      const float letterSpacing = static_cast<float>(menuText.getCharacterSize()) / 3.0f;
+
+      // We want at max 24.f units of space inbetween letters
+      // Everything else can be smaller
+      offset += std::fminf(menuText.getGlobalBounds().width + letterSpacing, 24.f);
 
       // Include spaces
       if (menuText.getString() == ' ') { offset += menuText.getCharacterSize(); }
