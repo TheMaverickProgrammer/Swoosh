@@ -27,7 +27,7 @@ namespace swoosh {
     static std::string formatGLSL(const char* glsl) {
       std::stringstream ss;
 
-#if SWOOSH_GLSL_USE_SAFE
+#if !SWOOSH_GLSL_USE_SAFE
       char* input = new char[strlen(glsl) + 1];
       char delim[] = ";";
       strcpy(input, glsl);
@@ -42,7 +42,7 @@ namespace swoosh {
 
       delete[] input;
 
-#else 
+#else
       std::size_t size = strlen(glsl) + 1;
       char* input = new char[size];
       char delim[] = ";";

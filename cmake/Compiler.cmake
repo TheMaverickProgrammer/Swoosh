@@ -3,7 +3,7 @@
 
 if(MSVC)
 
-    set_property(TARGET ExampleDemo 
+    set_property(TARGET Demo 
                 PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/$<CONFIG>")
 
 endif()

@@ -1,9 +1,9 @@
 #pragma once
-#include "TextureLoader.h"
-#include "Particle.h"
-#include "Button.h"
-#include "ResourcePaths.h"
-#include "SaveFile.h"
+#include "../TextureLoader.h"
+#include "../Particle.h"
+#include "../Button.h"
+#include "../ResourcePaths.h"
+#include "../SaveFile.h"
 
 #include <Swoosh/ActivityController.h>
 #include <Swoosh/Game.h>
@@ -99,7 +99,7 @@ public:
     if (goback.isClicked && inFocus) {
       selectFX.play();
 
-      // Rewind lets us pop back to a particular scene in our stack history 
+      // Rewind lets us pop back to a particular scene in our stack history
       using effect = segue<CircleClose, sec<2>>;
       bool found = getController().queueRewind<effect::to<MainMenuScene>>();
 
@@ -191,7 +191,7 @@ public:
     surface.draw(text);
 
     text.setFillColor(sf::Color::White);
-    
+
     for (int i = 0; i < hiscore.names.size(); i++) {
       std::string name = hiscore.names[i];
       int score = hiscore.scores[i];

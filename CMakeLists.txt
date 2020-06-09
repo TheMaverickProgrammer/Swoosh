@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-    
+
 project(Swoosh-Demo)
 
 set (CMAKE_CXX_STANDARD 17)
@@ -20,15 +20,15 @@ file(GLOB SwooshFiles CONFIGURE_DEPENDS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-add_executable(ExampleDemo ExampleDemo/Demo.cpp ${SwooshFiles})
+add_executable(Demo ExampleDemo/Demo.cpp ${SwooshFiles})
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SwooshFiles})
 
-target_link_libraries(ExampleDemo sfml-graphics sfml-audio sfml-network sfml-system sfml-window)
+target_link_libraries(Demo sfml-graphics sfml-audio sfml-network sfml-system sfml-window)
 
-set_target_properties(ExampleDemo
+set_target_properties(Demo
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/$<CONFIG>"
 )

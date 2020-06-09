@@ -1,12 +1,12 @@
 #pragma once
 
 #include "DemoScene.h"
-#include "HiScoreScene.h"
+#include "HiscoreScene.h"
 #include "AboutScene.h"
-#include "TextureLoader.h"
-#include "Particle.h"
-#include "Button.h"
-#include "SaveFile.h"
+#include "../TextureLoader.h"
+#include "../Particle.h"
+#include "../Button.h"
+#include "../SaveFile.h"
 
 // You can use any of the included segues in the actions below
 // to see what they look like!
@@ -77,7 +77,7 @@ private:
   save savefile;
 
 public:
-  MainMenuScene(ActivityController& controller) : Activity(&controller) { 
+  MainMenuScene(ActivityController& controller) : Activity(&controller) {
     setView(sf::View());
 
     savefile.loadFromFile(SAVE_FILE_PATH);
@@ -97,7 +97,7 @@ public:
     menuFont.loadFromFile(GAME_FONT);
 
     menuText.setFont(menuFont);
-    menuText.setFillColor(sf::Color::White); 
+    menuText.setFillColor(sf::Color::White);
 
     screenMid = getController().getWindow().getSize().x / 2.0f;
 
@@ -105,7 +105,7 @@ public:
     button menuOption;
     menuOption.sprite.setTexture(*blueButton);
     menuOption.text = PLAY_OPTION;
-    buttons.push_back(menuOption); 
+    buttons.push_back(menuOption);
 
     menuOption.sprite.setTexture(*redButton);
     menuOption.text = SCORE_OPTION;
