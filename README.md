@@ -63,7 +63,7 @@ controller.push<MainMenuScene>();
 ...
 
 // User selects settings
-using intent::segue;
+using types::segue;
 controller.push<segue<BlendFadeIn>::to<AppSettingsScene>>();
 ```
 
@@ -71,12 +71,12 @@ The syntax is human-readable and flows naturally. Swoosh hides the intricacies f
 
 ## ⏰ Changing Time
 The `Segue` class takes in two arguments: The next activity type, and the duration for the transition to last. By default the transition is set to 1 second. 
-This may be too fast or too slow for your needs. The `DurationType` class takes a templated wrapper for SFML time functions. They are found in the `swoosh::intent` namespace.
+This may be too fast or too slow for your needs. The `DurationType` class takes a templated wrapper for SFML time functions. They are found in the `swoosh::types` namespace.
 
 For example
 
 ```c++
-using namespace swoosh::intent;
+using namespace swoosh::types;
 controller.push<segue<Cube3D<direction::left>, seconds<5>>::to<DramaticIntroScene>>();
 ```
 
@@ -176,7 +176,7 @@ An activity has 7 states it can be in:
 * Ending (to be terminated)
 * Updating 
 
-[Here is an example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Swoosh/DemoActivities/aboutscene.h) of a simple About scene in your app. It shows text and has a button to click next for more info. The SFML logo rolls across the top just for visual effect.
+[Here is an example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Scenes/AboutScene.h) of a simple About scene in your app. It shows text and has a button to click next for more info. The SFML logo rolls across the top just for visual effect.
 
 ## Defining a View
 If you need to define a view for one activity without affecting another you use that Activity's `setView(sf::View view)` function. You can set once and forget! The controller will make sure everything looks right.
