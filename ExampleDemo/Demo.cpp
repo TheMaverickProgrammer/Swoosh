@@ -62,12 +62,13 @@ int main()
       }
     }
 
-    window.clear();
-
     // do not update segues when the window is frozen
     if (!pause) {
       app.update(elapsed);
     }
+
+    // We clear after updating so that other items can copy the screen's contents
+    window.clear();
 
     // draw() will directly draw onto the window's render buffer
     app.draw();

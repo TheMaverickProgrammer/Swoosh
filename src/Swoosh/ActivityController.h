@@ -11,9 +11,10 @@
 #include <cstddef>
 
 namespace swoosh {
+  class CopyWindow;
+
   class ActivityController {
     friend class swoosh::Segue;
-    class WindowCopyActivity;
 
   private:
     std::stack<swoosh::Activity*> activities;
@@ -513,42 +514,7 @@ namespace swoosh {
       delete activity;
     }
 
-    /**
-     This private class will copy the window's framebuffer contents and use it as a "previous scene"
-     even if the programmer didn't create one before using swoosh.
-
-     Example use case: a segue fading in an intro screen when there were no previous scenes at launch
-   */
-    class WindowCopyActivity : public Activity {
-      sf::Texture framebuffer;
-      sf::Sprite drawable;
-    public:
-      WindowCopyActivity(ActivityController& ac) : Activity(&ac) {
-        auto& window = ac.getWindow();
-        sf::Vector2u windowSize = window.getSize();
-        framebuffer.create(windowSize.x, windowSize.y);
-        framebuffer.update(window);
-        drawable.setTexture(framebuffer, true);
-      }
-
-      ~WindowCopyActivity() { ; }
-
-      void onStart()  override { };
-      void onLeave()  override { };
-      void onExit()   override { };
-      void onEnter()  override { };
-      void onResume() override { };
-      void onEnd()    override { };
-      void onUpdate(double elapsed) override { };
-
-      void onDraw(sf::RenderTexture& surface) override {
-        surface.draw(drawable);
-      }
-    }; // WindowCopyActivity
-
-    Activity* generateActivityFromWindow() {
-      return new WindowCopyActivity(*this);
-    }
+    Activity* generateActivityFromWindow();
 
   protected:
     const swoosh::Activity* getCurrentActivity() const {
@@ -556,6 +522,46 @@ namespace swoosh {
       return nullptr;
     }
   }; // ActivityController
+
+
+  /**
+    This special class will copy the window's framebuffer contents and use it as a temp scene
+    even if the programmer didn't create one before using swoosh.
+
+    Example use case: a segue fading in an intro screen when there were no previous scenes at launch
+
+    This is best suited for all actions: push, pop, and replace.
+  */
+  class CopyWindow : public Activity {
+    sf::Texture framebuffer;
+    sf::Sprite drawable;
+  public:
+    CopyWindow(ActivityController& ac) : Activity(&ac) {
+      auto& window = ac.getWindow();
+      sf::Vector2u windowSize = window.getSize();
+      framebuffer.create(windowSize.x, windowSize.y);
+      framebuffer.update(window);
+      drawable.setTexture(framebuffer, true);
+    }
+
+    ~CopyWindow() { ; }
+
+    void onStart()  override { };
+    void onLeave()  override { };
+    void onExit()   override { };
+    void onEnter()  override { };
+    void onResume() override { };
+    void onEnd()    override { };
+    void onUpdate(double elapsed) override { };
+
+    void onDraw(sf::RenderTexture& surface) override {
+      surface.draw(drawable);
+    }
+  }; // CopyWindow
+
+  Activity* ActivityController::generateActivityFromWindow() {
+    return new CopyWindow(*this);
+  }
 
   namespace types {
     enum class direction : int {
