@@ -241,7 +241,7 @@ It's important to note that Segues are responsible for triggering 6 of the 7 sta
 
 It might help to remember during a segue, both scenes are replacing eachother in the same frame. When a segue begins, the current scene is leaving and the other is entering. When the segue ends, the current scene exits and the other begins. 
 
-✨ # § Special Topic: Copying the Window
+# § Special Topic: Copying the Window
 If you have a particular structure how your game should end (like a GameOverScreen), it would make sense to have that screen be at the bottom of the stack at ALL times. We can start the player in the main menu and let them make other choices to config their controllers. If the player presses start, we can pop the main menu off the stack and begin the game. With this structure in mind, we might have something like the following:
 
 ```cpp
@@ -267,3 +267,5 @@ if(gameIsLoaded == true) }
   ac.push<CopyWindow>();
   ac.queuePop<segue<FadeOut>>(); // Go to the MainMenuScreen
 ```
+
+You can also inherit from this as a base class and have your screen's contents be captured in the next one.
