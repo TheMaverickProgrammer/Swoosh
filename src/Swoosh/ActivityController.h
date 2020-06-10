@@ -514,7 +514,7 @@ namespace swoosh {
       delete activity;
     }
 
-    Activity* generateActivityFromWindow();
+    inline Activity* generateActivityFromWindow();
 
   protected:
     const swoosh::Activity* getCurrentActivity() const {
