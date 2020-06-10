@@ -39,6 +39,7 @@ See the pokemon demo using just Swoosh!
 
 # § Integrating Swoosh into your SFML application in 2 steps
 ✔️ Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
+
 ✔️ See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Demo.cpp) for how you should structure your main loop with the Activty Controller.
 
 ### ⚙️ Inheriting the AC (Activity Controller)
