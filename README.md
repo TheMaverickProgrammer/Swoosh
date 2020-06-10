@@ -13,7 +13,7 @@ Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and And
 > 4. CMake scripts to build and launch the ExampleDemo in a matter of seconds!
 > 5. Segues will now work if they are the first item on the stack. Effects copy the screen buffer's current context as a screen. This is both a bugfix and a new feature.
 
-## ✨ Get Jump Started
+# ✨ Get Jump Started
 See all the effects and more that come with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
 See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo) for examples on how to use Swoosh. You can also copy the segues in the source folder and use them immediately in your games with no extra configuration.
@@ -35,23 +35,24 @@ See the pokemon demo using just Swoosh!
 
 [![clip](https://media.giphy.com/media/1WbJank711TIIMmVr4/giphy.gif)](https://streamable.com/vyfhq)
 
+---
 
-# ✔️ Integrating Swoosh into your SFML application
-Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
+# § Integrating Swoosh into your SFML application in 2 steps
+✔️ Copy the headers found in the root at `src/Swoosh`. Optionally you can include the segues at `src/Segues`.
+✔️ See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Demo.cpp) for how you should structure your main loop with the Activty Controller.
 
-Adding the mini library into your SFML application is very simple. See [this example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Demo.cpp) for how you should structure your main loop with the Activty Controller.
-
-## ⚙️ Inheriting the AC (Activity Controller)
+### ⚙️ Inheriting the AC (Activity Controller)
 You can inherit the activity controller to extend and supply more complex data to your applications. For instance, you could extend the AC to know about your TextureResource class or AudioResource class so that each Activity instance has a way to load your game's media.
 
-## 📱 Optimizing for Mobile
+### 📱 Optimizing for Mobile
 Mobile hardware cannot capture the screen, draw to it, and write back onto the frame buffer as quickly as we can on PC. There are some ways to do this faster but not with SFML at this time. In order to solve this, the AC has a new function pair `isOptimizedForPerformance()` and `optimizeForPerformance(bool enabled)` that will allow you to query if you should go easy on the target device's GPU. These 2 functions by themselves do nothing but it can be queries in both your custom Activities and your custom Segue effects.
 
-# 💡 Philosophy 
-When creating polished applications it should not be a concern to the user how to handle the memory for a scene or video game level. 
-These activities are just shells around the incoming or outgoing data in visual form; a container for the important stuff that shows up on the target device's screen. The biggest goal when designing this software was allowing users to write complex transitions as simple as possible and have the syntax to perform said action be human-readable.
+# § API and Memory Management 
+When creating polished applications, it should not be a concern to the user how to handle the memory for a scene or video game level. If you think about it, these scenes are just shells around the incoming or outgoing data in visual form. In mobile apps, activities are just container for the important stuff that shows up on the target device's screen. 
 
-# 📝 Syntax
+With this in mind, the biggest goal when designing this software was allowing users to write complex transitions as simple as possible and have the syntax to perform said action be human-readable while also discouraging memory allocation and management.
+
+### 📝 Syntax
 Swoosh addresses these issues by wrapping push and pop calls with templated types that expect either a class derived from `Activity` for screens or `Segue` for transition effects.
 
 For example
@@ -69,7 +70,7 @@ controller.push<segue<BlendFadeIn>::to<AppSettingsScene>>();
 
 The syntax is human-readable and flows naturally. Swoosh hides the intricacies from the user so they can focus on what's really important: Writing the application!
 
-## ⏰ Changing Time
+### ⏰ Changing Time
 The `Segue` class takes in two arguments: The next activity type, and the duration for the transition to last. By default the transition is set to 1 second. 
 This may be too fast or too slow for your needs. The `DurationType` class takes a templated wrapper for SFML time functions. They are found in the `swoosh::types` namespace.
 
@@ -80,7 +81,7 @@ using namespace swoosh::types;
 controller.push<segue<Cube3D<direction::left>, seconds<5>>::to<DramaticIntroScene>>();
 ```
 
-## 🔍 Writing Clearer Code
+### 🔍 Writing Clearer Code
 The last example had a segue that required directional input and the line of code was longer than we'd like. 
 Although Swoosh is doing a ton behind the scenes for us, we lost clarity.
 
@@ -93,7 +94,7 @@ getController().push<effect::to<DramaticIntroScene>>();
 
 Much more elegant!
 
-## 🏭 Supplying Additional Arguments
+### 🏭 Supplying Additional Arguments
 Your activity classes may be dependant on external information like loading your game from a save file or displaying important business data exported from another screen. 
 
 ```c++
@@ -115,17 +116,17 @@ using effect  = segue<CheckerboardEffect, sec<3>>;
 controller.push<effect::to<MatchMakingLobby>>(data);
 ```
 
-# ⏏️ Actions & Leaving Activities
+# § Actions & Leaving Activities
 The `ActivityController` class can _push_ and _pop_ states but only when it's safe to do so. It does not pop in the middle of a cycle and does not push when in the middle of a segue.
 Make sure your activity controller calls are in an Activity's `onUpdate(double elapsed)` function to avoid having _push_ or _pop_ intents discarded.
 
-## Push
+### Push
 ```c++
 controller.push<MyScene>();
 controller.push<segue<FadeIn>::to<MyScene>>();
 ```
 
-## Pop
+### Pop
 Pushed activities are added to the stack immediately. However there are steps involved in the controller's update loop that do not make this safe to do for _pop_. Instead, the function `queuePop()` is supplied, signalling the controller to pop as soon as it can.
 
 ```
@@ -133,7 +134,7 @@ controller.queuePop();
 controller.queuePop<segue<BlurFadeIn>>();
 ```
 
-## ⏪ Rewinding
+### Rewinding 
 Rewinding is useful when you have an inactive Activity lingering in your stack from before and you wish to go back to that point. Rewinding the activity stack pops and ends all previous activities until it finds the first matching activity type. _queuePop_ is an intent to pop once where _queueRewind_ is an intent to pop _many times_.
 
 Example: jumping from the menu to the battle screen to a hiscore screen back to the menu. 
@@ -153,7 +154,7 @@ if(!found) {
 }
 ```
 
-## Replacing
+### Replacing
 Sometimes you need to directly modify the current item on the stack. Some games let you restart levels. Others have dozens in a row and tracking each one would eat up too much memory!
 
 Now you can replace the current activity safely like so:
@@ -166,7 +167,7 @@ if(restartLevel == true) {
 
 This works like any other action and so it will work with segues too!
 
-# 🧠 Writing Activities
+# § Writing Activities
 An activity has 7 states it can be in:
 * Starting for the first time
 * Entering the focus of the app
@@ -178,10 +179,10 @@ An activity has 7 states it can be in:
 
 [Here is an example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Scenes/AboutScene.h) of a simple About scene in your app. It shows text and has a button to click next for more info. The SFML logo rolls across the top just for visual effect.
 
-## Defining a View
+### Defining a View
 If you need to define a view for one activity without affecting another you use that Activity's `setView(sf::View view)` function. You can set once and forget! The controller will make sure everything looks right.
 
-# ✨ Writing Segues
+# § Writing Segues
 When writing transitions or action-dependant software, one of the worst things that can happen is to have a buggy action. 
 If one action depends on another to finish, but never does, the app will hang in limbo. 
 
@@ -198,7 +199,7 @@ The constructor must take in the duration, the last activity, and the next activ
   }
 ```
 
-## Useful Properties
+### Useful Properties
 In order to make use of the remaining time in your segue, two member functions are supplied
 
 * `getElapsed()` returns sf::Time 
@@ -212,7 +213,7 @@ Sometimes you may need to step over the render surface and draw directly to the 
 
 _getVirtualWindowSize()_ is useful when wanting to keep your graphics consistent with scale. By default it is the same value as your window when it is first created. 
 
-## Drawing To The Screen
+### Drawing To The Screen
 Segues are made up of two Activities: the last and the next. For most segues you need to draw one and then the other with some applied effect.
 
 * `drawNextActivity(sf::RenderTexture& surface);` 
@@ -222,12 +223,12 @@ Both draw their respective activity's contents to a sf::RenderTexture that can b
 
 [This example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/PushIn.h) Segue will slide a new screen in while pushing the last scene out. Really cool!
 
-## Embedding GLSL and textures
+### Embedding GLSL and textures
 Some post processing effects require samples as inputs. In order to make Swoosh 100% header-only the scripts and samples had to be embedded. This is purely optional for your projects and if you want to share your custom segue effects, is the best practice.
 
 Learn [how to embed GLSL and textures here](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Embed-GLSL).
 
-## Segue's & Activity States
+### Segue's & Activity States
 It's important to note that Segues are responsible for triggering 6 of the 7 states in your activities.
 
 * onStart -> the next scene starts once when the previous scene ends
@@ -238,3 +239,30 @@ It's important to note that Segues are responsible for triggering 6 of the 7 sta
 * onResume -> if the next scene had started before, it will resume after the previous scene ends from a _pop_ intent (discards previous scene when finished)
 
 It might help to remember during a segue, both scenes are replacing eachother in the same frame. When a segue begins, the current scene is leaving and the other is entering. When the segue ends, the current scene exits and the other begins. 
+
+✨ # § Special Topic: Copying the Window
+If you have a particular structure how your game should end (like a GameOverScreen), it would make sense to have that screen be at the bottom of the stack at ALL times. We can start the player in the main menu and let them make other choices to config their controllers. If the player presses start, we can pop the main menu off the stack and begin the game. With this structure in mind, we might have something like the following:
+
+```cpp
+ActivityController ac(window);
+ac.push<GameOverScreen>();
+ac.push<GameWorld>();
+ac.push<MainMenuScreen>();
+```
+
+But what if you need to load the game first? You might have a lot of other modules to load and threads to call that can't be safely put into an activity in a clean way. You might want to draw directly onto the window for a while to show a cool loading screen. 
+
+Swoosh comes with a special class called `CopyWindow` that's shipped with file `ActivityController.h`. It will copy your screen's contents at the time of creation and use that as a "blank" Activity. 
+
+Your code would need to include this when the loading is complete:
+
+```cpp
+// ... All the code we had before
+
+// ... load stuff
+
+// Load is complete!
+if(gameIsLoaded == true) }
+  ac.push<CopyWindow>();
+  ac.queuePop<segue<FadeOut>>(); // Go to the MainMenuScreen
+```
