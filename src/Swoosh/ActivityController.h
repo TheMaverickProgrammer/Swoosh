@@ -544,7 +544,7 @@ namespace swoosh {
       drawable.setTexture(framebuffer, true);
     }
 
-    ~CopyWindow() { ; }
+    virtual ~CopyWindow() { ; }
 
     void onStart()  override { };
     void onLeave()  override { };
