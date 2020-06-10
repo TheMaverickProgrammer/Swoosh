@@ -9,13 +9,16 @@ using namespace swoosh;
 class BlurFadeIn : public Segue {
 private:
   glsl::FastGaussianBlur shader;
+  sf::Texture last, next;
 
 public:
   void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
-    shader.setPower((float)alpha * 10.f);
+    const bool optimized = getController().isOptimizedForPerformance();
+
+    shader.setPower((float)alpha * 8.f);
 
     surface.clear(this->getLastActivityBGColor());
     this->drawLastActivity(surface);
@@ -23,11 +26,13 @@ public:
     surface.display(); // flip and ready the buffer
     sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
 
-    shader.setTexture(&temp);
-    shader.apply(surface);
+    if(!optimized) {
+      shader.setTexture(&temp);
+      shader.apply(surface);
+    }
 
     surface.display();
-    sf::Texture last(surface.getTexture());
+    last = sf::Texture(surface.getTexture());
 
     surface.clear(this->getNextActivityBGColor());
     this->drawNextActivity(surface);
@@ -35,11 +40,13 @@ public:
     surface.display(); // flip and ready the buffer
     temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
 
-    shader.setTexture(&temp);
-    shader.apply(surface);
+    if(!optimized) {
+      shader.setTexture(&temp);
+      shader.apply(surface);
+    }
 
     surface.display();
-    sf::Texture next(surface.getTexture());
+    next = sf::Texture(surface.getTexture());
 
     sf::Sprite sprite, sprite2;
     sprite.setTexture(last);
@@ -53,11 +60,10 @@ public:
 
     surface.draw(sprite);
     surface.draw(sprite2);
-
   }
 
   BlurFadeIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
-    /* ... */
+    /*...*/
   }
 
   virtual ~BlurFadeIn() { ; }
