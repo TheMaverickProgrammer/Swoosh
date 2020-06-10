@@ -18,8 +18,9 @@ int main()
   // Create an AC with the current window as our target to draw to
   ActivityController app(window);
 
-  // For mobile devices or low-end GPU's, you can request optimized effects any time
-  app.optimizeForPerformance(true);
+  // For mobile devices or low-end GPU's, you can request optimized 
+  // effects any time by setting to true
+  app.optimizeForPerformance(false);
 
   // Add the Main Menu Scene as the first and only scene in our stack
   // This is our starting point for the user
