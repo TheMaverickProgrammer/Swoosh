@@ -5,7 +5,7 @@
 
 using namespace swoosh;
 
-template<int direction>
+template<types::direction direction>
 class SwipeIn : public Segue {
 private:
   sf::Vector2u windowSize;
@@ -38,7 +38,7 @@ public:
     int d = 0;
 
     // left
-    if (direction == 0) {
+    if (direction == direction::left) {
       r = bottom.getTexture()->getSize().x;
       l = (int)(r - (alpha * (double)r));
       u = 0;
@@ -49,7 +49,7 @@ public:
     }
 
     // right
-    if (direction == 1) {
+    if (direction == direction::right) {
       r = (int)((double)bottom.getTexture()->getSize().x * alpha);
       l = 0;
       u = 0;
@@ -57,7 +57,7 @@ public:
     }
 
     // up
-    if (direction == 2) {
+    if (direction == direction::up) {
       r = bottom.getTexture()->getSize().x;
       l = 0;
       d = bottom.getTexture()->getSize().y;
@@ -67,7 +67,7 @@ public:
     }
 
     // down 
-    if (direction == 3) {
+    if (direction == direction::down) {
       r = bottom.getTexture()->getSize().x;
       l = 0;
       u = 0;

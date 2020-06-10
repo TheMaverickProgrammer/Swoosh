@@ -4,7 +4,7 @@
 
 using namespace swoosh;
 
-template<int direction>
+template<types::direction direction>
 class PushIn : public Segue {
 public:
 
@@ -25,10 +25,10 @@ public:
     int lr = 0;
     int ud = 0;
 
-    if (direction == 0) lr = -1;
-    if (direction == 1) lr = 1;
-    if (direction == 2) ud = -1;
-    if (direction == 3) ud = 1;
+    if (direction == direction::left ) lr = -1;
+    if (direction == direction::right) lr = 1;
+    if (direction == direction::up   ) ud = -1;
+    if (direction == direction::Down ) ud = 1;
 
     left.setPosition((float)(lr * alpha * left.getTexture()->getSize().x), (float)(ud * alpha * left.getTexture()->getSize().y));
 

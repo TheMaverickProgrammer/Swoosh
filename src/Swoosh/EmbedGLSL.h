@@ -1,14 +1,11 @@
 #pragma once
 #include <sstream>
 
-#ifdef __ANDROID__
+#ifdef WIN32
 #define SWOOSH_GLSL_USE_SAFE 1
 #endif
 
-#ifdef __APPLE__
-#define SWOOSH_GLSL_USE_SAFE 1
-#endif
-
+// linux and other
 #ifndef SWOOSH_GLSL_USE_SAFE
 #define SWOOSH_GLSL_USE_SAFE 0
 #endif

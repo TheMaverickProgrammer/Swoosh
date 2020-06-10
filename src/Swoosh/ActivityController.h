@@ -558,7 +558,7 @@ namespace swoosh {
   }; // ActivityController
 
   namespace types {
-    enum direction : int {
+    enum class direction : int {
       left, right, up, down, max
     };
 

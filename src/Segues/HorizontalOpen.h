@@ -8,7 +8,7 @@ using namespace swoosh;
 class HorizontalOpen : public Segue {
 private:
   sf::Vector2u windowSize;
-  int direction;
+
 public:
  void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();

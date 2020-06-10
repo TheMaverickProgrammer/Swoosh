@@ -5,7 +5,7 @@
 
 using namespace swoosh;
 
-template<int direction>
+template<types::direction direction>
 class Cube3D : public Segue {
 private:
   sf::Texture* temp;
@@ -32,9 +32,9 @@ public:
 
     sf::Texture temp2(surface.getTexture()); // Make a copy of the source texture
 
-    shader.setUniform("direction", direction);
+    shader.setUniform("direction", static_cast<int>(direction));
 
-    if (direction == 1 || direction == 2) {
+    if (direction == direction::right || direction == direction::up) {
       shader.setUniform("texture", temp);
       shader.setUniform("texture2", temp2);
     }
