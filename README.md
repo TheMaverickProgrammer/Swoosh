@@ -263,9 +263,10 @@ Your code would need to include this when the loading is complete:
 // ... load stuff
 
 // Load is complete!
-if(gameIsLoaded == true) }
+if(gameIsLoaded == true) {
   ac.push<CopyWindow>();
   ac.queuePop<segue<FadeOut>>(); // Go to the MainMenuScreen
+}
 ```
 
 You can also inherit from this as a base class and have your screen's contents be captured in the next one.
