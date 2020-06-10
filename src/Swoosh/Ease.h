@@ -61,7 +61,7 @@ namespace swoosh {
       }
 
       // y = 1 - (x ^ 2 - 2x + 1) ^ n
-      T poly = static_cast<double>((x*x) - (2.0 * static_cast<double>(x)) + 1.0);
+      T poly = static_cast<T>((x*x) - (2.0 * static_cast<double>(x)) + 1.0);
 
       T y = static_cast<T>(1.0 - static_cast<double>(std::pow(poly, power)));
 
