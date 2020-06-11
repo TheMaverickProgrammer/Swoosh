@@ -253,7 +253,7 @@ ac.push<MainMenuScreen>();
 
 But what if you need to load the game first? You might have a lot of other modules to load and threads to call that can't be safely put into an activity in a clean way. You might want to draw directly onto the window for a while to show a cool loading screen. 
 
-Swoosh comes with a special class called `CopyWindow` that's shipped with file `ActivityController.h`. It will copy your screen's contents at the time of creation and use that as a "blank" Activity. 
+Swoosh comes with a special class called `CopyWindow` that's shipped with file `ActivityController.h`. It will copy your screen's contents right before it is displayed and uses that as a "blank" Activity. 
 
 Your code would need to include this when the loading is complete:
 
