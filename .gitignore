@@ -28,6 +28,10 @@ extern/*
 # Codelite
 *.codelite
 
+# VS Code
+*.vscode/
+*.vscode/*
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

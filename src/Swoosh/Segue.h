@@ -46,7 +46,7 @@ namespace swoosh {
     void onUpdate (double elapsed) override final {
       timer.update(elapsed);
 
-      if (last) last->onUpdate(elapsed);
+      last->onUpdate(elapsed);
       next->onUpdate(elapsed);
     }
 

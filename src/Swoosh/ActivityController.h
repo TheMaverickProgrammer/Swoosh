@@ -531,27 +531,42 @@ namespace swoosh {
     Example use case: a segue fading in an intro screen when there were no previous scenes at launch
 
     This is best suited for all actions: push, pop, and replace.
+
+    @warning This is a costly operation in SFML and can cause your program to stall for a split second 
+             depending on your computer. You should also be sure you don't clear your window content
+             until AFTER the AC's update loop
   */
   class CopyWindow : public Activity {
     sf::Texture framebuffer;
     sf::Sprite drawable;
-  public:
-    CopyWindow(ActivityController& ac) : Activity(&ac) {
-      auto& window = ac.getWindow();
+    bool captured;
+
+    void copyWindowContents() {
+      if(captured) return;
+
+      auto& window = getController().getWindow();
       sf::Vector2u windowSize = window.getSize();
       framebuffer.create(windowSize.x, windowSize.y);
       framebuffer.update(window);
       drawable.setTexture(framebuffer, true);
+
+      captured = true;
     }
+
+  public:
+    CopyWindow(ActivityController& ac) : Activity(&ac) { 
+      captured = false;
+     }
 
     virtual ~CopyWindow() { ; }
 
-    void onStart()  override { };
-    void onLeave()  override { };
+    void onStart()  override { copyWindowContents(); };
+    void onLeave()  override { copyWindowContents(); };
     void onExit()   override { };
-    void onEnter()  override { };
+    void onEnter()  override { copyWindowContents(); };
     void onResume() override { };
     void onEnd()    override { };
+
     void onUpdate(double elapsed) override { };
 
     void onDraw(sf::RenderTexture& surface) override {
