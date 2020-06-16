@@ -544,12 +544,32 @@ namespace swoosh {
     void copyWindowContents() {
       if(captured) return;
 
+      // get the window handle
       auto& window = getController().getWindow();
+
+      // get all original view and viewport settings
+      auto view = window.getView();
+      auto viewSize = view.getSize();
+      auto viewportIntRect = window.getViewport(view);
+
+      // calculate the view based on any viewport adjustments
+      // because we will copy the viewport pixels and we don't want those in our re-rendered image
+      sf::View newView = sf::View(sf::FloatRect(viewportIntRect.left, viewportIntRect.top, viewportIntRect.width, viewportIntRect.height));
+
+      // screen size in pixels
       sf::Vector2u windowSize = window.getSize();
-      framebuffer.create(windowSize.x, windowSize.y);
+      float w = windowSize.x;
+      float h = windowSize.y;
+
+      // copy screen contents
+      framebuffer.create(w, h);
       framebuffer.update(window);
       drawable.setTexture(framebuffer, true);
 
+      // Use the view that cleanly renders the copied screen (as if a viewport never existed)
+      setView(newView);
+
+      // flag screen copy op as complete
       captured = true;
     }
 
