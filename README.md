@@ -256,15 +256,15 @@ app.optimizeForPerformance(quality::mobile);
 
 You can gauge the outcome of each quality in the following way:
 - `realtime` Default behavior. Best looks. May hog mobile or low-end gpu hardware
-- `reduced` Programmer may reduce the looks and will have better performance than `realtime`
+- `reduced` Programmer may reduce the looks and should have better performance than `realtime`
 - `mobile` NO activities are updated in transitions and the looks will be drastically reduced but should have best performance.
 
-Importantly, this specific mode will tell the activity controller to **not** update the next and last scenes in a segue effect. They will resume updating when the segue is over. This helps speed your mobile device up. 
+Importantly, the `mobile` mode will tell the activity controller to **not** update the next and last scenes in a segue effect. They will resume updating when the segue is over. This helps speed your mobile device up. 
 
 Segues by themselves only draw what the programmer wants to have in the transition effect. The supplied segues have support for all 3 quality levels.
 
 See the guassian blur effect [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L96).
-Typically having a blur with the kernel size of 40 kills my mobile device's performance. But I've toggled the kernel size [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L96). Additionally, I have opted to capture the next and last activity screens **only once** when the segue firsts begins [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L96).
+Typically having a blur with the kernel size of 40 kills my mobile device's performance. But I've toggled the kernel size [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L20). Additionally, I have opted to capture the next and last activity screens **only once** when the segue firsts begins [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L96).
 
 By providing alternative segue effect behavior for the quality modes, you can ensure your segues will run on anyone's devices.
 
