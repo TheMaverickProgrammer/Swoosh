@@ -12,7 +12,7 @@ Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and And
 > 3. quality can be { realtime, reduced, mobile } where each is best-to-worst quality but worst-to-best performance depending on your hardware
 > 4. Segues can query the controller's quality set with getRequestedQuality()
 > 5. Added much-needed doxygen style documentation throughout the entire project
-> 6. New Dream segue effect
+> 6. New [Dream](https://twitter.com/i/status/1315143680903254017) segue effect
 > 7. Fixed some bugs with view toggling between activities
 > See older changes at the [changelog](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Changelog)
 
