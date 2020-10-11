@@ -4,6 +4,14 @@
 
 using namespace swoosh;
 
+/**
+  @class SlideIn
+  @brief Slides the next scene over and on top of the current one
+  @param direction. Compile-time constant that determines which direction to slide in to.
+
+  Behavior is the same across all quality modes
+*/
+
 template<types::direction direction>
 class SlideIn : public Segue {
 public:
@@ -47,5 +55,5 @@ public:
     /* ... */ 
   }
 
-  virtual ~SlideIn() { ; }
+  ~SlideIn() { ; }
 };

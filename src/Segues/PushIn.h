@@ -4,21 +4,36 @@
 
 using namespace swoosh;
 
+/**
+  @class PushIn
+  @brief Pushes the new screen in while pushing the last screen out
+  @param direction. Compile-time constant. A cardinal direction to push from.
+*/
 template<types::direction direction>
 class PushIn : public Segue {
+  sf::Texture next, last;
+  bool firstPass{ true };
 public:
 
  void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
+    bool optimized = getController().getRequestedQuality() == quality::mobile;
 
-    surface.clear(this->getLastActivityBGColor());
-    this->drawLastActivity(surface);
+    sf::Texture temp, temp2;
 
-    surface.display(); // flip and ready the buffer
+    if (firstPass || !optimized) {
+      surface.clear(this->getLastActivityBGColor());
+      this->drawLastActivity(surface);
 
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+      surface.display(); // flip and ready the buffer
+
+      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    }
+    else {
+      temp = last;
+    }
 
     sf::Sprite left(temp);
 
@@ -34,22 +49,30 @@ public:
 
     surface.clear(this->getNextActivityBGColor());
 
-    this->drawNextActivity(surface);
+    if (firstPass || !optimized) {
+      this->drawNextActivity(surface);
 
-    surface.display(); // flip and ready the buffer
+      surface.display(); // flip and ready the buffer
 
-    sf::Texture temp2(surface.getTexture());
+      next = temp2 = sf::Texture(surface.getTexture());
+    }
+    else {
+      temp2 = next;
+    }
+
     sf::Sprite right(temp2);
 
     right.setPosition((float)(-lr * (1.0-alpha) * right.getTexture()->getSize().x), (float)(-ud * (1.0-alpha) * right.getTexture()->getSize().y));
 
     surface.draw(left);
     surface.draw(right);
+
+    firstPass = false;
   }
 
   PushIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */
   }
 
-  virtual ~PushIn() { }
+  ~PushIn() { }
 };

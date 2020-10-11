@@ -6,46 +6,71 @@
 
 using namespace swoosh;
 
-// krows and kcols determine kernel size that each is interpolated over. 
-// It can be thought of as color tolerance
-// For a dissolving effect, using high krows and kcols
-// For a retro effect, use less
+/**
+ @class RetroBlitCustom
+ @param krows. Compile-time constant of the kernel size vertically. Higher row count = bigger cells and better performance but lower quality.
+ @param kcols. Compile-time constant of the kernel size horizontally. Higher col count = "" 
+ 
+ krows and kcols determine kernel size that each is interpolated over. 
+ It can be thought of as color tolerance
+ For a dithering and dissolving effect, using high krows and kcols
+ For a retro and blocky effect, use less
+*/
 template<int krows, int kcols>
 class RetroBlitCustom : public Segue {
 private:
   glsl::RetroBlit shader;
-
+  sf::Texture last, next;
+  bool firstPass{ true };
+  bool secondPass{ true };
 public:
   virtual void onDraw(sf::RenderTexture& surface) {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
+    const bool optimized = getController().getRequestedQuality() == quality::mobile;
+
+    sf::Texture temp;
 
     if (alpha <= 0.5) {
-      this->drawLastActivity(surface);
+      if (firstPass || !optimized) {
+        this->drawLastActivity(surface);
 
-      surface.display(); // flip and ready the buffer
+        surface.display(); // flip and ready the buffer
 
-      sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
-      surface.clear(this->getLastActivityBGColor());
+        last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        surface.clear(this->getLastActivityBGColor());
+      }
+      else {
+        temp = last;
+      }
 
       shader.setTexture(&temp);
       shader.setAlpha((0.5f - (float)alpha)/0.5f);
       shader.apply(surface);
+
+      firstPass = false;
     }
     else {
-      this->drawNextActivity(surface);
+      if (secondPass || !optimized) {
+        this->drawNextActivity(surface);
 
-      surface.display(); // flip and ready the buffer
+        surface.display(); // flip and ready the buffer
 
-      sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
-      sf::Sprite sprite(temp);
+        next = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        sf::Sprite sprite(temp);
 
-      surface.clear(this->getNextActivityBGColor());
+        surface.clear(this->getNextActivityBGColor());
+      }
+      else {
+        temp = next;
+      }
 
       shader.setTexture(&temp);
-      shader.setAlpha(((float)alpha - 0.5f)/0.5f);
+      shader.setAlpha(((float)alpha - 0.5f) / 0.5f);
       shader.apply(surface);
+
+      secondPass = false;
     }
   }
 
@@ -54,7 +79,9 @@ public:
     /* ... */;
   }
 
-  virtual ~RetroBlitCustom() { ; }
+  ~RetroBlitCustom() { ; }
 };
 
+
+//!< Shorthand to use configured RetroBlit with kcols and krows of 10
 using RetroBlit = RetroBlitCustom<10, 10>;

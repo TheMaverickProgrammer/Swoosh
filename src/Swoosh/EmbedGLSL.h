@@ -1,6 +1,11 @@
 #pragma once
 #include <sstream>
 
+/**
+ * This file includes a macro that parses GLSL input to be used by shader program compilers
+ * This macro allows us to use IDE highlighting and embed readable GLSL scripts in our source files 
+ */
+
 #ifdef WIN32
 #define SWOOSH_GLSL_USE_SAFE 1
 #endif

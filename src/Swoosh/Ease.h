@@ -3,16 +3,27 @@
 
 namespace swoosh {
   namespace ease {
-    static double pi = 3.14159265358979323846;
+    static double pi = 3.14159265358979323846; //!< Precalculated pi
 
+    /**
+     @brief calculates radians
+    */
     template<typename T>
     static T radians(T degrees) { return static_cast<T>((static_cast<double>(degrees) * pi) / 180.0); }
 
+    /**
+     @brief Interpolate values from a to b with percentage factor
+    */
     template<typename T>
     static T interpolate(T factor, T a, T b) {
       return a + ((b - a) * factor);
     }
 
+    /**
+     y = x;
+    
+     @brief percentile values from 0 => 1.0
+    */
     template<typename T>
     static T linear(T delta, T length, T power) {
       T normal = static_cast<T>(1.0 / static_cast<double>(length));
@@ -28,10 +39,10 @@ namespace swoosh {
       return y;
     }
 
-    /*
+    /**
     y = (1 - abs(2-x*4) + 1)/2
 
-    sharp back and forth, no easing
+    @brief sharp back and forth, no easing
     */
     template<typename T>
     static T inOut(T delta, T length) {
@@ -47,6 +58,9 @@ namespace swoosh {
       return y;
     }
 
+    /**
+     @brief output is 1.0 only at the half-way mark and returns to 0 at the end of the curve
+    */
     template<typename T>
     static T wideParabola(T delta, T length, T power) {
       T normal = static_cast<T>(2.0 / static_cast<double>(length));
@@ -68,10 +82,10 @@ namespace swoosh {
       return y;
     }
 
-    /*
+    /**
       y = 3x ^ 2 - 2x ^ 4
 
-      overshoot destination and slide back at the end
+      @brief overshoot destination and slide back at the end
     */
     template<typename T>
     static T bezierPopIn(T delta, T length) {
@@ -92,10 +106,10 @@ namespace swoosh {
       return y;
     }
 
-    /*
+    /**
     y = 3(1-x) ^ 2 - 2(1-x) ^ 4
 
-    pop out and then slide out
+    @brief pop out and then slide out
   */
     template<typename T>
     static T bezierPopOut(T delta, T length) {
@@ -116,8 +130,10 @@ namespace swoosh {
       return y;
     }
 
-    /*
+    /**
       y = 1-(sin(x+90)*cos(-2x)
+
+      @brief bounces closer to the target value over the length of the sequence (time)
     */
     template<typename T>
     static T sinuoidBounceOut(T delta, T length) {

@@ -20,7 +20,7 @@ struct button {
       isClicked = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
     }
     else {
-      isHovering = false;
+      isClicked = isHovering = false;
     }
   }
 

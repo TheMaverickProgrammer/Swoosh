@@ -6,6 +6,26 @@
 namespace swoosh {
   class ActivityController;
 
+  /**
+   * @class quality
+   * @brief Quality modes to toggle optimization in ActivityControllers and segue effects
+   */
+  enum class quality {
+    realtime = 0, // Request real-time shader effects
+    reduced,      // Request reduced, real-time shader effects
+    mobile        // Request reduced and single-pass screen render. Also does not call onUpdate() on activities until complete.
+  } qualityLevel{ quality::realtime };
+
+  /**
+   * @class Segue
+   * @brief A segue is a visual transition effect from one activity to another
+   * 
+   * Segues are activities that properly manage the life-cycle of the 2 activities: next and last
+   * 
+   * The only function that can be overriden is onDraw()
+   * This allows programmers to create custom transition effects while only worrying about one thing: how it looks
+   * This rigid design is intentional to influence plug-and-play segues. This way custom content can be shared and it "just works"
+   */
   class Segue : public Activity {
     friend class ActivityController;
 

@@ -3,6 +3,10 @@
 #include <SFML/Graphics.hpp>
 #include <Swoosh/Ease.h>
 
+/****
+ * This file is a collection of common SFML-related utilities that speed up prototyping
+ * @warning This file may be purged in the future as the library matures
+ */
 namespace swoosh {
   namespace game {
     static bool doesCollide(sf::Sprite& a, sf::Sprite& b) {

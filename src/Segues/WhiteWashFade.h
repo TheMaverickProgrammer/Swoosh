@@ -4,6 +4,13 @@
 
 using namespace swoosh;
 
+/**
+  @class WhiteWashFade
+  @brief The last scene fades out white and the new scene fades in
+
+  Since this is a very simple effect, all quality modes are the same
+ */
+
 class WhiteWashFade : public Segue {
 public:
  void onDraw(sf::RenderTexture& surface) override {
@@ -23,5 +30,5 @@ public:
   }
 
   WhiteWashFade(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) { /* ... */ }
-  virtual ~WhiteWashFade() { ; }
+  ~WhiteWashFade() { ; }
 };

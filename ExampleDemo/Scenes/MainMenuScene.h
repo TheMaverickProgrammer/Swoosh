@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DemoScene.h"
+#include "GameplayScene.h"
 #include "HiscoreScene.h"
 #include "AboutScene.h"
 #include "../TextureLoader.h"
@@ -78,7 +78,7 @@ private:
 
 public:
   MainMenuScene(ActivityController& controller) : Activity(&controller) {
-    setView(sf::View());
+    setView(controller.getVirtualWindowSize());
 
     savefile.loadFromFile(SAVE_FILE_PATH);
 
@@ -167,11 +167,11 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<segue<RadialCCW, sec<1>>::to<DemoScene>>(savefile);
+          getController().push<segue<RadialCCW, sec<1>>::to<GameplayScene>>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          using segue = segue<BlurFadeIn, sec<2>>;
+          using segue = segue<Checkerboard, sec<2>>;
           using intent = segue::to<HiScoreScene>;
 
           getController().push<intent>(savefile);

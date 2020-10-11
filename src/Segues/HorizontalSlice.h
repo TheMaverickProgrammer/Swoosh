@@ -5,6 +5,12 @@
 
 using namespace swoosh;
 
+/**
+  @class HorizontalSlice
+  @brief Splits the screen into upper and lower halfs and then sends the pieces in opposite directions, revealing the next scene
+
+  The effect is the same across all optimized modes
+*/
 class HorizontalSlice : public Segue {
 private:
   sf::Vector2u windowSize;
@@ -49,5 +55,5 @@ public:
     direction = rand() % 2 == 0 ? -1 : 1;
   }
 
-  virtual ~HorizontalSlice() { }
+  ~HorizontalSlice() { }
 };

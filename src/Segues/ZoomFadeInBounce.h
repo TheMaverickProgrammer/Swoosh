@@ -5,30 +5,54 @@
 
 using namespace swoosh;
 
+/**
+  @class ZoomFadeInBounce
+  @brief brings the next sceen in from the center of the screen by stumbling closer and closer inward
+
+  This effect is similar to Final Fantasy II battle intro for the US Super Nintendo 
+  If requested quality is set to mobile, capture the first screen and do not capture real-time.
+
+ */
+
 class ZoomFadeInBounce : public Segue {
 private:
   sf::Shader shader;
-  std::string ZOOM_FADEIN_BOUNCE_FRAG_SHADER;
+  std::string zoomShaderProgram;
+  sf::Texture next, last;
+  bool firstPass{ true };
 
 public:
  void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::sinuoidBounceOut(elapsed, duration);
+    const bool optimized = getController().getRequestedQuality() == quality::mobile;
 
-    this->drawLastActivity(surface);
-    surface.display(); // flip and ready the buffer
+    sf::Texture temp, temp2;
 
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+    if (firstPass || !optimized) {
+      this->drawLastActivity(surface);
+      surface.display(); // flip and ready the buffer
+      last = temp = sf::Texture(surface.getTexture());
+    }
+    else {
+      temp = last;
+    }
 
     sf::Sprite sprite(temp);
 
     surface.clear(sf::Color::Transparent);
-    this->drawNextActivity(surface);
 
-    surface.display(); // flip and ready the buffer
+    if (firstPass || !optimized) {
+      this->drawNextActivity(surface);
 
-    sf::Texture temp2(surface.getTexture()); // Make a copy of the source texture
+      surface.display(); // flip and ready the buffer
+
+      next = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    }
+    else {
+      temp2 = next;
+    }
 
     shader.setUniform("progress", (float)alpha);
     shader.setUniform("texture2", temp2);
@@ -38,11 +62,13 @@ public:
     states.shader = &shader;
 
     surface.draw(sprite, states);
+
+    firstPass = false;
   }
 
   ZoomFadeInBounce(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
 
-    ZOOM_FADEIN_BOUNCE_FRAG_SHADER = GLSL
+    zoomShaderProgram = GLSL
     (
       110,
       uniform sampler2D texture;
@@ -62,8 +88,8 @@ public:
       }
     );
 
-    shader.loadFromMemory(ZOOM_FADEIN_BOUNCE_FRAG_SHADER, sf::Shader::Fragment);
+    shader.loadFromMemory(zoomShaderProgram, sf::Shader::Fragment);
   }
 
-  virtual ~ZoomFadeInBounce() {; }
+  ~ZoomFadeInBounce() {; }
 };

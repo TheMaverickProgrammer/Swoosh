@@ -12,29 +12,33 @@ Custom made or custom implemented by TheMaverickProgrammer
 namespace swoosh {
   namespace glsl {
     
-    // Base class for all shaders
+    /**
+      @class Shader
+      @brief Base class for all swoosh-provided shaders
+    */
     class Shader {
     protected:
       sf::Shader shader;
 
     public:
       const sf::Shader& getShader() const { return shader; }
-
       virtual ~Shader() { ; }
+
       virtual void apply(sf::RenderTexture& surface) = 0;
     };
-    /*
-    Incredibly fast pass implementation of the Gaussian blur effect
-    Results are blockier than other shaders but performance is undeniable
+    /**
+      @class FastGaussianBlur
+      @brief Incredibly fast pass implementation of the Gaussian blur effect
+      Results are blockier than other shaders but performance is undeniable
     */
     class FastGaussianBlur final : public Shader {
     private:
       std::string FAST_BLUR_SHADER;
       sf::Texture* texture;
       float power;
-
     public:
       void setPower(float power) { this->power = power; shader.setUniform("power", power); }
+
       void setTexture(sf::Texture* tex) { 
         if (!tex) return;
 
@@ -45,7 +49,7 @@ namespace swoosh {
         shader.setUniform("textureSizeH", (float)texture->getSize().y);
       }
 
-      virtual void apply(sf::RenderTexture& surface) {
+      void apply(sf::RenderTexture& surface) override {
         if (!texture) return;
 
         sf::RenderStates states;
@@ -57,7 +61,7 @@ namespace swoosh {
         surface.draw(sprite, states);
       }
 
-      FastGaussianBlur() {
+      FastGaussianBlur(int numOfKernels) {
         texture = nullptr;
         power = 0.0f;
 
@@ -65,6 +69,7 @@ namespace swoosh {
         (
           110,
           uniform sampler2D texture;
+          uniform int kernels;
           uniform float power;
           uniform float textureSizeW;
           uniform float textureSizeH;
@@ -78,7 +83,7 @@ namespace swoosh {
           {
             vec3 c = texture2D(texture, gl_TexCoord[0].xy).rgb;
 
-            const int mSize = 60;
+            const int mSize = %kernels%;
             const int kSize = int((float(mSize) - 1.0) / 2.0);
             float kernel[mSize];
             vec3 final_color = vec3(0.0);
@@ -112,11 +117,29 @@ namespace swoosh {
           }
         );
 
-        shader.loadFromMemory(this->FAST_BLUR_SHADER, sf::Shader::Fragment);
+        std::string from("%kernels%");
+        std::string to = std::to_string(numOfKernels);
+
+        size_t start_pos = this->FAST_BLUR_SHADER.find(from);
+        if (start_pos != std::string::npos) {
+          this->FAST_BLUR_SHADER.replace(start_pos, from.length(), to);
+          shader.loadFromMemory(this->FAST_BLUR_SHADER, sf::Shader::Fragment);
+        }
+        else {
+          // should never happen
+          assert(true && "could not find string %kernels% in guassian shader string");
+        }
       }
 
-      virtual ~FastGaussianBlur() { }
+      ~FastGaussianBlur() { }
     };
+
+    /**
+      @class Checkerboard
+      @brief Blocks out texture1 with pieces of texture2 defined by the cols x rows grid over time.
+
+      Smoothness factor can make the effect look softer and less blocky
+    */
     class Checkerboard final : public Shader {
     private:
       std::string CHECKERBOARD_SHADER;
@@ -133,7 +156,7 @@ namespace swoosh {
       void setTexture1(sf::Texture* tex) { if (!tex) return;  this->texture1 = tex; shader.setUniform("texture",  *texture1); }
       void setTexture2(sf::Texture* tex) { if (!tex) return;  this->texture2 = tex; shader.setUniform("texture2", *texture2); }
 
-      virtual void apply(sf::RenderTexture& surface) {
+      void apply(sf::RenderTexture& surface) override {
         if (!(texture1 && texture2)) return;
 
         sf::RenderStates states;
@@ -177,8 +200,13 @@ namespace swoosh {
         shader.loadFromMemory(this->CHECKERBOARD_SHADER, sf::Shader::Fragment);
       }
 
-      virtual ~Checkerboard() { ; }
+      ~Checkerboard() { ; }
     };
+
+    /**
+      @class CircleMask
+      @brief Hides the input texture that exceeds the circle's radius. Radius increases as alpha approaches 1.0
+    */
     class CircleMask final : public Shader {
     private:
       std::string CIRCLE_MASK_SHADER;
@@ -191,7 +219,7 @@ namespace swoosh {
       void setAspectRatio(float aspectRatio) { this->aspectRatio = aspectRatio;  shader.setUniform("ratio", aspectRatio); }
       void setTexture(sf::Texture* tex) { if (!tex) return; this->texture = tex; shader.setUniform("texture", *texture); }
 
-      virtual void apply(sf::RenderTexture& surface) {
+      void apply(sf::RenderTexture& surface) override {
         if (!texture) return;
 
         sf::RenderStates states;
@@ -239,8 +267,14 @@ namespace swoosh {
         alpha = 0;
         shader.loadFromMemory(this->CIRCLE_MASK_SHADER, sf::Shader::Fragment);
       }
-      virtual ~CircleMask() { ; }
+
+      ~CircleMask() { ; }
     };
+
+    /**
+      @class RetroBlit
+      @brief Strips color away as layers as alpha approaches 1.0
+    */
     class RetroBlit final : public Shader {
     private:
       std::string RETRO_BLIT_SHADER;
@@ -254,7 +288,7 @@ namespace swoosh {
       void setKernelCols(int kcols) { this->kernelCols = kcols; shader.setUniform("cols", kernelCols); }
       void setKernelRows(int krows) { this->kernelRows = krows; shader.setUniform("rows", kernelRows); }
 
-      virtual void apply(sf::RenderTexture& surface) {
+      void apply(sf::RenderTexture& surface) override {
         if (!texture) return;
 
         sf::RenderStates states;
@@ -296,8 +330,14 @@ namespace swoosh {
         alpha = 0;
       }
 
-      virtual ~RetroBlit() { ; }
+      ~RetroBlit() { ; }
     };
+
+    /**
+      @class CrossZoom 
+      @brief Mimics the blinding light-shearing effect from texture1 to texture2
+      @warning CPU intensive process with SFML at this time
+    */
     class CrossZoom final : public Shader {
     private:
       std::string CROSS_ZOOM_SHADER;
@@ -311,7 +351,7 @@ namespace swoosh {
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", (float)alpha); }
       void setPower(float power) { this->power = power; shader.setUniform("strength", power); }
 
-      virtual void apply(sf::RenderTexture& surface) {
+      void apply(sf::RenderTexture& surface) override {
         if (!(texture1 && texture2)) return;
 
         sf::RenderStates states;
@@ -406,8 +446,13 @@ namespace swoosh {
         shader.loadFromMemory(this->CROSS_ZOOM_SHADER, sf::Shader::Fragment);
       }
 
-      virtual ~CrossZoom() { }
+      ~CrossZoom() { }
     };
+
+    /**
+      @class Morph
+      @brief Transforms texture1 to texture2 by some alpha value. Strength intensifies the morph effect.
+    */
     class Morph final : public Shader {
     private:
       std::string MORPH_SHADER;
@@ -421,7 +466,7 @@ namespace swoosh {
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("alpha", (float)alpha); }
       void setStrength(float strength) { this->strength = strength; shader.setUniform("strength", strength); }
 
-      virtual void apply(sf::RenderTexture& surface) {
+      void apply(sf::RenderTexture& surface) override {
         if (!(texture1 && texture2)) return;
 
         sf::RenderStates states;
@@ -464,8 +509,9 @@ namespace swoosh {
         alpha = strength = 0;
       }
 
-      virtual ~Morph() { ; }
+      ~Morph() { ; }
     };
+
     /*
     This shader effect was written from the 2004 paper titled
     "Deforming Pages of 3D Electronic Books"
@@ -493,8 +539,8 @@ namespace swoosh {
       sf::VertexArray buffer;
 
       // More cells means higher quality effect at the cost of more work for cpu and gpu
-      // Bigger cell size = less cells fit
-      // Smaller cell size = more cells fit
+      // Bigger cell size = less cells fit, less smooth, higher performance
+      // Smaller cell size = more cells fit, smooth, slower performance
       void triangleStripulate(int screenWidth, int screenHeight, sf::VertexArray& destination, int cellSize) {
         destination.clear();
 
@@ -583,7 +629,7 @@ namespace swoosh {
         shader.setUniform("rho", (float)rho);
       }
 
-      virtual void apply(sf::RenderTexture& surface) {
+      void apply(sf::RenderTexture& surface) override {
         if (!(this->texture)) return;
 
         sf::RenderStates states;
@@ -651,8 +697,13 @@ namespace swoosh {
         triangleStripulate((int)size.x, (int)size.y, buffer, cellSize);
       }
 
-      virtual ~PageTurn() {}
+      ~PageTurn() {}
     };
+
+    /**
+      @class Pixelate
+      @brief Adds a retro blur effect that reduces the input texture into blocky pixels
+    */
     class Pixelate final : public Shader {
     private:
       std::string PIXELATE_SHADER;
@@ -660,7 +711,7 @@ namespace swoosh {
       float threshold;
 
     public:
-      virtual void apply(sf::RenderTexture& surface) {
+      void apply(sf::RenderTexture& surface) override {
         if (!this->texture) return;
         
         sf::RenderStates states;
@@ -695,10 +746,13 @@ namespace swoosh {
         shader.loadFromMemory(this->PIXELATE_SHADER, sf::Shader::Fragment);
       }
 
-      virtual ~Pixelate() {
-
-      }
+      ~Pixelate() {}
     };
+
+    /**
+      @class RadialCCW
+      @brief Masks the input texture1 with input texture2 in a clock-wise fashion
+    */
     class RadialCCW final : public Shader {
     private:
       std::string RADIAL_CCW_SHADER;
@@ -707,14 +761,13 @@ namespace swoosh {
       float alpha;
 
     public:
-      virtual void apply(sf::RenderTexture& surface) {
+      void apply(sf::RenderTexture& surface) override {
         if (!(this->texture1 && this->texture2)) return;
 
         sf::RenderStates states;
         states.shader = &shader;
 
         sf::Sprite sprite;
-        //sprite.setTextureRect(sf::IntRect(0, 0, texture1->getSize().x, texture1->getSize().y));
         sprite.setTexture(*texture1);
 
         surface.draw(sprite, states);
@@ -737,9 +790,6 @@ namespace swoosh {
           void main() {
             vec2 pos = vec2(gl_TexCoord[0].x, gl_TexCoord[0].y);
 
-            vec4 from = texture2D(texture, pos.xy);
-            vec4 to = texture2D(texture2, pos.xy);
-
             const float PI = 3.141592653589;
 
             vec2 rp = pos * 2.0 - 1.0;
@@ -754,7 +804,7 @@ namespace swoosh {
         shader.loadFromMemory(this->RADIAL_CCW_SHADER, sf::Shader::Fragment);
       }
 
-      virtual ~RadialCCW() { ; }
+      ~RadialCCW() { ; }
     };
   }
 }

@@ -74,6 +74,7 @@ public:
     setOrigin(sfml, 0.60f, 0.60f);
 
     sf::Vector2u windowSize = getController().getVirtualWindowSize();
+    setView(windowSize);
 
     screenBottom = (float)windowSize.y;
     screenMid = windowSize.x / 2.0f;
@@ -114,7 +115,7 @@ public:
 
         if (goback.text == "FIN") {
           using effect = segue<Cube3D<direction::right>, sec<2>>;
-          getController().queuePop<effect>();
+          getController().pop<effect>();
         }
         else {
           goback.text = "FIN";

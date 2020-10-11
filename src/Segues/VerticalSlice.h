@@ -5,6 +5,12 @@
 
 using namespace swoosh;
 
+/**
+  @class VerticalSlice
+  @brief Slices the screen in half and moves the pieces in opposite vertical directions revealing the next scene behind them
+
+  Behavior is the same across all quality modes
+*/
 class VerticalSlice : public Segue {
 private:
   sf::Vector2u windowSize;
@@ -49,5 +55,5 @@ public:
     direction = rand() % 2 == 0 ? -1 : 1;
   }
 
-  virtual ~VerticalSlice() { }
+  ~VerticalSlice() { }
 };

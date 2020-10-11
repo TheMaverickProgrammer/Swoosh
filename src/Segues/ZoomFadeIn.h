@@ -5,31 +5,52 @@
 
 using namespace swoosh;
 
+/**
+  @class ZoomFadeIn
+  @brief brings the next sceen in by scaling the last scene up and fading out as if it was approaching the camera
+
+  If requested quality is set to mobile, capture the first screen and do not capture real-time.
+*/
 class ZoomFadeIn : public Segue {
 private:
-  std::string ZOOM_FADEIN_FRAG_SHADER;
+  std::string zoomShaderProgram;
   sf::Shader shader;
-
+  sf::Texture next, last;
+  bool firstPass{ true };
 public:
  void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
+    const bool optimized = getController().getRequestedQuality() == quality::mobile;
 
-    this->drawLastActivity(surface);
+    sf::Texture temp, temp2;
 
-    surface.display(); // flip and ready the buffer
+    if (firstPass || !optimized) {
+      this->drawLastActivity(surface);
 
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+      surface.display(); // flip and ready the buffer
+
+      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    }
+    else {
+      temp = last;
+    }
 
     sf::Sprite sprite(temp);
 
     surface.clear(sf::Color::Transparent);
-    this->drawNextActivity(surface);
 
-    surface.display(); // flip and ready the buffer
+    if (firstPass || !optimized) {
+      this->drawNextActivity(surface);
 
-    sf::Texture temp2(surface.getTexture()); // Make a copy of the source texture
+      surface.display(); // flip and ready the buffer
+
+      next = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    }
+    else {
+      temp2 = next;
+    }
 
     shader.setUniform("progress", (float)alpha);
     shader.setUniform("texture2", temp2);
@@ -39,11 +60,13 @@ public:
     states.shader = &shader;
 
     surface.draw(sprite, states);
+
+    firstPass = false;
   }
 
   ZoomFadeIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */
-    auto ZOOM_FADEIN_FRAG_SHADER = GLSL
+    auto zoomShaderProgram = GLSL
     (
       110,
       uniform sampler2D texture;
@@ -63,8 +86,8 @@ public:
       }
     );
  
-    shader.loadFromMemory(ZOOM_FADEIN_FRAG_SHADER, sf::Shader::Fragment);
+    shader.loadFromMemory(zoomShaderProgram, sf::Shader::Fragment);
   }
 
-  virtual ~ZoomFadeIn() { ; }
+  ~ZoomFadeIn() { ; }
 };

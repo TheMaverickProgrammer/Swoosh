@@ -18,17 +18,21 @@ int main()
   // Create an AC with the current window as our target to draw to
   ActivityController app(window);
 
+  // 10/9/2020 
   // For mobile devices or low-end GPU's, you can request optimized 
-  // effects any time by setting to true
-  app.optimizeForPerformance(false);
+  // effects any time by setting the performance quality to
+  // one of the following: { realtime, reduced, mobile }
+  app.optimizeForPerformance(quality::realtime);
 
+  // (DEFAULT BEHAVIOR!)
   // Add the Main Menu Scene as the first and only scene in our stack
   // This is our starting point for the user
   // app.push<MainMenuScene>(); // <-- uncomment to see a simple push
 
+  // 10/9/2020 (NEW BEHAVIOR!)
   // Swoosh now supports generating blank activities from window contents!
-  // The segue will copy the window and use it as part of the screen transition
-  // as demonstrated here
+  // The segue will copy the window at startup and use it as part of 
+  // the screen transition as demonstrated here
   app.push<segue<ZoomOut>::to<MainMenuScene>>();
 
   sf::Texture* cursorTexture = loadTexture(CURSOR_PATH);

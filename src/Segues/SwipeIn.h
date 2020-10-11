@@ -5,6 +5,14 @@
 
 using namespace swoosh;
 
+
+/**
+  @class SwipeIn
+  @brief The next scene is masked and unwrapped on-top of the current one like a swipe effect
+  @param direction. Compile-time constant that determines which direction the next scene will swipe to.
+  Behavior is the same across all quality modes
+*/
+
 template<types::direction direction>
 class SwipeIn : public Segue {
 private:
@@ -86,5 +94,5 @@ public:
     windowSize = getController().getVirtualWindowSize();
   }
 
-  virtual ~SwipeIn() {; }
+  ~SwipeIn() {; }
 };

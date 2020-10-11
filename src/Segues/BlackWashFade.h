@@ -4,6 +4,12 @@
 
 using namespace swoosh;
 
+/**
+  @class BlendFadeIn
+  @brief Traditional screen transition effect fades out the current screen while fading in the next
+
+  The effect is the same across all optimized modes
+*/
 class BlackWashFade : public Segue {
 public:
   void onDraw(sf::RenderTexture& surface) override {
@@ -27,5 +33,5 @@ public:
   }
 
   BlackWashFade(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) { /* ... */ }
-  virtual ~BlackWashFade() { ; }
+  ~BlackWashFade() { ; }
 };

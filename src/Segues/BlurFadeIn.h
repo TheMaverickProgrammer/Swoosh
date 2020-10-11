@@ -6,11 +6,16 @@
 
 using namespace swoosh;
 
+/**
+  @class BlurFadeIn
+  @brief Blurs both screens and fades into the next while the last fades out
+  @warning COSTLY! For mobile, blurring will be turned off and it will be a simple fade
+*/
 class BlurFadeIn : public Segue {
 private:
   glsl::FastGaussianBlur shader;
   sf::Texture last, next;
-
+  bool firstPass{ true };
 public:
   void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
@@ -21,36 +26,45 @@ public:
     shader.setPower((float)alpha * 8.f);
 
     surface.clear(this->getLastActivityBGColor());
-    this->drawLastActivity(surface);
+    sf::Texture temp, temp2;
 
-    surface.display(); // flip and ready the buffer
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+    if (firstPass || !optimized) {
+      this->drawLastActivity(surface);
 
-    if(!optimized) {
-      shader.setTexture(&temp);
-      shader.apply(surface);
+      surface.display(); // flip and ready the buffer
+      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    }
+    else {
+      temp = last;
     }
 
+    shader.setTexture(&temp);
+    shader.apply(surface);
+
     surface.display();
-    last = sf::Texture(surface.getTexture());
+    temp = sf::Texture(surface.getTexture());
 
     surface.clear(this->getNextActivityBGColor());
-    this->drawNextActivity(surface);
 
-    surface.display(); // flip and ready the buffer
-    temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    if (firstPass || !optimized) {
+      this->drawNextActivity(surface);
 
-    if(!optimized) {
-      shader.setTexture(&temp);
-      shader.apply(surface);
+      surface.display(); // flip and ready the buffer
+      next = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    }
+    else {
+      temp2 = next;
     }
 
+    shader.setTexture(&temp2);
+    shader.apply(surface);
+
     surface.display();
-    next = sf::Texture(surface.getTexture());
+    temp2 = sf::Texture(surface.getTexture());
 
     sf::Sprite sprite, sprite2;
-    sprite.setTexture(last);
-    sprite2.setTexture(next);
+    sprite.setTexture(temp);
+    sprite2.setTexture(temp2);
 
     surface.clear(sf::Color::Transparent);
     alpha = ease::linear(elapsed, duration, 1.0);
@@ -60,11 +74,15 @@ public:
 
     surface.draw(sprite);
     surface.draw(sprite2);
+
+    firstPass = false;
   }
 
-  BlurFadeIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
+  BlurFadeIn(sf::Time duration, Activity* last, Activity* next) 
+    // use 60 kernels in regular performance and 10 for optimized...
+    : Segue(duration, last, next), shader(next->getController().isOptimizedForPerformance()? 10 : 60) {
     /*...*/
   }
 
-  virtual ~BlurFadeIn() { ; }
+  ~BlurFadeIn() { ; }
 };

@@ -5,32 +5,53 @@
 
 using namespace swoosh;
 
+/**
+  @class Cube3D
+  @brief Projects the current and next scene on a 3D cube, rotating the cube to reveal the upcoming scene
+  @warning Even if optimized for slower hardware, may not be performant due to SFML bottlenecks
+  @param direction. Compile-time enum constant that determines which direction to rotate the cube
+
+  If optimized for mobile, will capture the scenes once and use less vertices to increase performance on weak hardware
+*/
 template<types::direction direction>
 class Cube3D : public Segue {
 private:
-  sf::Texture* temp;
+  sf::Texture last, next;
   sf::Shader shader;
-  std::string CUBE3D_SHADER;
+  std::string cube3DShaderProgram;
+  bool firstPass{ true };
 
 public:
  void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
+    const bool optimized = getController().getRequestedQuality() == quality::mobile;
+    sf::Texture temp, temp2;
 
-    this->drawNextActivity(surface);
+    if (firstPass || !optimized) {
+      this->drawNextActivity(surface);
 
-    surface.display(); // flip and ready the buffer
+      surface.display(); // flip and ready the buffer
 
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+      next = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    }
+    else {
+      temp = next;
+    }
 
     sf::Sprite sprite(temp);
 
-    this->drawLastActivity(surface);
+    if (firstPass || !optimized) {
+      this->drawLastActivity(surface);
 
-    surface.display(); // flip and ready the buffer
+      surface.display(); // flip and ready the buffer
 
-    sf::Texture temp2(surface.getTexture()); // Make a copy of the source texture
+      last = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+    }
+    else {
+      temp2 = last;
+    }
 
     shader.setUniform("direction", static_cast<int>(direction));
 
@@ -51,11 +72,13 @@ public:
     surface.clear(getLastActivityBGColor());
 
     surface.draw(sprite, states);
+
+    firstPass = false;
   }
 
   Cube3D(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */
-    this->CUBE3D_SHADER = GLSL(
+    this->cube3DShaderProgram = GLSL(
       110,
       uniform sampler2D texture;
       uniform sampler2D texture2;
@@ -200,8 +223,8 @@ public:
       }
     );
 
-    shader.loadFromMemory(this->CUBE3D_SHADER, sf::Shader::Fragment);
+    shader.loadFromMemory(this->cube3DShaderProgram, sf::Shader::Fragment);
   }
 
-  virtual ~Cube3D() { }
+  ~Cube3D() { }
 };

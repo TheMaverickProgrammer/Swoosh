@@ -6,7 +6,9 @@ namespace swoosh {
 
   class ActionList;
 
-  /*
+  /**
+  @class ActionItem
+
   Your standard ActionItem is non-blocking and seemingly runs concurrent with your other 
   non-blocking action items
   */
@@ -33,7 +35,8 @@ namespace swoosh {
     const std::size_t getIndex() const { return index; }
   };
 
-  /*
+  /**
+  @class BlockingActionItem
   When the action list reaches a BlockingActionItem the action list stops iterating.
   Only until the blocking action item is marked for cleanup using `markDone()` 
   will the action list continue passed.
@@ -54,7 +57,9 @@ namespace swoosh {
   class ConditionalBranchListAction;
 
 
-  /*
+  /**
+  @class ActionList
+
   An ActionList is a dynamic list of ActionItems.
   These items can run as blocking or non-blocking.
   Some action items can be used as signals in your applications.
@@ -179,9 +184,10 @@ namespace swoosh {
     }
   };
 
-  /*
-  You may need to signal a cleanup only for lingering non-blocking
-  actions that come before this item.
+  /**
+  @class ClearPreviousActions
+
+  @brief You may need to signal a cleanup only for existing non-blocking actions that come before this item.
 
   ClearPreviousActions is suited for this task.
   */
@@ -218,9 +224,9 @@ namespace swoosh {
     }
   };
 
-  /*
-  You may need to signal a cleanup in the action list to
-  remove even the non-blocking action items.
+  /**
+  @class ClearAllActions
+  @brief You may need to signal a cleanup in the action list to remove everything including non-blocking action items
 
   ClearAllActions is suited for this task. 
   */
@@ -256,9 +262,12 @@ namespace swoosh {
     }
   };
 
-  /*
-  Conditions may need to fork or branch off the action list
-  into a seperate list. ConditionalBranchListAction is suited for this task.
+  /**
+  @class ConditionalBranchListAction
+  
+  @brief Situations may require to branch off into separate lists depending on the query function
+  
+  ConditionalBranchListAction is similar to an if-else block where the outcome is to append different action items
 
   It takes a lambda function that returns bool and two ActionList pointers.
 

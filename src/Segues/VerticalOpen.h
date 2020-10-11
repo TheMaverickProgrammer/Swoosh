@@ -5,6 +5,14 @@
 
 using namespace swoosh;
 
+
+/**
+  @class VerticalOpen
+  @brief Slices the screen in half vertical and moves the pieces left and right revealing the next scene behind them
+
+  Behavior is the same across all quality modes
+*/
+
 class VerticalOpen : public Segue {
 private:
   sf::Vector2u windowSize;
@@ -46,5 +54,5 @@ public:
     windowSize = getController().getVirtualWindowSize();
   }
 
-  virtual ~VerticalOpen() {}
+  ~VerticalOpen() {}
 };

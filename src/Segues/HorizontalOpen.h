@@ -5,6 +5,12 @@
 
 using namespace swoosh;
 
+/**
+  @class HorizontalOpen
+  @brief Splits the screen into upper and lower halfs and then moves the pieces up and down as if opening
+
+  The effect is the same across all optimized modes
+*/
 class HorizontalOpen : public Segue {
 private:
   sf::Vector2u windowSize;
@@ -47,5 +53,5 @@ public:
     windowSize = getController().getVirtualWindowSize();
   }
 
-  virtual ~HorizontalOpen() { }
+  ~HorizontalOpen() { }
 };

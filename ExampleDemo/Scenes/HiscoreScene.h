@@ -51,6 +51,7 @@ public:
 
     // keep our window size dimensions consistent based on the initial window size when the AC was created
     auto windowSize = getController().getVirtualWindowSize();
+    setView(windowSize);
 
     font.loadFromFile(GAME_FONT);
     text.setFont(font);
@@ -100,8 +101,8 @@ public:
       selectFX.play();
 
       // Rewind lets us pop back to a particular scene in our stack history
-      using effect = segue<CircleClose, sec<2>>;
-      bool found = getController().queueRewind<effect::to<MainMenuScene>>();
+      using effect = segue<CircleClose, sec<1>>;
+      bool found = getController().rewind<effect::to<MainMenuScene>>();
 
       // should never happen
       // but your games may need to check so here it is an example
@@ -168,6 +169,7 @@ public:
 
       p.pos = sf::Vector2f((float)(rand() % getController().getWindow().getSize().x), (float)(rand() % getController().getWindow().getSize().y));
       p.sprite.setPosition(p.pos);
+      p.sprite.setRotation(p.pos.x);
 
       p.speed = sf::Vector2f((float)randSpeedX, (float)randSpeedY);
       meteors.push_back(p);

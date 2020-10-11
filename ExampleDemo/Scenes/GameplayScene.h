@@ -19,7 +19,7 @@ using namespace swoosh;
 using namespace swoosh::game;
 using namespace swoosh::types;
 
-class DemoScene : public Activity {
+class GameplayScene : public Activity {
 private:
   sf::Texture* bgTexture;
   sf::Sprite bg;
@@ -73,7 +73,7 @@ private:
 
   save& savefile;
 public:
-  DemoScene(ActivityController& controller, save& savefile) : savefile(savefile), Activity(&controller) { 
+  GameplayScene(ActivityController& controller, save& savefile) : savefile(savefile), Activity(&controller) { 
     mousePressed = mouseRelease = inFocus = isExtraLifeSpawned = false;
 
     ingameMusic.openFromFile(INGAME_MUSIC_PATH);
@@ -91,6 +91,7 @@ public:
     extraLifeChannel.setBuffer(extraLifeFX);
 
     sf::Vector2u windowSize = getController().getVirtualWindowSize();
+    setView(windowSize);
 
     bgTexture = loadTexture(PURPLE_BG_PATH);
     bgTexture->setRepeated(true);
@@ -177,7 +178,8 @@ public:
     sf::RenderWindow& window = getController().getWindow();
     auto windowSize = getController().getVirtualWindowSize();
 
-    if (lives < 0) {
+    // End the game if the player is out of lives OR escape key is pressed
+    if (lives < 0 || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
       // Some segues can be customized like Checkerboard effect
       using custom = CheckerboardCustom<40, 40>;
       using effect = segue<custom, milli<900>>;
@@ -435,6 +437,7 @@ public:
       auto windowSize = getController().getVirtualWindowSize();
       p.pos = sf::Vector2f((float)(rand() % windowSize.x), (float)(rand() % windowSize.y));
       p.sprite.setPosition(p.pos);
+      p.sprite.setRotation(p.pos.x);
 
       p.speed = sf::Vector2f((float)randSpeedX, (float)randSpeedY);
       meteors.push_back(p);
@@ -511,5 +514,5 @@ public:
     std::cout << "DemoScene OnEnd called" << std::endl;
   }
 
-  ~DemoScene() { delete bgTexture;; }
+  ~GameplayScene() { delete bgTexture;; }
 };

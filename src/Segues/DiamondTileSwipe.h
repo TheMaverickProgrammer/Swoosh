@@ -5,27 +5,53 @@
 
 using namespace swoosh;
 
+/**
+  @class DiamondTileSwipe
+  @brief Fills the screen with black tiled diamonds and then reveals the next scene in the same way
+  @param direction. Compile-time enum constant that determines which direction to swipe to
+
+  Similar effect seen in Cave Story
+
+  If optimized for mobile, will capture the scenes once and use less vertices to increase performance on weak hardware
+*/
 template<types::direction direction>
 class DiamondTileSwipe : public Segue {
 private:
-  sf::Texture* temp;
+  sf::Texture last, next;
   sf::Shader shader;
-  std::string DIAMOND_SHADER;
-
+  std::string diamondSwipeShaderProgram;
+  bool firstPass{ true }, secondPass{ true };
 public:
  void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
+    const bool optimized = getController().getRequestedQuality() == quality::mobile;
 
-    if (elapsed < duration * 0.5)
-      this->drawLastActivity(surface);
-    else
-      this->drawNextActivity(surface);
+    sf::Texture temp;
 
-    surface.display(); // flip and ready the buffer
-
-    sf::Texture temp (surface.getTexture()); // Make a copy of the source texture
+    if (elapsed < duration * 0.5) {
+      if (firstPass || !optimized) {
+        this->drawLastActivity(surface);
+        surface.display(); // flip and ready the buffer
+        last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        firstPass = false;
+      }
+      else {
+        temp = last;
+      }
+    }
+    else {
+      if (secondPass || !optimized) {
+        this->drawNextActivity(surface);
+        surface.display(); // flip and ready the buffer
+        next = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        firstPass = false;
+      }
+      else {
+        temp = next;
+      }
+    }
 
     sf::Sprite sprite(temp);
 
@@ -41,7 +67,7 @@ public:
 
   DiamondTileSwipe(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */
-    this->DIAMOND_SHADER = GLSL(
+    this->diamondSwipeShaderProgram = GLSL(
       110,
       uniform sampler2D texture;
       uniform float time;
@@ -88,8 +114,8 @@ public:
       }
     );
 
-    shader.loadFromMemory(DIAMOND_SHADER, sf::Shader::Fragment);
+    shader.loadFromMemory(diamondSwipeShaderProgram, sf::Shader::Fragment);
   }
 
-  virtual ~DiamondTileSwipe() { if (temp) { delete temp; } }
+  ~DiamondTileSwipe() { }
 };

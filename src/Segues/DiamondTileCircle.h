@@ -5,25 +5,53 @@
 
 using namespace swoosh;
 
+/**
+  @class DiamondTileCircle
+  @brief Fills the screen with black tiled diamonds in a circular pattern and then reverses to reveal the next scene
+
+  Similar effect seen in Cave Story
+  see: class DiamonTileSwipe
+
+  If optimized for mobile, will capture the scenes once and use less vertices to increase performance on weak hardware
+*/
 class DiamondTileCircle : public Segue {
 private:
   sf::Shader shader;
-  std::string CIRCLE_DIAMOND_SHADER;
+  std::string circleShader;
+  sf::Texture last, next;
+  bool firstPass{ true }, secondPass{ true };
 
 public:
  void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
+    const bool optimized = getController().getRequestedQuality() == quality::mobile;
 
-    if (elapsed < duration * 0.5)
-      this->drawLastActivity(surface);
-    else
-      this->drawNextActivity(surface);
+    sf::Texture temp;
 
-    surface.display(); // flip and ready the buffer
-
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+    if (elapsed < duration * 0.5) {
+      if (firstPass || !optimized) {
+        this->drawLastActivity(surface);
+        surface.display(); // flip and ready the buffer
+        last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        firstPass = false;
+      }
+      else {
+        temp = last;
+      }
+    }
+    else {
+      if (secondPass || !optimized) {
+        this->drawNextActivity(surface);
+        surface.display(); // flip and ready the buffer
+        next = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        secondPass = false;
+      }
+      else {
+        temp = next;
+      }
+    }
 
     sf::Sprite sprite(temp);
 
@@ -38,7 +66,7 @@ public:
 
   DiamondTileCircle(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
     /* ... */
-    this->CIRCLE_DIAMOND_SHADER = GLSL(
+    this->circleShader = GLSL(
       110,
       uniform sampler2D texture;
       uniform float time;
@@ -72,8 +100,8 @@ public:
       }
     );
 
-    shader.loadFromMemory(this->CIRCLE_DIAMOND_SHADER, sf::Shader::Fragment);
+    shader.loadFromMemory(circleShader, sf::Shader::Fragment);
   }
 
-  virtual ~DiamondTileCircle() { }
+  ~DiamondTileCircle() { }
 };

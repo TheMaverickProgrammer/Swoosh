@@ -2,7 +2,13 @@
 #include <SFML/System.hpp>
 
 namespace swoosh {
-  struct Timer {
+  /**
+   * @class Timer
+   * @brief Creates stopwatch utility objects that can be paused, reset, and started again
+   * 
+   * Useful for timed beaviors in your applications and is used internally for Segue completion
+   */
+  class Timer {
     sf::Int32 elapsed;
     bool paused;
 
