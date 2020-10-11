@@ -1,27 +1,29 @@
 ![logo](https://i.imgur.com/tri24Y5.png)
-# Swoosh v1.2.3b
+# Swoosh v1.2.4
 Header-only SFML Activity and Segue Mini Library
 
 Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and Android operating systems.
 
 [See what else comes with Swoosh](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Namespaces)
 
-> 🚨 Critical changes from v1.2.1
-> 1. Timer must now invoke `update(...)` to track elapsed time. This may break previous user's custom segues and scenes
-> 2. All functions marked deprecated from last version have finally been removed
-> 3. namespace `intent` has been renamed to namespace `types`
-> 4. CMake scripts to build and launch the ExampleDemo in a matter of seconds!
-> 5. Segues will now work if they are the first item on the stack. Effects copy the screen buffer's current context as a screen. This is both a bugfix and a new feature.
+> 🚨 Critical changes from v1.2.3+
+> 1. queuePop() and queueRewind() are now just pop() and rewind()
+> 2. optimizeForPerformance(true/false) is changed to optimizeForPerformance(const quality& mode)
+> 3. quality can be { realtime, reduced, mobile } where each is best-to-worst quality but worst-to-best performance depending on your hardware
+> 4. Segues can query the controller's quality set with getRequestedQuality()
+> 5. Added much-needed doxygen style documentation throughout the entire project
+> 6. New Dream segue effect
+> 7. Fixed some bugs with view toggling between activities
+
+> See older changes at the [changelog](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Changelog)
 
 # ✨ Get Jump Started
 See all the effects and more that come with the library on the [wiki](https://github.com/TheMaverickProgrammer/Swoosh/wiki).
 
 See the [demo project](https://github.com/TheMaverickProgrammer/Swoosh/tree/master/ExampleDemo) for examples on how to use Swoosh. You can also copy the segues in the source folder and use them immediately in your games with no extra configuration.
 
-# Updates
+# Instant Updates
 ![Twitter](https://proxy.duckduckgo.com/ip3/twitter.com.ico) Follow [@swooshlib](https://twitter.com/swooshlib) on Twitter to get instant updates!
-
-[See Changelog](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Changelog).
 
 # Technology
 SFML 2.5, C++14, GLSL 1.10
@@ -46,7 +48,9 @@ See the pokemon demo using just Swoosh!
 You can inherit the activity controller to extend and supply more complex data to your applications. For instance, you could extend the AC to know about your TextureResource class or AudioResource class so that each Activity instance has a way to load your game's media.
 
 ### 📱 Optimizing for Mobile
-Mobile hardware cannot capture the screen, draw to it, and write back onto the frame buffer as quickly as we can on PC. There are some ways to do this faster but not with SFML at this time. In order to solve this, the AC has a new function pair `isOptimizedForPerformance()` and `optimizeForPerformance(bool enabled)` that will allow you to query if you should go easy on the target device's GPU. These 2 functions by themselves do nothing but it can be queries in both your custom Activities and your custom Segue effects.
+Mobile hardware cannot capture the screen, draw to it, and write back onto the frame buffer as quickly as we can on PC. There are some ways to do this faster but not with SFML at this time. In order to solve this, the AC has a new function pair `isOptimizedForPerformance()` and `optimizeForPerformance(const quality& mode)` that will allow you to query if you should go easy on the target device's GPU. These 2 functions by themselves mostly do nothing but with `getRequestedQuality()` can be used in both your custom Activities and your custom Segue effects to use different behavior for each possible quality mode.
+
+As of **v1.2.4** all segue effects shipped with this library have quality mode support and should be very performant on low-end mobile hardware
 
 # § API and Memory Management 
 When creating polished applications, it should not be a concern to the user how to handle the memory for a scene or video game level. If you think about it, these scenes are just shells around the incoming or outgoing data in visual form. In mobile apps, activities are just container for the important stuff that shows up on the target device's screen. 
@@ -128,15 +132,15 @@ controller.push<segue<FadeIn>::to<MyScene>>();
 ```
 
 ### Pop
-Pushed activities are added to the stack immediately. However there are steps involved in the controller's update loop that do not make this safe to do for _pop_. Instead, the function `queuePop()` is supplied, signalling the controller to pop as soon as it can.
+Pushed activities are added to the stack immediately. However there are steps involved in the controller's update loop that do not make this safe to do for _pop_. Instead, the function `pop()` may return `false`, signalling the controller cannot pop. If `true`, the controller will wait until it is safe to unload your scene.
 
 ```
-controller.queuePop(); 
-controller.queuePop<segue<BlurFadeIn>>();
+controller.pop(); 
+controller.pop<segue<BlurFadeIn>>();
 ```
 
 ### Rewinding 
-Rewinding is useful when you have an inactive Activity lingering in your stack from before and you wish to go back to that point. Rewinding the activity stack pops and ends all previous activities until it finds the first matching activity type. _queuePop_ is an intent to pop once where _queueRewind_ is an intent to pop _many times_.
+Rewinding is useful when you have an inactive Activity lingering in your stack from before and you wish to go back to that point. Rewinding the activity stack pops and ends all previous activities until it finds the first matching activity type. _pop_ is an intent to pop once where _rewind_ is an intent to pop _many times_.
 
 Example: jumping from the menu to the battle screen to a hiscore screen back to the menu. 
 
@@ -148,7 +152,7 @@ The syntax is close to _push_ except if it succeeds, activities are ended and di
 using effect = segue<BlackWashFadeIn>;
 using action = effect::to<LOZOverworld>;
 
-bool found = controller.queueRewind<action>();
+bool found = controller.rewind<action>();
 
 if(!found) {
     // Perhaps we're already in overworld. Certain teleport items cannot be used!
@@ -169,14 +173,15 @@ if(restartLevel == true) {
 This works like any other action and so it will work with segues too!
 
 # § Writing Activities
-An activity has 7 states it can be in:
-* Starting for the first time
-* Entering the focus of the app
-* Leaving the focus of the app
-* Inactive (but not terminating)
-* Resuming 
-* Ending (to be terminated)
-* Updating 
+An activity has 8 unique lifecycle events that can be overriden:
+- onStart , called once when this activity begins for the first time
+- onExit  , called once before this activity is deleted
+- onEnter , called when this activity is entering the view during a segue
+- onResume, called when this activity has finished entering the view after a segue
+- onLeave , called when this activity is leaving the view during a segue
+- onEnd   , called when the activity has finished leaving a view after a segue
+- onUpdate, called every tick while still in view
+- onDraw  , called every tick while still in view
 
 [Here is an example](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/ExampleDemo/Scenes/AboutScene.h) of a simple About scene in your app. It shows text and has a button to click next for more info. The SFML logo rolls across the top just for visual effect.
 
@@ -230,7 +235,7 @@ Some post processing effects require samples as inputs. In order to make Swoosh 
 Learn [how to embed GLSL and textures here](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Embed-GLSL).
 
 ### Segue's & Activity States
-It's important to note that Segues are responsible for triggering 6 of the 7 states in your activities.
+It's important to note that Segues are responsible for triggering 6 of the 8 states in your activities.
 
 * onStart -> the next scene starts once when the previous scene ends
 * onLeave -> the previous scene has lost focus
@@ -240,6 +245,29 @@ It's important to note that Segues are responsible for triggering 6 of the 7 sta
 * onResume -> if the next scene had started before, it will resume after the previous scene ends from a _pop_ intent (discards previous scene when finished)
 
 It might help to remember during a segue, both scenes are replacing eachother in the same frame. When a segue begins, the current scene is leaving and the other is entering. When the segue ends, the current scene exits and the other begins. 
+
+# § Special Topic: Mobile Optimization
+The default quality mode is `realtime` which will influence segue effects to capture your screen's contents into a render texture (aka buffer) to apply shader effects onto. This looks the best and is impressive but SFML has a GPU<->CPU bottleneck and will choke on mobile devices (or low-end computer GPUs) when doing this.
+
+In order to provide an alternative, you can set the quality mode to `mobile` like so:
+
+```cpp
+app.optimizeForPerformance(quality::mobile);
+```
+
+You can gauge the outcome of each quality in the following way:
+- `realtime` Default behavior. Best looks. May hog mobile or low-end gpu hardware
+- `reduced` Programmer may reduce the looks and will have better performance than `realtime`
+- `mobile` NO activities are updated in transitions and the looks will be drastically reduced but should have best performance.
+
+Importantly, this specific mode will tell the activity controller to **not** update the next and last scenes in a segue effect. They will resume updating when the segue is over. This helps speed your mobile device up. 
+
+Segues by themselves only draw what the programmer wants to have in the transition effect. The supplied segues have support for all 3 quality levels.
+
+See the guassian blur effect [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L96).
+Typically having a blur with the kernel size of 40 kills my mobile device's performance. But I've toggled the kernel size [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L96). Additionally, I have opted to capture the next and last activity screens **only once** when the segue firsts begins [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L96).
+
+By providing alternative segue effect behavior for the quality modes, you can ensure your segues will run on anyone's devices.
 
 # § Special Topic: Copying the Window
 If you have a particular structure how your game should end (like a GameOverScreen), it would make sense to have that screen be at the bottom of the stack at ALL times. We can start the player in the main menu and let them make other choices to config their controllers. If the player presses start, we can pop the main menu off the stack and begin the game. With this structure in mind, we might have something like the following:
@@ -265,7 +293,7 @@ Your code would need to include this when the loading is complete:
 // Load is complete!
 if(gameIsLoaded == true) {
   ac.push<CopyWindow>();
-  ac.queuePop<segue<FadeOut>>(); // Go to the MainMenuScreen
+  ac.pop<segue<FadeOut>>(); // Go to the MainMenuScreen
 }
 ```
 
