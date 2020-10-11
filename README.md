@@ -47,6 +47,8 @@ See the pokemon demo using just Swoosh!
 You can inherit the activity controller to extend and supply more complex data to your applications. For instance, you could extend the AC to know about your TextureResource class or AudioResource class so that each Activity instance has a way to load your game's media.
 
 ### 📱 Optimizing for Mobile
+[Skip to this section](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/README.md#-special-topic-mobile-optimization)
+
 Mobile hardware cannot capture the screen, draw to it, and write back onto the frame buffer as quickly as we can on PC. There are some ways to do this faster but not with SFML at this time. In order to solve this, the AC has a new function pair `isOptimizedForPerformance()` and `optimizeForPerformance(const quality& mode)` that will allow you to query if you should go easy on the target device's GPU. These 2 functions by themselves mostly do nothing but with `getRequestedQuality()` can be used in both your custom Activities and your custom Segue effects to use different behavior for each possible quality mode.
 
 As of **v1.2.4** all segue effects shipped with this library have quality mode support and should be very performant on low-end mobile hardware
