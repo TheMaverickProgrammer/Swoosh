@@ -14,7 +14,6 @@ Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and And
 > 5. Added much-needed doxygen style documentation throughout the entire project
 > 6. New Dream segue effect
 > 7. Fixed some bugs with view toggling between activities
-
 > See older changes at the [changelog](https://github.com/TheMaverickProgrammer/Swoosh/wiki/Changelog)
 
 # ✨ Get Jump Started
