@@ -22,7 +22,8 @@ int main()
   // For mobile devices or low-end GPU's, you can request optimized 
   // effects any time by setting the performance quality to
   // one of the following: { realtime, reduced, mobile }
-  app.optimizeForPerformance(quality::realtime);
+  app.optimizeForPerformance(quality::realtime); 
+  // app.optimizeForPerformance(quality::mobile); // <-- uncomment me!
 
   // (DEFAULT BEHAVIOR!)
   // Add the Main Menu Scene as the first and only scene in our stack

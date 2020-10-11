@@ -16,12 +16,25 @@ private:
   glsl::FastGaussianBlur shader;
   sf::Texture last, next;
   bool firstPass{ true };
+
+  const int kernels(const quality& mode) {
+    switch (mode) {
+    case quality::realtime:
+      return 60;
+    case quality::reduced:
+      return 30;
+    }
+
+    // quality::mobile
+    return 10;
+  }
+
 public:
   void onDraw(sf::RenderTexture& surface) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
-    const bool optimized = getController().isOptimizedForPerformance();
+    const bool optimized = getController().getRequestedQuality() == quality::mobile;
 
     shader.setPower((float)alpha * 8.f);
 
@@ -79,8 +92,8 @@ public:
   }
 
   BlurFadeIn(sf::Time duration, Activity* last, Activity* next) 
-    // use 60 kernels in regular performance and 10 for optimized...
-    : Segue(duration, last, next), shader(next->getController().isOptimizedForPerformance()? 10 : 60) {
+    // different kernels for each quality mode
+    : Segue(duration, last, next), shader(kernels(next->getController().getRequestedQuality())) {
     /*...*/
   }
 

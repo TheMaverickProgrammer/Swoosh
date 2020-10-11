@@ -9,7 +9,7 @@
 #include "../SaveFile.h"
 
 // You can use any of the included segues in the actions below
-// to see what they look like!
+// to see what they look like! Start at line 170 in this source file!
 #include <Segues/BlackWashFade.h>
 #include <Segues/CrossZoom.h>
 #include <Segues/ZoomFadeIn.h>
@@ -36,6 +36,7 @@
 #include <Segues/RadialCCW.h>
 #include <Segues/Cube3D.h>
 #include <Segues/RetroBlit.h>
+#include <Segues/Dream.h> // 10/10/2020
 // end segue effects
 
 #include <Swoosh/ActivityController.h>
@@ -167,11 +168,11 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<segue<RadialCCW, sec<1>>::to<GameplayScene>>(savefile);
+          getController().push<segue<Dream, sec<1>>::to<GameplayScene>>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          using segue = segue<Checkerboard, sec<2>>;
+          using segue = segue<BlurFadeIn, sec<2>>;
           using intent = segue::to<HiScoreScene>;
 
           getController().push<intent>(savefile);

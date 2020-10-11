@@ -12,14 +12,14 @@ namespace swoosh {
     sf::Int32 elapsed;
     bool paused;
 
-    Timer(const Timer& rhs) = default;
-    ~Timer() = default;
-
   public:
     Timer() {
       paused = true;
       elapsed = 0;
     }
+
+    Timer(const Timer& rhs) = default;
+    ~Timer() = default;
 
     void reset() {
       elapsed = 0;

@@ -113,6 +113,7 @@ public:
 
     playerTexture = loadTexture(PLAYER_PATH);
     player.sprite = sf::Sprite(*playerTexture);
+
     setOrigin(player.sprite, 0.5, 0.5);
 
     shield = sf::Sprite(*shieldTexture);
@@ -126,6 +127,7 @@ public:
     playerLife = sf::Sprite(*playerLifeTexture);
 
     resetPlayer();
+    alpha = 255.0; // resetPlayer() sets player alpha to 0, prevent that on first boot
 
     font.loadFromFile(GAME_FONT);
     text.setFont(font);
