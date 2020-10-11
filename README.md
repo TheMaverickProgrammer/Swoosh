@@ -266,7 +266,7 @@ Importantly, the `mobile` mode will tell the activity controller to **not** upda
 Segues by themselves only draw what the programmer wants to have in the transition effect. The supplied segues have support for all 3 quality levels.
 
 See the guassian blur effect [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L96).
-Typically having a blur with the kernel size of 40 kills my mobile device's performance. But I've toggled the kernel size [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L20). Additionally, I have opted to capture the next and last activity screens **only once** when the segue firsts begins [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L96).
+Typically having a blur with the kernel size of 40 kills my mobile device's performance. But I've toggled the kernel size [here](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L20). Additionally, I have opted to capture the next and last activity screens **only once** when the segue [first begins](https://github.com/TheMaverickProgrammer/Swoosh/blob/master/src/Segues/BlurFadeIn.h#L44).
 
 By providing alternative segue effect behavior for the quality modes, you can ensure your segues will run on anyone's devices.
 
