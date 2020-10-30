@@ -168,7 +168,7 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<segue<Dream, sec<1>>::to<GameplayScene>>(savefile);
+          getController().push<segue<DreamCustom<50>, sec<3>>::to<GameplayScene>>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {

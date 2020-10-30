@@ -111,8 +111,8 @@ namespace swoosh {
       item->index = items.size() - 1;
     }
 
-    const bool isEmpty() {
-      return items.size();
+    const bool isEmpty() const {
+      return items.empty();
     }
 
     void clear() {
