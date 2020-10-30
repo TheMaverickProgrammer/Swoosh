@@ -6,6 +6,8 @@
 #include <Segues/ZoomOut.h>
 #include "Scenes/MainMenuScene.h"
 
+#include <Swoosh/ActionList.h>
+
 using namespace swoosh;
 
 int main()
