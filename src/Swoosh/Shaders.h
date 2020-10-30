@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <iostream> // debuggin
+#include <assert>
 
 /*
 All of the pre-defined transition effects use common shaders

@@ -340,7 +340,7 @@ namespace swoosh {
         }
 
         owner.activities.push(next);
-        owner.stackModifiedAction = StackModifiedAction::push;
+        owner.stackAction = StackAction::push;
       }
     };
 
@@ -369,8 +369,8 @@ namespace swoosh {
         if (segueAction != SegueAction::none) {
           segueAction = SegueAction::replace;
         }
-        else if (stackModifiedAction != StackModifiedAction::none) {
-          stackModifiedAction = StackModifiedAction::replace;
+        else if (stackAction != StackAction::none) {
+          stackAction = StackAction::replace;
         }
       }
     }
@@ -712,7 +712,7 @@ namespace swoosh {
       auto& window = getController().getWindow();
 
       // get all original view and viewport settings
-      auto view = window.getView();
+      auto& view = window.getView();
       auto viewSize = view.getSize();
       auto viewportIntRect = window.getViewport(view);
 

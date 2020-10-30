@@ -14,7 +14,7 @@ namespace swoosh {
     realtime = 0, // Request real-time shader effects
     reduced,      // Request reduced, real-time shader effects
     mobile        // Request reduced and single-pass screen render. Also does not call onUpdate() on activities until complete.
-  } qualityLevel{ quality::realtime };
+  };
 
   /**
    * @class Segue
