@@ -8,7 +8,7 @@ namespace swoosh {
   /**
    * @class Timer
    * @brief Creates stopwatch utility objects that can be paused, reset, and started again
-   * 
+   *
    * Useful for timed beaviors in your applications and is used internally for Segue completion
    */
   class Timer {
@@ -89,7 +89,7 @@ namespace swoosh {
       * @return the task as a modifiable reference
       */
       Task& doTask(const std::function<void(double)>& task) {
-        tasks.push_back(Task{task});
+        tasks.push_back(Task{ task });
         return tasks.back();
       }
     }; // class Task
@@ -135,8 +135,8 @@ namespace swoosh {
      @brief query if the timer is paused
      @return bool
     */
-    bool isPaused() const { 
-      return paused; 
+    bool isPaused() const {
+      return paused;
     }
 
     /**
@@ -164,7 +164,7 @@ namespace swoosh {
      @brief update the timer and trigger any callbacks on the way
      @param milliseconds sf::Int32 millisecond timestamp
 
-     If the timer is not reversed it will count upwards infinitely 
+     If the timer is not reversed it will count upwards infinitely
      If the timer is reversed, it will count backwards and halt at zero
    */
     void update(sf::Int32 milliseconds) {
@@ -178,32 +178,52 @@ namespace swoosh {
           elapsed += milliseconds;
         }
 
-        for (auto&& item : triggers) {
-          auto startTime = item.first;
-          if (startTime <= elapsed) {
-            auto trigger = item.second;
-            for (auto&& tasks : trigger.tasks) {
-              auto progress = elapsed - startTime;
+        if (!reversed) {
+          for (auto&& item : triggers) {
+            auto startTime = item.first;
+            if (startTime <= elapsed) {
+              auto trigger = item.second;
+              for (auto&& tasks : trigger.tasks) {
+                auto progress = elapsed - startTime;
 
-              // account for overlapping the final tick for "perfect" animation transitions
-              auto missedProgress = lastTickElapsed - startTime;
+                // account for overlapping the final tick for "perfect" animation transitions
+                auto missedProgress = lastTickElapsed - startTime;
 
-              // Check if to update the function or provide the final tick into the function
-              if (progress <= tasks.duration) {
-                // If reversed, prevent invocation at every func(0) tick
-                // Only fire once
-                if (reversed && lastTickElapsed > 0 || !reversed) {
+                // Check if to update the function or provide the final tick into the function
+                if (progress <= tasks.duration) {
                   tasks.func ? tasks.func(progress) : (void)0;
                 }
+                else if (progress > tasks.duration && missedProgress <= tasks.duration) {
+                  // use final tick for "perfect" animation transitions and endings
+                  tasks.func ? tasks.func(tasks.duration) : (void)0;
+                }
               }
-              else if (progress > tasks.duration && missedProgress <= tasks.duration && !reversed) {
-                // use final tick for "perfect" animation transitions and endings
-                tasks.func ? tasks.func(tasks.duration) : (void)0;
-              }
-              else if (missedProgress >= tasks.duration && tasks.duration == 0 && reversed) {
-                // When reversing, the above math checks fail to include tasks with 0 duration
-                // This case just ensures those tasks are included
-                tasks.func ? tasks.func(0) : (void)0;
+            }
+          }
+        }
+        else {
+          for (auto&& item : triggers) {
+            auto startTime = item.first;
+            // If the start time is behind the elapsed time in reverse,
+            // There's a chance we have a task that needs to be in progress
+            // NOTE: unoptimized. We should change the trigger point to be
+            //                    = startTime + duration
+            if (startTime <= elapsed) {
+              auto trigger = item.second;
+              for (auto&& tasks : trigger.tasks) {
+                auto progress = elapsed - startTime;
+
+                // account for overlapping the final tick for "perfect" animation transitions
+                auto missedProgress = lastTickElapsed - (startTime + tasks.duration);
+
+                // Check if to update the function or provide the final tick into the function
+                if (progress <= tasks.duration && progress > 0) {
+                  tasks.func ? tasks.func(progress) : (void)0;
+                }
+                else if (progress <= 0 && missedProgress > 0) {
+                  // use final tick for "perfect" animation transitions and endings
+                  tasks.func ? tasks.func(0) : (void)0;
+                }
               }
             }
           }
