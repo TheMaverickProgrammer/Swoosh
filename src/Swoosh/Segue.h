@@ -61,7 +61,7 @@ namespace swoosh {
     }
 
   public:
-    void onStart() override final { next->onEnter();  last->onLeave(); timer.reset(); }
+    void onStart() override final { next->onEnter();  last->onLeave(); timer.start(); }
 
     void onUpdate (double elapsed) override final {
       timer.update(elapsed);
@@ -73,7 +73,7 @@ namespace swoosh {
     void onLeave() override final { timer.pause(); }
     void onExit() override final { ; }
     void onEnter() override final { ; }
-    void onResume() override final { timer.start(); }
+    void onResume() override final { timer.reset(); timer.start(); }
     virtual void onDraw(sf::RenderTexture& surface) = 0;
     void onEnd() override final { last->onExit(); }
 

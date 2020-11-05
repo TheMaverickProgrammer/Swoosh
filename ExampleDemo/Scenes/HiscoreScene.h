@@ -85,7 +85,6 @@ public:
     inFocus = false;
 
     this->setBGColor(sf::Color::Black);
-
   }
 
   void onStart() override {

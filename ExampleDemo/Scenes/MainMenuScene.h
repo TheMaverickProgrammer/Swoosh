@@ -121,7 +121,7 @@ public:
     selectFX.setBuffer(buffer);
     themeMusic.openFromFile(THEME_MUSIC_PATH);
 
-    timer.reset();
+    timer.start();
 
     this->setBGColor(sf::Color(56, 7, 67));
   }
@@ -204,6 +204,8 @@ public:
 
 
   void onResume() override {
+    timer.reset();
+
     inFocus = true;
 
     // If fadeMusic == true, then we were coming from demo, the music changes
