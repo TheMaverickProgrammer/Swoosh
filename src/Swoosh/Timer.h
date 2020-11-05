@@ -12,8 +12,10 @@ namespace swoosh {
    * Useful for timed beaviors in your applications and is used internally for Segue completion
    */
   class Timer {
-    class Trigger;
+  public:
+    class Trigger; // forward decl
 
+  private:
     sf::Int32 elapsed; //!< Elapsed time in milliseconds
     bool paused; //!< If true, paused
     std::map<sf::Int32, Trigger> triggers; //!< List of triggers to perform
@@ -25,9 +27,11 @@ namespace swoosh {
      * use Timer::at(time) to return a Trigger object to assign tasks to execute when the given time has elapsed
      */
     class Trigger {
+    public:
       class Task;
       friend class Timer;
 
+    private:
       std::vector<Task> tasks; //!< List of tasks
 
     public:

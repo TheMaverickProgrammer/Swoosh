@@ -52,7 +52,7 @@ namespace swoosh {
       input[size] = '\0';
 
       rsize_t strmax = sizeof input;
-      char* next_token;
+      char* next_token{};
 
       char* line = strtok_s(input, delim, &next_token);
 

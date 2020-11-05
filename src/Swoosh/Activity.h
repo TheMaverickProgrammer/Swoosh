@@ -51,7 +51,7 @@ namespace swoosh {
     virtual void onDraw(sf::RenderTexture& surface) = 0;
     virtual ~Activity() { ; }
     void setView(const sf::View& view) { this->view = view; }
-    void setView(const sf::Vector2u& size) { this->view = sf::View(sf::FloatRect(0, 0, size.x, size.y)); }
+    void setView(const sf::Vector2u& size) { this->view = sf::View(sf::FloatRect(0.0f, 0.0f, (float)size.x, (float)size.y)); }
     void setView(const sf::FloatRect& rect) { this->view = sf::View(rect); }
     void setBGColor(const sf::Color color) { this->bgColor = color;  }
     const sf::View getView() const { return this->view; }

@@ -171,7 +171,7 @@ namespace swoosh {
 
         swoosh::Segue* effect = new T(DurationType::value(), last, next);
         sf::Vector2u windowSize = owner.getVirtualWindowSize();
-        sf::View view(sf::FloatRect(0, 0, windowSize.x, windowSize.y));
+        sf::View view(sf::FloatRect(0, 0, (float)windowSize.x, (float)windowSize.y));
         effect->setView(view);
 
         effect->setActivityViewFunc = &ActivityController::setActivityView;
@@ -204,7 +204,7 @@ namespace swoosh {
 
           swoosh::Segue* effect = new T(DurationType::value(), last, next);
           sf::Vector2u windowSize = owner.getVirtualWindowSize();
-          sf::View view(sf::FloatRect(0, 0, windowSize.x, windowSize.y));
+          sf::View view(sf::FloatRect(0.f, 0.f, (float)windowSize.x, (float)windowSize.y));
           effect->setView(view);
 
           effect->setActivityViewFunc = &ActivityController::setActivityView;
@@ -267,7 +267,7 @@ namespace swoosh {
 
           swoosh::Segue* effect = new T(DurationType::value(), last, next);
           sf::Vector2u windowSize = owner.getVirtualWindowSize();
-          sf::View view(sf::FloatRect(0, 0, windowSize.x, windowSize.y));
+          sf::View view(sf::FloatRect(0.0f, 0.0f, (float)windowSize.x, (float)windowSize.y));
           effect->setView(view);
           
           effect->setActivityViewFunc = &ActivityController::setActivityView;
@@ -718,15 +718,15 @@ namespace swoosh {
 
       // calculate the view based on any viewport adjustments
       // because we will copy the viewport pixels and we don't want those in our re-rendered image
-      sf::View newView = sf::View(sf::FloatRect(viewportIntRect.left, viewportIntRect.top, viewportIntRect.width, viewportIntRect.height));
+      sf::View newView = sf::View(sf::FloatRect((float)viewportIntRect.left, (float)viewportIntRect.top, (float)viewportIntRect.width, (float)viewportIntRect.height));
 
       // screen size in pixels
       sf::Vector2u windowSize = window.getSize();
-      float w = windowSize.x;
-      float h = windowSize.y;
+      float w = (float)windowSize.x;
+      float h = (float)windowSize.y;
 
       // copy screen contents
-      framebuffer.create(w, h);
+      framebuffer.create((unsigned int)w, (unsigned int)h);
       framebuffer.update(window);
       drawable.setTexture(framebuffer, true);
 
