@@ -16,8 +16,9 @@ namespace swoosh {
     class Trigger; // forward decl
 
   private:
-    sf::Int32 elapsed; //!< Elapsed time in milliseconds
-    bool paused; //!< If true, paused
+    sf::Int32 elapsed{ 0 }; //!< Elapsed time in milliseconds
+    bool paused{ true }; //!< If true, paused
+    bool reversed{ false }; //!< If true, will count down from `elapsed`
     std::map<sf::Int32, Trigger> triggers; //!< List of triggers to perform
   public:
     /**
@@ -96,10 +97,7 @@ namespace swoosh {
     /**
     * @brief Constructor. Paused set to true and elapsed set to 0
     */
-    Timer() {
-      paused = true;
-      elapsed = 0;
-    }
+    Timer() = default;
 
     /**
     * @brief Copy Constructor. Defaulted.
@@ -137,8 +135,16 @@ namespace swoosh {
      @brief query if the timer is paused
      @return bool
     */
-    bool isPaused() { 
+    bool isPaused() const { 
       return paused; 
+    }
+
+    /**
+     @brief query if the timer is reversed
+     @return bool
+    */
+    bool isReversed() const {
+      return reversed;
     }
 
 
@@ -157,11 +163,20 @@ namespace swoosh {
     /**
      @brief update the timer and trigger any callbacks on the way
      @param milliseconds sf::Int32 millisecond timestamp
+
+     If the timer is not reversed it will count upwards infinitely 
+     If the timer is reversed, it will count backwards and halt at zero
    */
     void update(sf::Int32 milliseconds) {
       if (!paused) {
         auto lastTickElapsed = elapsed;
-        elapsed += milliseconds;
+
+        if (reversed) {
+          elapsed = std::max(0, elapsed - milliseconds);
+        }
+        else {
+          elapsed += milliseconds;
+        }
 
         for (auto&& item : triggers) {
           auto startTime = item.first;
@@ -175,11 +190,20 @@ namespace swoosh {
 
               // Check if to update the function or provide the final tick into the function
               if (progress <= tasks.duration) {
-                tasks.func ? tasks.func(progress) : (void)0;
+                // If reversed, prevent invocation at every func(0) tick
+                // Only fire once
+                if (reversed && lastTickElapsed > 0 || !reversed) {
+                  tasks.func ? tasks.func(progress) : (void)0;
+                }
               }
-              else if (progress > tasks.duration && missedProgress <= tasks.duration) {
+              else if (progress > tasks.duration && missedProgress <= tasks.duration && !reversed) {
                 // use final tick for "perfect" animation transitions and endings
                 tasks.func ? tasks.func(tasks.duration) : (void)0;
+              }
+              else if (missedProgress >= tasks.duration && tasks.duration == 0 && reversed) {
+                // When reversing, the above math checks fail to include tasks with 0 duration
+                // This case just ensures those tasks are included
+                tasks.func ? tasks.func(0) : (void)0;
               }
             }
           }
@@ -202,6 +226,24 @@ namespace swoosh {
     */
     void clear() {
       triggers.clear();
+    }
+
+    /**
+      @brief sets the timer to reverse counting from `elapsed`
+    */
+    void reverse(bool state) {
+      this->reversed = state;
+    }
+
+    /**
+      @brief set the current tick point `elapsed` to some value
+      @param milliseconds sf::Int32 millisecond timestamp
+
+      This is useful if you want to count backwards to 0 from
+      some given time
+      */
+    void set(sf::Int32 milliseconds) {
+      this->elapsed = milliseconds;
     }
   };
 }
