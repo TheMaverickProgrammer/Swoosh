@@ -208,7 +208,7 @@ namespace swoosh {
             // There's a chance we have a task that needs to be in progress
             // NOTE: unoptimized. We should change the trigger point to be
             //                    = startTime + duration
-            if (startTime <= elapsed) {
+            if (startTime < elapsed) {
               auto trigger = item.second;
               for (auto&& tasks : trigger.tasks) {
                 auto progress = elapsed - startTime;
@@ -220,7 +220,15 @@ namespace swoosh {
                 if (progress <= tasks.duration && progress > 0) {
                   tasks.func ? tasks.func(progress) : (void)0;
                 }
-                else if (progress <= 0 && missedProgress > 0) {
+
+              }
+            }
+            else if (elapsed <= startTime) { // this case catches passed items
+              auto trigger = item.second;
+              for (auto&& tasks : trigger.tasks) {
+                auto missedProgress = lastTickElapsed - startTime;
+
+                if (missedProgress > 0) {
                   // use final tick for "perfect" animation transitions and endings
                   tasks.func ? tasks.func(0) : (void)0;
                 }
