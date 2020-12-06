@@ -40,10 +40,10 @@ public:
     int lr = 0;
     int ud = 0;
 
-    if (direction == direction::left ) lr = -1;
-    if (direction == direction::right) lr = 1;
-    if (direction == direction::up   ) ud = -1;
-    if (direction == direction::down ) ud = 1;
+    if (direction == types::direction::left ) lr = -1;
+    if (direction == types::direction::right) lr = 1;
+    if (direction == types::direction::up   ) ud = -1;
+    if (direction == types::direction::down ) ud = 1;
 
     left.setPosition((float)(lr * alpha * left.getTexture()->getSize().x), (float)(ud * alpha * left.getTexture()->getSize().y));
 

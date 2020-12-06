@@ -1,4 +1,5 @@
 #pragma once
+
 #include <SFML/System.hpp>
 #include <map>
 #include <vector>
@@ -172,7 +173,7 @@ namespace swoosh {
         auto lastTickElapsed = elapsed;
 
         if (reversed) {
-          elapsed = std::max(0, elapsed - milliseconds);
+          elapsed = std::max<sf::Int32>(0, elapsed - milliseconds);
         }
         else {
           elapsed += milliseconds;
@@ -245,7 +246,7 @@ namespace swoosh {
       @return a new Trigger object to perform a task or tasks
     */
     Trigger& at(sf::Int32 milliseconds) {
-      auto& [tuple, status] = triggers.insert(std::make_pair(milliseconds, Trigger{}));
+      const auto& [tuple, status] = triggers.insert({ milliseconds, Trigger{} });
       return tuple->second;
     }
 
