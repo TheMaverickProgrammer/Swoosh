@@ -1,4 +1,5 @@
 #pragma once
+#include <Swoosh/ActivityController.h>
 #include <Swoosh/EmbedGLSL.h>
 #include <Swoosh/Segue.h>
 #include <Swoosh/Ease.h>

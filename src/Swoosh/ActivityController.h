@@ -537,7 +537,7 @@ namespace swoosh {
         swoosh::Segue* segue = static_cast<swoosh::Segue*>(activities.top());
 
         if (getRequestedQuality() == quality::mobile) {
-          segue->timer.update(elapsed);
+          segue->timer.update(sf::seconds(static_cast<float>(elapsed)));
         }
         else {
           segue->onUpdate(elapsed);

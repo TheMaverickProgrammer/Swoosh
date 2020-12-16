@@ -1,7 +1,8 @@
 #pragma once
+#include <SFML/Graphics.hpp>
+
 #include "Timer.h"
 #include "Activity.h"
-#include <SFML/Graphics.hpp>
 
 namespace swoosh {
   class ActivityController;
@@ -42,8 +43,9 @@ namespace swoosh {
   protected:
     const sf::Time getDuration() const { return duration; }
     const sf::Time getElapsed() { return timer.getElapsed(); }
-    const sf::Color getLastActivityBGColor() const { return last->getBGColor();  }
+    const sf::Color getLastActivityBGColor() const { return last->getBGColor(); }
     const sf::Color getNextActivityBGColor() const { return next->getBGColor(); }
+
     void drawLastActivity(sf::RenderTexture& surface) {
       if (last) {
         (this->getController().*setActivityViewFunc)(surface, last);
@@ -64,7 +66,7 @@ namespace swoosh {
     void onStart() override final { next->onEnter();  last->onLeave(); timer.start(); }
 
     void onUpdate (double elapsed) override final {
-      timer.update(elapsed);
+      timer.update(sf::seconds(static_cast<float>(elapsed)));
 
       last->onUpdate(elapsed);
       next->onUpdate(elapsed);

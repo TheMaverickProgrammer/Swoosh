@@ -65,11 +65,11 @@ namespace swoosh {
         ~Task() = default;
 
         /**
-        * @brief Sets the duration of a task in milliseconds
-        * @param milliseconds The duration
+        * @brief Sets the duration of a task
+        * @param time The duration
         */
-        void withDuration(sf::Int32 milliseconds) {
-          duration = milliseconds;
+        void withDuration(sf::Time time) {
+          duration = time.asMilliseconds();
         }
       }; // class Task
 
@@ -157,26 +157,23 @@ namespace swoosh {
       return sf::milliseconds(elapsed);
     }
 
-    void update(double seconds) {
-      update(static_cast<sf::Int32>(seconds * 1000));
-    }
 
     /**
      @brief update the timer and trigger any callbacks on the way
-     @param milliseconds sf::Int32 millisecond timestamp
+     @param span sf::Time elapsed time
 
      If the timer is not reversed it will count upwards infinitely
      If the timer is reversed, it will count backwards and halt at zero
    */
-    void update(sf::Int32 milliseconds) {
+    void update(const sf::Time& span) {
       if (!paused) {
         auto lastTickElapsed = elapsed;
 
         if (reversed) {
-          elapsed = std::max<sf::Int32>(0, elapsed - milliseconds);
+          elapsed = std::max<sf::Int32>(0, elapsed - span.asMilliseconds());
         }
         else {
-          elapsed += milliseconds;
+          elapsed += span.asMilliseconds();
         }
 
         if (!reversed) {
@@ -245,8 +242,8 @@ namespace swoosh {
       @param milliseconds sf::Int32 millisecond timestamp
       @return a new Trigger object to perform a task or tasks
     */
-    Trigger& at(sf::Int32 milliseconds) {
-      const auto& [tuple, status] = triggers.insert({ milliseconds, Trigger{} });
+    Trigger& at(const sf::Time& time) {
+      const auto& [tuple, status] = triggers.insert({ time.asMilliseconds(), Trigger{} });
       return tuple->second;
     }
 
@@ -271,8 +268,8 @@ namespace swoosh {
       This is useful if you want to count backwards to 0 from
       some given time
       */
-    void set(sf::Int32 milliseconds) {
-      this->elapsed = milliseconds;
+    void set(const sf::Time& time) {
+      this->elapsed = time.asMilliseconds();
     }
   };
 }
