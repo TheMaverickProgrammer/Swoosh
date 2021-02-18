@@ -49,14 +49,14 @@ namespace swoosh {
 
       private:
         sf::Int32 duration{}; //!< How long the polling lasts in ms
-        std::function<void(double)> func; //!< Behavior to execute
+        std::function<void(sf::Time)> func; //!< Behavior to execute
 
       public:
         /**
         * @brief Constructor
         * @param func The function to execute
         */
-        Task(const std::function<void(double)>& func) :
+        Task(const std::function<void(sf::Time)>& func) :
           func(func) {}
 
         /**
@@ -89,7 +89,7 @@ namespace swoosh {
       * @param task The function to execute
       * @return the task as a modifiable reference
       */
-      Task& doTask(const std::function<void(double)>& task) {
+      Task& doTask(const std::function<void(sf::Time)>& task) {
         tasks.push_back(Task{ task });
         return tasks.back();
       }
@@ -189,11 +189,11 @@ namespace swoosh {
 
                 // Check if to update the function or provide the final tick into the function
                 if (progress <= tasks.duration) {
-                  tasks.func ? tasks.func(progress) : (void)0;
+                  tasks.func ? tasks.func(sf::milliseconds(progress)) : (void)0;
                 }
                 else if (progress > tasks.duration && missedProgress <= tasks.duration) {
                   // use final tick for "perfect" animation transitions and endings
-                  tasks.func ? tasks.func(tasks.duration) : (void)0;
+                  tasks.func ? tasks.func(sf::milliseconds(tasks.duration)) : (void)0;
                 }
               }
             }
@@ -216,7 +216,7 @@ namespace swoosh {
 
                 // Check if to update the function or provide the final tick into the function
                 if (progress <= tasks.duration && progress > 0) {
-                  tasks.func ? tasks.func(progress) : (void)0;
+                  tasks.func ? tasks.func(sf::milliseconds(progress)) : (void)0;
                 }
 
               }
@@ -228,7 +228,7 @@ namespace swoosh {
 
                 if (missedProgress > 0) {
                   // use final tick for "perfect" animation transitions and endings
-                  tasks.func ? tasks.func(0) : (void)0;
+                  tasks.func ? tasks.func(sf::milliseconds(0)) : (void)0;
                 }
               }
             }
@@ -239,7 +239,7 @@ namespace swoosh {
 
     /**
       @brief add a trigger at a specific time
-      @param milliseconds sf::Int32 millisecond timestamp
+      @param time sf::Time timestamp
       @return a new Trigger object to perform a task or tasks
     */
     Trigger& at(const sf::Time& time) {
@@ -263,7 +263,7 @@ namespace swoosh {
 
     /**
       @brief set the current tick point `elapsed` to some value
-      @param milliseconds sf::Int32 millisecond timestamp
+      @param time sf::Time timestamp
 
       This is useful if you want to count backwards to 0 from
       some given time
