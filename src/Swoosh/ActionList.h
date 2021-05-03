@@ -28,6 +28,7 @@ namespace swoosh {
 
   public:
     ActionItem() { isBlocking = isDoneFlag = false; index = -1; list = nullptr; }
+    virtual ~ActionItem() { }
     virtual void update(double elapsed) = 0;
     virtual void draw(sf::RenderTexture& surface) = 0;
     void markDone() { isDoneFlag = true; }
