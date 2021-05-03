@@ -153,10 +153,14 @@ namespace swoosh {
      @brief Fetch the elapsed time as sf::Time
      @return sf::Time of elapsed time
    */
-    sf::Time getElapsed() const {
+    sf::Time getElapsed() {
       return sf::milliseconds(elapsed);
     }
-
+    
+    // const qv
+    const sf::Time getElapsed() const {
+      return sf::milliseconds(elapsed);
+    }
 
     /**
      @brief update the timer and trigger any callbacks on the way
