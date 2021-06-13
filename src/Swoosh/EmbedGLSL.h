@@ -45,8 +45,8 @@ namespace swoosh {
       delete[] input;
 
 #else
-      std::size_t size = strlen(glsl) + 1;
-      char* input = new char[size];
+      std::size_t size = strlen(glsl);
+      char* input = new char[size+1u];
       char delim[] = ";";
       memcpy(input, glsl, size);
       input[size] = '\0';
