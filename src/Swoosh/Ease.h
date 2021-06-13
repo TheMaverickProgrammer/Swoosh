@@ -158,7 +158,7 @@ namespace swoosh {
     */
     template<typename T>
     static T wane(T delta, T length, T factor) {
-      double x = (2.0 + (static_cast<double>(factor) * std::log(static_cast<double>(delta) / static_cast<double(length)))) * 0.5;
+      double x = (2.0 + (static_cast<double>(factor) * std::log(static_cast<double>(delta) / static_cast<double>(length)))) * 0.5;
       x = std::min(1.0, std::max(x, 0.0)); // limit x between [0,1] values
       return x;
     }
