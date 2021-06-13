@@ -1,7 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-
-#include <assert.h>
+#include <cassert>
 
 /*
 All of the pre-defined transition effects use common shaders
