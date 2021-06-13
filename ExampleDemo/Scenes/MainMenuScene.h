@@ -132,7 +132,7 @@ public:
   }
 
   void onUpdate(double elapsed) override {
-    timer.update(elapsed);
+    timer.update(sf::seconds(elapsed));
 
     if (!inFocus && fadeMusic) {
       themeMusic.setVolume(themeMusic.getVolume() * 0.90f); // fades out the music

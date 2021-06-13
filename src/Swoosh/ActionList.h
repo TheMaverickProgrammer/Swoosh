@@ -28,7 +28,9 @@ namespace swoosh {
 
   public:
     ActionItem() { isBlocking = isDoneFlag = false; index = -1; list = nullptr; }
-    virtual void update(double elapsed) = 0;
+    virtual ~ActionItem() {};
+
+    virtual void update(sf::Time elapsed) = 0;
     virtual void draw(sf::RenderTexture& surface) = 0;
     void markDone() { isDoneFlag = true; }
     const bool isDone() const { return isDoneFlag; }
@@ -48,7 +50,9 @@ namespace swoosh {
       isBlocking = true;
     }
 
-    virtual void update(double elapsed) = 0;
+    virtual ~BlockingActionItem() { }
+
+    virtual void update(sf::Time elapsed) = 0;
     virtual void draw(sf::RenderTexture& surface) = 0;
   };
 
@@ -143,7 +147,7 @@ namespace swoosh {
 
     }
 
-    void update(double elapsed) {
+    void update(sf::Time elapsed) {
       for (int i = 0; i < items.size();) {
         if (items[i]->isDone()) {
           delete items[i];
@@ -200,7 +204,7 @@ namespace swoosh {
 
     }
 
-    virtual void update(double elapsed) {
+    virtual void update(sf::Time elapsed) {
       if (isDone())
         return;
 
@@ -239,7 +243,7 @@ namespace swoosh {
 
     }
 
-    virtual void update(double elapsed) {
+    virtual void update(sf::Time elapsed) {
       if (isDone())
         return;
 
@@ -291,7 +295,7 @@ namespace swoosh {
       if (branchIfTrue)  delete branchIfTrue;
     }
 
-    virtual void update(double elapsed) {
+    virtual void update(sf::Time elapsed) {
       if (isDone())
         return;
 

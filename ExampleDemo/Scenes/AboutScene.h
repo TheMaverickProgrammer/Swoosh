@@ -94,7 +94,7 @@ public:
   }
 
   void onUpdate(double elapsed) override {
-    timer.update(elapsed);
+    timer.update(sf::seconds(elapsed));
 
     double offset = 0;
     if (timer.getElapsed().asSeconds() > 3) {

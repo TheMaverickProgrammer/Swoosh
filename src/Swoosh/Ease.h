@@ -150,5 +150,15 @@ namespace swoosh {
       // Transform y into canonical [0,1] values
       return static_cast<T>(y/2.0);
     }
+
+    /**
+      y = (2 + (factor * log(x/t)))/2
+
+      @brief quick burst from 0.0 and then slowly approaches 1.0 over the length (time)
+    */
+    template<typename T>
+    static T wane(T delta, T length, T factor) {
+      return (2 + (factor * std::log(delta / length))) * 0.5;
+    }
   }
 }

@@ -92,7 +92,7 @@ public:
   }
 
   void onUpdate(double elapsed) override {
-    waitTime.update(elapsed);
+    waitTime.update(sf::seconds(elapsed));
 
     goback.update(getController().getWindow());
 
