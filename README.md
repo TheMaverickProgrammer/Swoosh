@@ -1,5 +1,5 @@
 ![logo](https://i.imgur.com/tri24Y5.png)
-# Swoosh v1.2.5
+# Swoosh v1.2.6
 Header-only SFML Activity and Segue Mini Library
 
 Tested across MSVC, GNU C++, and Clang compilers on Windows, Linux, OSX, and Android operating systems.
