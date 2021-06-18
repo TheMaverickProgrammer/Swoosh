@@ -289,9 +289,9 @@ namespace swoosh {
     template <class T>
     struct IsSegueType
     {
-      static char is_to(swoosh::Activity*) {}
+      static char is_to(swoosh::Activity*) { return 0; }
 
-      static double is_to(...) { ; }
+      static double is_to(...) { ; return 0; }
 
       static T* t;
 
