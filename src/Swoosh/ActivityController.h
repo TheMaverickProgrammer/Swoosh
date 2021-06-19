@@ -289,9 +289,9 @@ namespace swoosh {
     template <class T>
     struct IsSegueType
     {
-      static char is_to(swoosh::Activity*) {}
+      static char is_to(swoosh::Activity*) { return 0; }
 
-      static double is_to(...) { ; }
+      static double is_to(...) { return 0; }
 
       static T* t;
 
@@ -332,7 +332,8 @@ namespace swoosh {
     {
       template<typename... Args>
       ResolvePushSegueIntent(ActivityController& owner, Args&&... args) {
-        bool hasLast = (owner.activities.size() > 0);
+        if (owner.segueAction != SegueAction::none) return;
+
         swoosh::Activity* next = new T(owner, std::forward<Args>(args)...);
 
         if (owner.last == nullptr && owner.activities.size() != 0) {
