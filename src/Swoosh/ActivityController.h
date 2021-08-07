@@ -79,11 +79,6 @@ namespace swoosh {
     virtual ~ActivityController() {
       if (segueAction != SegueAction::none) {
         swoosh::Segue* effect = static_cast<swoosh::Segue*>(activities.top());
-
-        if (segueAction == SegueAction::push) {
-          delete effect->next;
-        }
-
         delete effect;
         activities.pop();
       }
