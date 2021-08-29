@@ -29,6 +29,7 @@ public:
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
     const bool optimized = getController().getRequestedQuality() == quality::mobile;
+    const bool useShader = getController().isShadersEnabled();
 
     sf::Texture temp;
 
@@ -47,7 +48,10 @@ public:
 
       shader.setTexture(&temp);
       shader.setAlpha((0.5f - (float)alpha)/0.5f);
-      shader.apply(surface);
+
+      if(useShader) {
+        shader.apply(surface);
+      }
 
       firstPass = false;
     }
@@ -68,7 +72,10 @@ public:
 
       shader.setTexture(&temp);
       shader.setAlpha(((float)alpha - 0.5f) / 0.5f);
-      shader.apply(surface);
+
+      if(useShader) {
+        shader.apply(surface);
+      }
 
       secondPass = false;
     }

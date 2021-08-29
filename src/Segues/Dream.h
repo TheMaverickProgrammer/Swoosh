@@ -27,6 +27,7 @@ public:
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
     const bool optimized = getController().getRequestedQuality() == quality::mobile;
+    const bool useShader = getController().isShadersEnabled();
 
     sf::Texture temp, temp2;
 
@@ -57,7 +58,10 @@ public:
     shader.setUniform("alpha", (float)alpha);
 
     sf::RenderStates states;
-    states.shader = &shader;
+    
+    if(useShader) {
+      states.shader = &shader;
+    }
 
     sf::Sprite sprite(temp2); // dummy. we just need something with the screen size to draw with
     surface.draw(sprite, states);

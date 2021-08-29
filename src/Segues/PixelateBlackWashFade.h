@@ -24,6 +24,7 @@ public:
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
     const bool optimized = getController().getRequestedQuality() == quality::mobile;
+    const bool useShader = getController().isShadersEnabled();
 
     sf::Texture temp;
 
@@ -57,7 +58,10 @@ public:
 
     shader.setTexture(&temp);
     shader.setThreshold((float)alpha/15.0f);
-    shader.apply(surface);
+
+    if(useShader) {
+      shader.apply(surface);
+    }
 
     // 10% of segue is a pixelate before darkening
     double delay = (duration / 10.0);

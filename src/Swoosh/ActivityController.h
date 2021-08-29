@@ -17,12 +17,13 @@ namespace swoosh {
     friend class swoosh::Segue;
 
   private:
-    swoosh::Activity* last; //!< Pointer of the last activity
+    swoosh::Activity* last{ nullptr }; //!< Pointer of the last activity
     std::stack<swoosh::Activity*> activities; //!< Stack of activities
     sf::RenderWindow& handle; //!< sfml window reference
     sf::Vector2u virtualWindowSize; //!< Window size requested to render with
-    bool willLeave; //!< If true, the activity will leave
-    mutable sf::RenderTexture* surface; //!< Render surface to draw to
+    bool willLeave{}; //!< If true, the activity will leave
+    bool useShaders{ true }; //!< If false, segues can considerately use shader effects
+    mutable sf::RenderTexture* surface{ nullptr }; //!< Render surface to draw to
 
     //!< Useful for state management and skipping need for dynamic casting
     enum class SegueAction : int {
@@ -134,6 +135,22 @@ namespace swoosh {
     */
     const bool isOptimizedForPerformance() const {
       return qualityLevel != quality::realtime;
+    }
+
+    /**
+      @brief Request the activity controller and segue effects to use shaders
+      @param enabled. Default is shader support. If false, segues should not use shaders.
+    */
+    void enableShaders(bool enabled) {
+      useShaders = enabled;
+    }
+
+    /**
+      @brief Returns a quick check if the AC has been configured to use shaders
+      @return true by default unless manually disabled by `enableShaders(false)`
+    */
+    const bool isShadersEnabled() const {
+      return useShaders;
     }
 
     /**
@@ -490,6 +507,14 @@ namespace swoosh {
     }
 
     /**
+      @brief Returns the current activity pointer. Nullptr if no acitivty exists on the stack.
+    */
+    const swoosh::Activity* getCurrentActivity() const {
+      if (getStackSize() > 0) return activities.top();
+      return nullptr;
+    }
+
+    /**
      @brief Updates the current activity or segue. Will manage the segue transition states.
      @param elapsed. Time in seconds
 
@@ -669,16 +694,6 @@ namespace swoosh {
       Used internally
     */
     inline Activity* generateActivityFromWindow();
-
-  protected:
-
-    /**
-      @brief Returns the current activity pointer. Nullptr if no acitivty exists on the stack.
-    */
-    const swoosh::Activity* getCurrentActivity() const {
-      if (getStackSize() > 0) return activities.top();
-      return nullptr;
-    }
   }; // ActivityController
 
 

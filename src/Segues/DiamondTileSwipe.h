@@ -27,6 +27,7 @@ public:
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
     const bool optimized = getController().getRequestedQuality() == quality::mobile;
+    const bool useShader = getController().isShadersEnabled();
 
     sf::Texture temp;
 
@@ -60,7 +61,10 @@ public:
     shader.setUniform("time", (float)alpha);
 
     sf::RenderStates states;
-    states.shader = &shader;
+
+    if(useShader) {
+      states.shader = &shader;
+    }
 
     surface.draw(sprite, states);
   }

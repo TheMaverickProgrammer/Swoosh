@@ -35,6 +35,7 @@ public:
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
     const bool optimized = getController().getRequestedQuality() == quality::mobile;
+    const bool useShader = getController().isShadersEnabled();
 
     shader.setPower((float)alpha * 8.f);
 
@@ -52,7 +53,10 @@ public:
     }
 
     shader.setTexture(&temp);
-    shader.apply(surface);
+
+    if(useShader) {
+      shader.apply(surface);
+    }
 
     surface.display();
     temp = sf::Texture(surface.getTexture());
@@ -70,7 +74,10 @@ public:
     }
 
     shader.setTexture(&temp2);
-    shader.apply(surface);
+
+    if(useShader) {
+      shader.apply(surface);
+    }
 
     surface.display();
     temp2 = sf::Texture(surface.getTexture());
