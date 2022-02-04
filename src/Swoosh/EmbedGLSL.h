@@ -49,7 +49,7 @@ namespace swoosh {
       char* input = new char[size];
       char delim[] = ";";
       memcpy(input, glsl, size);
-      input[size] = '\0';
+      input[size - 1] = '\0';
 
       rsize_t strmax = sizeof input;
       char* next_token{};
