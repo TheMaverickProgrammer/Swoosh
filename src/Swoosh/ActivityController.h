@@ -1,8 +1,8 @@
 #pragma once
-
-#include "Activity.h"
-#include "Segue.h"
-#include "Timer.h"
+#include <Swoosh/Activity.h>
+#include <Swoosh/Segue.h>
+#include <Swoosh/Timer.h>
+#include <Swoosh/Renderers/Renderer.h>
 #include <SFML/Graphics.hpp>
 #include <stack>
 #include <list>
@@ -23,7 +23,8 @@ namespace swoosh {
     sf::Vector2u virtualWindowSize; //!< Window size requested to render with
     bool willLeave{}; //!< If true, the activity will leave
     bool useShaders{ true }; //!< If false, segues can considerately use shader effects
-    mutable sf::RenderTexture* surface{ nullptr }; //!< Render surface to draw to
+    bool clearBeforeDraw{ true }; //!< If true, clears the render target with the Activity's bg color
+    mutable IRenderer* renderer{nullptr}; //!< Renderer to submit draw events to
 
     //!< Useful for state management and skipping need for dynamic casting
     enum class SegueAction : int {
@@ -47,26 +48,21 @@ namespace swoosh {
     /**
       @brief constructs the activity controller, sets the virtual window size to the window, and initializes default values
     */
-    ActivityController(sf::RenderWindow& window) : handle(window) {
+    ActivityController(sf::RenderWindow& window, IRenderer& renderer) : handle(window) {
       virtualWindowSize = handle.getSize();
-
-      surface = new sf::RenderTexture();
-      surface->create((unsigned int)handle.getSize().x, (unsigned int)handle.getSize().y);
+      this->renderer = &renderer;
       willLeave = false;
       segueAction = SegueAction::none;
       stackAction = StackAction::none;
-
       last = nullptr;
     }
 
     /**
       @brief constructs the activity controller, sets the virtual window size to the user's desired size, and initializes default values
     */
-    ActivityController(sf::RenderWindow& window, sf::Vector2u virtualWindowSize) : handle(window) {
+    ActivityController(sf::RenderWindow& window, sf::Vector2u virtualWindowSize, IRenderer& renderer) : handle(window) {
       this->virtualWindowSize = virtualWindowSize;
-
-      surface = new sf::RenderTexture();
-      surface->create((unsigned int)virtualWindowSize.x, (unsigned int)virtualWindowSize.y);
+      this->renderer = &renderer;
       willLeave = false;
       segueAction = SegueAction::none;
       stackAction = StackAction::none;
@@ -89,8 +85,6 @@ namespace swoosh {
         activities.pop();
         delete activity;
       }
-
-      delete surface;
     }
 
     /**
@@ -108,17 +102,18 @@ namespace swoosh {
     }
 
     /**
-      @brief Returns the render surface pointer
-    */
-    sf::RenderTexture* getSurface() {
-      return surface;
-    }
-
-    /**
       @brief Query the number of activities on the stack
     */
     const std::size_t getStackSize() const {
       return activities.size();
+    }
+
+    /**
+      @brief Request the activity controller to clear the render target (window or texture) before drawing.
+      @param enabled. Default is true. If false, the programmer must control clearing the targets themselves.
+    */
+    void clearRenderTargetBeforeDraw(bool enabled) {
+      this->clearBeforeDraw = enabled;
     }
 
     /**
@@ -427,8 +422,7 @@ namespace swoosh {
     template <typename T, bool U>
     struct ResolveRewindSegueIntent
     {
-      ResolveRewindSegueIntent(ActivityController& owner) {
-      }
+      ResolveRewindSegueIntent(ActivityController& owner) {}
 
       bool RewindSuccessful;
     };
@@ -580,48 +574,41 @@ namespace swoosh {
       if (activities.size() == 0)
         return;
 
-      surface->setView(activities.top()->view);
-      activities.top()->onDraw(*surface);
+      // Prepare buffer for this pass
+      renderer->clear(sf::Color::Transparent);
 
-      surface->display();
+      // Update viewport
+      renderer->setView(activities.top()->view);
 
-      // Capture buffer in a drawable context
-      sf::Sprite post(surface->getTexture());
+      // Draw to gpu texture
+      activities.top()->onDraw(*renderer);
 
-      // Fill in the bg color
-      handle.clear(activities.top()->bgColor);
+      // Perform our draw operations to the target texture in the renderer
+      renderer->draw();
 
-      // drawbuffer on top of the scene
+      // Prepare to be displayed
+      renderer->display();
+
+      // Create a rectangle with a copy of the texture
+      sf::Texture temp = renderer->getTexture();
+      sf::Sprite post(temp);
+
+      // Fill the window with the bg color 
+      if(clearBeforeDraw)
+        handle.clear(activities.top()->bgColor);
+
+      // draw screen
       handle.draw(post);
-
-      // Prepare buffer for next cycle
-      surface->clear(sf::Color::Transparent);
-    }
-
-    /**
-      @brief Draws the current activity or segue onto an external render buffer
-      @param external. A render texture buffer to draw the content onto
-     */
-    void draw(sf::RenderTexture& external) {
-      if (activities.size() == 0)
-        return;
-
-      external.setView(activities.top()->view);
-
-      // Fill in the bg color
-      handle.clear(activities.top()->bgColor);
-
-      activities.top()->onDraw(external);
     }
 
   private:
     /**
-      @brief Applies an activity's view onto the render surface. This is used internally for segues.
+      @brief Applies an activity's view onto the renderer. This is used internally for segues.
 
       This function is kept here to make the library files header-only and avoid linkage.
     */
-    void setActivityView(sf::RenderTexture& surface, swoosh::Activity* activity) {
-      surface.setView(activity->getView());
+    void setActivityView(IRenderer& renderer, swoosh::Activity* activity) {
+      renderer.setView(activity->getView());
     }
 
     /**
@@ -629,8 +616,8 @@ namespace swoosh {
 
      This function is kept here to make the library files header-only and avoid linkage.
    */
-    void resetView(sf::RenderTexture& surface) {
-      surface.setView(handle.getDefaultView());
+    void resetView(IRenderer& renderer) {
+      renderer.setView(handle.getDefaultView());
     }
 
     /**
@@ -764,12 +751,12 @@ namespace swoosh {
 
     void onUpdate(double elapsed) override { };
 
-    void onDraw(sf::RenderTexture& surface) override {
-      surface.draw(drawable);
+    void onDraw(IRenderer& renderer) override {
+      renderer.submit(drawable);
     }
   }; // CopyWindow
 
-  // deferred implementation
+  // late implementation
   Activity* ActivityController::generateActivityFromWindow() {
     return new CopyWindow(*this);
   }

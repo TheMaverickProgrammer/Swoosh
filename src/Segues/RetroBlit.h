@@ -35,12 +35,12 @@ public:
 
     if (alpha <= 0.5) {
       if (firstPass || !optimized) {
-        this->drawLastActivity(surface);
+        this->drawLastActivity(renderer);
 
-        surface.display(); // flip and ready the buffer
+        renderer.display(); // flip and ready the buffer
 
-        last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
-        surface.clear(this->getLastActivityBGColor());
+        last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
+        renderer.clear(this->getLastActivityBGColor());
       }
       else {
         temp = last;
@@ -57,14 +57,14 @@ public:
     }
     else {
       if (secondPass || !optimized) {
-        this->drawNextActivity(surface);
+        this->drawNextActivity(renderer);
 
-        surface.display(); // flip and ready the buffer
+        renderer.display(); // flip and ready the buffer
 
-        next = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        next = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
         sf::Sprite sprite(temp);
 
-        surface.clear(this->getNextActivityBGColor());
+        renderer.clear(this->getNextActivityBGColor());
       }
       else {
         temp = next;

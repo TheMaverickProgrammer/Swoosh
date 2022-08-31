@@ -16,16 +16,16 @@ private:
   sf::Vector2u windowSize;
 
 public:
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
 
-    this->drawLastActivity(surface);
+    this->drawLastActivity(renderer);
 
-    surface.display(); // flip and ready the buffer
+    renderer.display(); // flip and ready the buffer
 
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture temp(renderer.getTexture()); // Make a copy of the source texture
 
     sf::Sprite top(temp); 
     top.setTextureRect(sf::IntRect(0, 0, windowSize.x, (int)(windowSize.y / 2.0)));
@@ -35,17 +35,17 @@ public:
     bottom.setTextureRect(sf::IntRect(0, (int)(windowSize.y / 2.0), windowSize.x, windowSize.y));
     bottom.setPosition(0.0f, (float)(windowSize.y/2.0f) +  ((float)alpha * (bottom.getTextureRect().height-bottom.getTextureRect().top)));
 
-    surface.clear();
+    renderer.clear();
 
-    this->drawNextActivity(surface);
+    this->drawNextActivity(renderer);
 
-    surface.display(); // flip and ready the buffer
-    sf::Texture temp2(surface.getTexture());
+    renderer.display(); // flip and ready the buffer
+    sf::Texture temp2(renderer.getTexture());
     sf::Sprite right(temp2);
 
-    surface.draw(right);
-    surface.draw(top);
-    surface.draw(bottom);
+    renderer.submit(right);
+    renderer.submit(top);
+    renderer.submit(bottom);
   }
 
   HorizontalOpen(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

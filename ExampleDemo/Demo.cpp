@@ -1,12 +1,10 @@
 //This file contains the C++ entry main function and demonstrates
 //using the Activity Controller with SFML's main loop
-
-#include <SFML/Window.hpp>
 #include <Swoosh/ActivityController.h>
+#include <Swoosh/Renderers/SimpleRenderer.h>
 #include <Segues/ZoomOut.h>
+#include <SFML/Window.hpp>
 #include "Scenes/MainMenuScene.h"
-
-#include <Swoosh/ActionList.h>
 
 using namespace swoosh;
 
@@ -18,7 +16,8 @@ int main()
   window.setMouseCursorVisible(false);
 
   // Create an AC with the current window as our target to draw to
-  ActivityController app(window);
+  SimpleRenderer renderer(window.getSize());
+  ActivityController app(window, renderer);
 
   // 10/9/2020 
   // For mobile devices or low-end GPU's, you can request optimized 
@@ -36,7 +35,8 @@ int main()
   // Swoosh now supports generating blank activities from window contents!
   // The segue will copy the window at startup and use it as part of 
   // the screen transition as demonstrated here
-  app.push<segue<ZoomOut>::to<MainMenuScene>>();
+  //app.push<segue<ZoomOut>::to<MainMenuScene>>();
+  app.push<MainMenuScene>();
 
   sf::Texture* cursorTexture = loadTexture(CURSOR_PATH);
   sf::Sprite cursor;

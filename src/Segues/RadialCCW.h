@@ -19,7 +19,7 @@ private:
   sf::Texture next, last;
   bool firstPass{ true };
 public:
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
@@ -28,26 +28,26 @@ public:
 
     sf::Texture temp, temp2;
 
-    surface.clear(this->getLastActivityBGColor());
+    renderer.clear(this->getLastActivityBGColor());
 
     if (firstPass || !optimized) {
-      this->drawLastActivity(surface);
+      this->drawLastActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
+      renderer.display(); // flip and ready the buffer
 
-      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp = last;
     }
 
-    surface.clear(this->getNextActivityBGColor());
+    renderer.clear(this->getNextActivityBGColor());
 
     if (firstPass || !optimized) {
-      this->drawNextActivity(surface);
+      this->drawNextActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
-      next = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      renderer.display(); // flip and ready the buffer
+      next = temp2 = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp2 = next;
@@ -58,7 +58,7 @@ public:
     shader.setAlpha((float)alpha);
 
     if(useShader) {
-      shader.apply(surface);
+      shader.apply(renderer);
     }
 
     firstPass = false;

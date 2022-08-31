@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/System.hpp>
 #include <map>
 #include <vector>

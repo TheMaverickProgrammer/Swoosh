@@ -1,4 +1,7 @@
 #pragma once
+#include <Swoosh/Ease.h>
+#include <Swoosh/Renderers/Renderer.h>
+#include <Swoosh/EmbedGLSL.h>
 #include <SFML/Graphics.hpp>
 #include <cassert>
 
@@ -24,7 +27,7 @@ namespace swoosh {
       const sf::Shader& getShader() const { return shader; }
       virtual ~Shader() { ; }
 
-      virtual void apply(sf::RenderTexture& surface) = 0;
+      virtual void apply(IRenderer& renderer) = 0;
     };
     /**
       @class FastGaussianBlur
@@ -34,8 +37,8 @@ namespace swoosh {
     class FastGaussianBlur final : public Shader {
     private:
       std::string FAST_BLUR_SHADER;
-      sf::Texture* texture;
-      float power;
+      sf::Texture* texture{ nullptr };
+      float power{};
     public:
       void setPower(float power) { this->power = power; shader.setUniform("power", power); }
 
@@ -49,7 +52,7 @@ namespace swoosh {
         shader.setUniform("textureSizeH", (float)texture->getSize().y);
       }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!texture) return;
 
         sf::RenderStates states;
@@ -58,7 +61,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture);
 
-        surface.draw(sprite, states);
+        renderer.submit(sprite, states);
       }
 
       FastGaussianBlur(int numOfKernels) {
@@ -143,10 +146,10 @@ namespace swoosh {
     class Checkerboard final : public Shader {
     private:
       std::string CHECKERBOARD_SHADER;
-      float alpha;
-      int cols, rows;
-      float smoothness;
-      sf::Texture *texture1, *texture2;
+      float alpha{};
+      int cols{}, rows{};
+      float smoothness{};
+      sf::Texture* texture1{ nullptr }, * texture2{ nullptr };
 
     public:
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", (float)alpha); }
@@ -156,7 +159,7 @@ namespace swoosh {
       void setTexture1(sf::Texture* tex) { if (!tex) return;  this->texture1 = tex; shader.setUniform("texture",  *texture1); }
       void setTexture2(sf::Texture* tex) { if (!tex) return;  this->texture2 = tex; shader.setUniform("texture2", *texture2); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(texture1 && texture2)) return;
 
         sf::RenderStates states;
@@ -165,7 +168,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        surface.draw(sprite, states);
+        renderer.submit(sprite, states);
       }
 
       Checkerboard(int cols = 10, int rows = 10) {
@@ -210,16 +213,16 @@ namespace swoosh {
     class CircleMask final : public Shader {
     private:
       std::string CIRCLE_MASK_SHADER;
-      sf::Texture* texture;
-      float alpha; 
-      float aspectRatio;
+      sf::Texture* texture{ nullptr };
+      float alpha{};
+      float aspectRatio{};
 
     public:
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("time", (float)alpha); }
       void setAspectRatio(float aspectRatio) { this->aspectRatio = aspectRatio;  shader.setUniform("ratio", aspectRatio); }
       void setTexture(sf::Texture* tex) { if (!tex) return; this->texture = tex; shader.setUniform("texture", *texture); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!texture) return;
 
         sf::RenderStates states;
@@ -228,7 +231,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture);
 
-        surface.draw(sprite, states);
+        renderer.submit(sprite, states);
       }
 
       CircleMask() {
@@ -278,9 +281,9 @@ namespace swoosh {
     class RetroBlit final : public Shader {
     private:
       std::string RETRO_BLIT_SHADER;
-      int kernelCols, kernelRows;
-      float alpha;
-      sf::Texture* texture;
+      int kernelCols{}, kernelRows{};
+      float alpha{};
+      sf::Texture* texture{ nullptr };
 
     public:
       void setTexture(sf::Texture* tex) { if (!tex) return; texture = tex; shader.setUniform("texture", *texture); }
@@ -288,7 +291,7 @@ namespace swoosh {
       void setKernelCols(int kcols) { this->kernelCols = kcols; shader.setUniform("cols", kernelCols); }
       void setKernelRows(int krows) { this->kernelRows = krows; shader.setUniform("rows", kernelRows); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!texture) return;
 
         sf::RenderStates states;
@@ -297,7 +300,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture);
 
-        surface.draw(sprite, states);
+        renderer.submit(sprite, states);
       }
 
       RetroBlit(int kcols = 10, int krows = 10) {
@@ -341,9 +344,9 @@ namespace swoosh {
     class CrossZoom final : public Shader {
     private:
       std::string CROSS_ZOOM_SHADER;
-      sf::Texture* texture1, *texture2;
-      float power;
-      float alpha;
+      sf::Texture* texture1{ nullptr }, * texture2{ nullptr };
+      float power{};
+      float alpha{};
 
     public:
       void setTexture1(sf::Texture* tex) { if (!tex) return; texture1 = tex; shader.setUniform("texture", *texture1); }
@@ -351,7 +354,7 @@ namespace swoosh {
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", (float)alpha); }
       void setPower(float power) { this->power = power; shader.setUniform("strength", power); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(texture1 && texture2)) return;
 
         sf::RenderStates states;
@@ -360,7 +363,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        surface.draw(sprite, states);
+        renderer.submit(sprite, states);
       }
 
       CrossZoom() {
@@ -456,9 +459,9 @@ namespace swoosh {
     class Morph final : public Shader {
     private:
       std::string MORPH_SHADER;
-      sf::Texture* texture1, *texture2;
-      float strength;
-      float alpha;
+      sf::Texture* texture1{ nullptr }, * texture2{ nullptr };
+      float strength{};
+      float alpha{};
     public:
 
       void setTexture1(sf::Texture* tex) { if (!tex) return; texture1 = tex; shader.setUniform("texture", *texture1); }
@@ -466,7 +469,7 @@ namespace swoosh {
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("alpha", (float)alpha); }
       void setStrength(float strength) { this->strength = strength; shader.setUniform("strength", strength); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(texture1 && texture2)) return;
 
         sf::RenderStates states;
@@ -475,7 +478,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        surface.draw(sprite, states);
+        renderer.submit(sprite, states);
       }
 
       Morph() {
@@ -531,9 +534,9 @@ namespace swoosh {
     */
     class PageTurn final : public Shader {
     private:
-      sf::Texture* texture;
+      sf::Texture* texture{ nullptr };
       sf::Vector2u size;
-      float alpha;
+      float alpha{};
 
       std::string TURN_PAGE_VERT_SHADER, TURN_PAGE_FRAG_SHADER;
       sf::VertexArray buffer;
@@ -629,14 +632,14 @@ namespace swoosh {
         shader.setUniform("rho", (float)rho);
       }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(this->texture)) return;
 
         sf::RenderStates states;
         states.shader = &shader;
 
-        surface.clear(sf::Color::Transparent);
-        surface.draw(buffer, states);
+        renderer.clear(sf::Color::Transparent);
+        renderer.submit(buffer, states);
       }
 
       PageTurn(sf::Vector2u size, const int cellSize = 10) {
@@ -707,11 +710,11 @@ namespace swoosh {
     class Pixelate final : public Shader {
     private:
       std::string PIXELATE_SHADER;
-      sf::Texture* texture;
-      float threshold;
+      sf::Texture* texture{ nullptr };
+      float threshold{};
 
     public:
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!this->texture) return;
         
         sf::RenderStates states;
@@ -720,7 +723,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*this->texture);
 
-        surface.draw(sprite, states);
+        renderer.submit(sprite, states);
       }
 
       void setTexture(sf::Texture* tex) { if (!tex) return; this->texture = tex; shader.setUniform("texture", *this->texture); }
@@ -756,12 +759,12 @@ namespace swoosh {
     class RadialCCW final : public Shader {
     private:
       std::string RADIAL_CCW_SHADER;
-      sf::Texture* texture1;
-      sf::Texture* texture2;
-      float alpha;
+      sf::Texture* texture1{ nullptr };
+      sf::Texture* texture2{ nullptr };
+      float alpha{};
 
     public:
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(this->texture1 && this->texture2)) return;
 
         sf::RenderStates states;
@@ -770,7 +773,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        surface.draw(sprite, states);
+        renderer.submit(sprite, states);
       }
 
       void setTexture1(sf::Texture* tex) { if (!tex) return; this->texture1 = tex; shader.setUniform("texture", *texture1); }

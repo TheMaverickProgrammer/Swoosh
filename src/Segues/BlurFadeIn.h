@@ -30,7 +30,7 @@ private:
   }
 
 public:
-  void onDraw(sf::RenderTexture& surface) override {
+  void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
@@ -39,14 +39,14 @@ public:
 
     shader.setPower((float)alpha * 8.f);
 
-    surface.clear(this->getLastActivityBGColor());
+    renderer.clear(this->getLastActivityBGColor());
     sf::Texture temp, temp2;
 
     if (firstPass || !optimized) {
-      this->drawLastActivity(surface);
+      this->drawLastActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
-      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      renderer.display(); // flip and ready the buffer
+      last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp = last;
@@ -55,19 +55,19 @@ public:
     shader.setTexture(&temp);
 
     if(useShader) {
-      shader.apply(surface);
+      shader.apply(renderer);
     }
 
-    surface.display();
-    temp = sf::Texture(surface.getTexture());
+    renderer.display();
+    temp = sf::Texture(renderer.getTexture());
 
-    surface.clear(this->getNextActivityBGColor());
+    renderer.clear(this->getNextActivityBGColor());
 
     if (firstPass || !optimized) {
-      this->drawNextActivity(surface);
+      this->drawNextActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
-      next = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      renderer.display(); // flip and ready the buffer
+      next = temp2 = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp2 = next;
@@ -76,24 +76,24 @@ public:
     shader.setTexture(&temp2);
 
     if(useShader) {
-      shader.apply(surface);
+      shader.apply(renderer);
     }
 
-    surface.display();
-    temp2 = sf::Texture(surface.getTexture());
+    renderer.display();
+    temp2 = sf::Texture(renderer.getTexture());
 
     sf::Sprite sprite, sprite2;
     sprite.setTexture(temp);
     sprite2.setTexture(temp2);
 
-    surface.clear(sf::Color::Transparent);
+    renderer.clear(sf::Color::Transparent);
     alpha = ease::linear(elapsed, duration, 1.0);
 
     sprite.setColor(sf::Color(255, 255, 255, (sf::Uint8)(255.0 * (1-alpha))));
     sprite2.setColor(sf::Color(255, 255, 255, (sf::Uint8)(255.0 * alpha)));
 
-    surface.draw(sprite);
-    surface.draw(sprite2);
+    renderer.submit(sprite);
+    renderer.submit(sprite2);
 
     firstPass = false;
   }

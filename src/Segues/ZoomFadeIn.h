@@ -18,7 +18,7 @@ private:
   sf::Texture next, last;
   bool firstPass{ true };
 public:
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
@@ -28,11 +28,11 @@ public:
     sf::Texture temp, temp2;
 
     if (firstPass || !optimized) {
-      this->drawLastActivity(surface);
+      this->drawLastActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
+      renderer.display(); // flip and ready the buffer
 
-      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp = last;
@@ -40,14 +40,14 @@ public:
 
     sf::Sprite sprite(temp);
 
-    surface.clear(sf::Color::Transparent);
+    renderer.clear(sf::Color::Transparent);
 
     if (firstPass || !optimized) {
-      this->drawNextActivity(surface);
+      this->drawNextActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
+      renderer.display(); // flip and ready the buffer
 
-      next = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      next = temp2 = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp2 = next;
@@ -63,7 +63,7 @@ public:
       states.shader = &shader;
     }
 
-    surface.draw(sprite, states);
+    renderer.submit(sprite, states);
 
     firstPass = false;
   }

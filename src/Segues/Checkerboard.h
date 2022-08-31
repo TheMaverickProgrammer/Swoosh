@@ -21,7 +21,7 @@ private:
   bool firstPass{ true };
   std::string checkerboardShader;
 public:
-  void onDraw(sf::RenderTexture& surface) override {
+  void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
@@ -31,15 +31,15 @@ public:
     sf::Texture temp, temp2;
 
     if (firstPass || !optimized) {
-      drawLastActivity(surface);
+      drawLastActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
+      renderer.display(); // flip and ready the buffer
 
 #ifdef __ANDROID__
-      temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
       temp.flip(true);
 #else
-      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
 #endif
     }
     else {
@@ -48,16 +48,16 @@ public:
     sf::Sprite sprite(temp);
 
     if (firstPass || !optimized) {
-      surface.clear(sf::Color::Transparent);
-      drawNextActivity(surface);
+      renderer.clear(sf::Color::Transparent);
+      drawNextActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
+      renderer.display(); // flip and ready the buffer
 
 #ifdef __ANDROID__
-      temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      temp2 = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
       temp2.flip(true);
 #else
-      next = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      next = temp2 = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
 #endif
     }
     else {
@@ -74,7 +74,7 @@ public:
       states.shader = &shader;
     }
 
-    surface.draw(sprite, states);
+    renderer.submit(sprite, states);
   }
 
   CheckerboardCustom(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

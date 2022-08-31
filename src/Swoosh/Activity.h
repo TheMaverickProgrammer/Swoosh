@@ -1,4 +1,5 @@
 #pragma once
+#include <Swoosh/Renderers/Renderer.h>
 #include <SFML/Graphics.hpp>
 
 namespace swoosh {
@@ -26,7 +27,7 @@ namespace swoosh {
     friend class ActivityController;
 
   private:
-    bool started; //!< Flag denotes if an activity should call onStart() or onResume()
+    bool started{}; //!< Flag denotes if an activity should call onStart() or onResume()
 
   protected:
     ActivityController* controller{ nullptr }; //!< Pointer to the activity controller
@@ -48,7 +49,7 @@ namespace swoosh {
     virtual void onResume() = 0;
     virtual void onEnd() = 0;
     virtual void onUpdate(double elapsed) = 0;
-    virtual void onDraw(sf::RenderTexture& surface) = 0;
+    virtual void onDraw(IRenderer& renderer) = 0;
     virtual ~Activity() { ; }
     void setView(const sf::View& view) { this->view = view; }
     void setView(const sf::Vector2u& size) { this->view = sf::View(sf::FloatRect(0.0f, 0.0f, (float)size.x, (float)size.y)); }

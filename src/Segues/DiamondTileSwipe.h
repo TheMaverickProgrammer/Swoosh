@@ -22,7 +22,7 @@ private:
   std::string diamondSwipeShaderProgram;
   bool firstPass{ true }, secondPass{ true };
 public:
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
@@ -33,9 +33,9 @@ public:
 
     if (elapsed < duration * 0.5) {
       if (firstPass || !optimized) {
-        this->drawLastActivity(surface);
-        surface.display(); // flip and ready the buffer
-        last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        this->drawLastActivity(renderer);
+        renderer.display(); // flip and ready the buffer
+        last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
         firstPass = false;
       }
       else {
@@ -44,9 +44,9 @@ public:
     }
     else {
       if (secondPass || !optimized) {
-        this->drawNextActivity(surface);
-        surface.display(); // flip and ready the buffer
-        next = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        this->drawNextActivity(renderer);
+        renderer.display(); // flip and ready the buffer
+        next = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
         firstPass = false;
       }
       else {
@@ -66,7 +66,7 @@ public:
       states.shader = &shader;
     }
 
-    surface.draw(sprite, states);
+    renderer.submit(sprite, states);
   }
 
   DiamondTileSwipe(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

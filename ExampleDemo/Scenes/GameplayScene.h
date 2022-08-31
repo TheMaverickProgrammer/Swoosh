@@ -451,25 +451,25 @@ public:
 
   }
 
-  void onDraw(sf::RenderTexture& surface) override {
+  void onDraw(IRenderer& renderer) override {
     sf::RenderWindow& window = getController().getWindow();
 
-    surface.draw(bg);
+    renderer.submit(bg);
 
     for (auto& t : trails) {
-      surface.draw(t.sprite);
+      renderer.submit(t.sprite);
     }
 
     for (auto& m : meteors) {
-      surface.draw(m.sprite);
+      renderer.submit(m.sprite);
     }
 
     for (auto& e : enemies) {
-      surface.draw(e.sprite);
+      renderer.submit(e.sprite);
     }
 
     for (auto& l : lasers) {
-      surface.draw(l.sprite);
+      renderer.submit(l.sprite);
     }
     
     auto windowSize = getController().getVirtualWindowSize();
@@ -485,30 +485,30 @@ public:
       text.setFillColor(sf::Color::White);
     }
 
-    surface.draw(text);
+    renderer.submit(text);
 
-    if (isExtraLifeSpawned) surface.draw(star);
+    if (isExtraLifeSpawned) renderer.submit(star);
 
 
     if (lives >= 0) {
-      surface.draw(player.sprite);
+      renderer.submit(player.sprite);
 
       if (hasShield) {
         shield.setPosition(player.pos);
         shield.setRotation(player.sprite.getRotation());
-        surface.draw(shield);
+        renderer.submit(shield);
       }
 
       numeral = sf::Sprite(*numeralTexture[10]); // X
       numeral.setPosition(player.pos.x, player.pos.y - 100);
-      surface.draw(numeral);
+      renderer.submit(numeral);
 
       numeral = sf::Sprite(*numeralTexture[lives]);
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
-      surface.draw(numeral);
+      renderer.submit(numeral);
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);
-      surface.draw(playerLife);
+      renderer.submit(playerLife);
     }
   }
 

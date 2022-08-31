@@ -1,7 +1,6 @@
 #pragma once
-
-#include <SFML/Graphics.hpp>
 #include <Swoosh/Ease.h>
+#include <SFML/Graphics.hpp>
 
 /****
  * This file is a collection of common SFML-related utilities that speed up prototyping

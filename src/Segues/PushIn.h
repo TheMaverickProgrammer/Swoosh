@@ -15,7 +15,7 @@ class PushIn : public Segue {
   bool firstPass{ true };
 public:
 
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
@@ -24,12 +24,12 @@ public:
     sf::Texture temp, temp2;
 
     if (firstPass || !optimized) {
-      surface.clear(this->getLastActivityBGColor());
-      this->drawLastActivity(surface);
+      renderer.clear(this->getLastActivityBGColor());
+      this->drawLastActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
+      renderer.display(); // flip and ready the buffer
 
-      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp = last;
@@ -47,14 +47,14 @@ public:
 
     left.setPosition((float)(lr * alpha * left.getTexture()->getSize().x), (float)(ud * alpha * left.getTexture()->getSize().y));
 
-    surface.clear(this->getNextActivityBGColor());
+    renderer.clear(this->getNextActivityBGColor());
 
     if (firstPass || !optimized) {
-      this->drawNextActivity(surface);
+      this->drawNextActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
+      renderer.display(); // flip and ready the buffer
 
-      next = temp2 = sf::Texture(surface.getTexture());
+      next = temp2 = sf::Texture(renderer.getTexture());
     }
     else {
       temp2 = next;
@@ -64,8 +64,8 @@ public:
 
     right.setPosition((float)(-lr * (1.0-alpha) * right.getTexture()->getSize().x), (float)(-ud * (1.0-alpha) * right.getTexture()->getSize().y));
 
-    surface.draw(left);
-    surface.draw(right);
+    renderer.submit(left);
+    renderer.submit(right);
 
     firstPass = false;
   }

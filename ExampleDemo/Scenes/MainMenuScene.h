@@ -132,7 +132,7 @@ public:
   }
 
   void onUpdate(double elapsed) override {
-    timer.update(sf::seconds(elapsed));
+    timer.update(sf::seconds((float)elapsed));
 
     if (!inFocus && fadeMusic) {
       themeMusic.setVolume(themeMusic.getVolume() * 0.90f); // fades out the music
@@ -237,20 +237,18 @@ public:
     }
   }
 
-  void onDraw(sf::RenderTexture& surface) override {
-    sf::RenderWindow& window = getController().getWindow();
-
-    surface.draw(bg);
+  void onDraw(IRenderer& renderer) override {
+    renderer.submit(bg);
 
     for (auto& p : particles) {
-      surface.draw(p.sprite);
+      renderer.submit(p.sprite);
     }
 
     int i = 0;
     menuText.setFillColor(sf::Color::Black);
 
     for (auto& b : buttons) {
-      b.draw(surface, menuText, screenMid, (float)(200 + (i++*100)));
+      b.draw(renderer, menuText, screenMid, (float)(200 + (i++*100)));
     }
 
     // First set the text as the it would render as a full string
@@ -288,7 +286,7 @@ public:
       if (menuText.getString() == ' ') { offset += menuText.getCharacterSize(); }
 
       menuText.setPosition(sf::Vector2f((float)(startX + offset), (float)startY));
-      surface.draw(menuText);
+      renderer.submit(menuText);
     }
   }
 

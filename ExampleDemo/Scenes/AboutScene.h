@@ -94,7 +94,7 @@ public:
   }
 
   void onUpdate(double elapsed) override {
-    timer.update(sf::seconds(elapsed));
+    timer.update(sf::seconds((float)elapsed));
 
     double offset = 0;
     if (timer.getElapsed().asSeconds() > 3) {
@@ -144,12 +144,11 @@ public:
   void onResume() override {
   }
 
-  void onDraw(sf::RenderTexture& surface) override {
+  void onDraw(IRenderer& renderer) override {
     sf::RenderWindow& window = getController().getWindow();
 
-    surface.clear(sf::Color::Black);
-
-    surface.draw(sfml);
+    renderer.clear(sf::Color::Black);
+    renderer.submit(sfml);
 
     text.setFont(manual);
     text.setPosition(sf::Vector2f(screenMid, 200));
@@ -157,12 +156,12 @@ public:
     text.setString(info);
     setOrigin(text, 0.5f, 0);
 
-    surface.draw(text);
+    renderer.submit(text);
 
     text.setFont(font);
     text.setFillColor(sf::Color::Black);
     setOrigin(text, 0.5f, 0.5f);
-    goback.draw(surface, text, screenMid, screenBottom - 40);
+    goback.draw(renderer, text, screenMid, screenBottom - 40);
   }
 
   void onEnd() override {
