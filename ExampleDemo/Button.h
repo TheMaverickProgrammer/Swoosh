@@ -34,12 +34,12 @@ struct button {
 
     sprite.setPosition(sf::Vector2f(x, y));
     sprite.setOrigin(sprite.getGlobalBounds().width / 2.0f, sprite.getGlobalBounds().height / 2.0f);
-    renderer.submit(sprite);
+    renderer.submit(Immediate(sprite));
 
     sftext.setString(text);
     sftext.setOrigin(sftext.getGlobalBounds().width / 2.0f, sftext.getGlobalBounds().height / 2.0f);
     sftext.setPosition(sf::Vector2f(x, y - sftext.getGlobalBounds().height / 2.0f));
-    renderer.submit(sftext);
+    renderer.submit(Immediate(sftext));
   }
 };
 

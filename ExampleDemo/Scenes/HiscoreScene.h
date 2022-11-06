@@ -189,7 +189,7 @@ public:
     text.setPosition(sf::Vector2f(screenMid, 100));
     text.setString("Hi Scores");
     setOrigin(text, 0.5, 0.5);
-    renderer.submit(text);
+    renderer.submit(Immediate(text));
 
     text.setFillColor(sf::Color::White);
 
@@ -200,12 +200,12 @@ public:
       text.setString(name);
       text.setPosition(sf::Vector2f((float)(screenDiv), (float)(200 + (i*100) - scrollOffset)));
       setOrigin(text, 0.5, 0.5);
-      renderer.submit(text);
+      renderer.submit(Immediate(text));
 
       text.setString(std::to_string(score));
       text.setPosition(sf::Vector2f((float)(screenDiv * 3), (float)(200 + (i*100) - scrollOffset)));
       setOrigin(text, 0.5, 0.5);
-      renderer.submit(text);
+      renderer.submit(Immediate(text));
     }
 
     text.setFillColor(sf::Color::Black);

@@ -129,6 +129,7 @@ public:
   void onStart() override {
     std::cout << "MainMenuScene OnStart called" << std::endl;
     themeMusic.play();
+    onResume(); // TODO: remove after debugging
   }
 
   void onUpdate(double elapsed) override {
@@ -168,17 +169,20 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<segue<DreamCustom<50>, sec<3>>::to<GameplayScene>>(savefile);
+          using segue = segue<DreamCustom<50>, sec<3>>;
+          using intent = segue::to<GameplayScene>;
+          getController().push<intent>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
           using segue = segue<BlurFadeIn, sec<2>>;
           using intent = segue::to<HiScoreScene>;
-
           getController().push<intent>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
-          getController().push<segue<VerticalSlice, sec<2>>::to<AboutScene>>();
+          using segue = segue<VerticalSlice, sec<2>>;
+          using intent = segue::to<AboutScene>;
+          getController().push<intent>();
         }
       }
     }
@@ -238,7 +242,7 @@ public:
   }
 
   void onDraw(IRenderer& renderer) override {
-    renderer.submit(bg);
+    renderer.submit(Immediate(bg));
 
     for (auto& p : particles) {
       renderer.submit(p.sprite);
@@ -286,7 +290,7 @@ public:
       if (menuText.getString() == ' ') { offset += menuText.getCharacterSize(); }
 
       menuText.setPosition(sf::Vector2f((float)(startX + offset), (float)startY));
-      renderer.submit(menuText);
+      renderer.submit(Immediate(menuText));
     }
   }
 

@@ -8,25 +8,36 @@ using swoosh::events::ISubscriber;
 namespace swoosh {
     class RenderSource {
     private:
-        sf::Drawable& ref;
-        sf::RenderStates statesIn;
+      const sf::Drawable& ref;
+      const sf::RenderStates statesIn;
 
     public:
-        RenderSource(sf::Drawable& src, const sf::RenderStates& states = sf::RenderStates()) 
-            : ref(src), statesIn(states) {}
-        virtual ~RenderSource() {}
+      explicit RenderSource(const sf::Drawable& src, const sf::RenderStates& states = sf::RenderStates())
+        : ref(src), statesIn(states) {}
+      virtual ~RenderSource() {}
 
-        sf::Drawable& drawable() { return ref; }
-        sf::RenderStates& states() { return statesIn; }
+      const sf::Drawable& drawable() const { return ref; }
+      const sf::RenderStates& states() const { return statesIn; }
+    };
+
+    class Immediate : public RenderSource {
+    public:
+        explicit Immediate(const sf::Drawable& src, const sf::RenderStates& states = sf::RenderStates()) : RenderSource(src, states) {}
     };
 
     class IRenderer : public IDispatcher<RenderSource> {
     public:
         virtual ~IRenderer(){}
 
-        // shortcut
-        void submit(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates()) {
-          IDispatcher<RenderSource>::submit(RenderSource(drawable, states));
+        // shortcut for SFML primitives
+        void submit(const sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates()) {
+          IDispatcher::submit(RenderSource(drawable, states));
+        }
+
+        // enable only if SFML shortcut is not applicable
+        template<typename Event, typename use = std::enable_if_t<!std::is_base_of_v<sf::Drawable, Event>, void>>
+        void submit(const Event& event) {
+          IDispatcher::submit(event);
         }
 
         virtual void draw() = 0;

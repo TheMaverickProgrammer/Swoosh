@@ -25,13 +25,13 @@ public:
     this->drawLastActivity(renderer);
 
     renderer.display(); // flip and ready the buffer
-    sf::Texture temp(renderer.getTexture()); // Make a copy of the source texture
+    static sf::Texture temp(renderer.getTexture()); // Make a copy of the source texture
 
-    sf::Sprite left(temp); 
+    static sf::Sprite left(temp); 
     left.setTextureRect(sf::IntRect(0, 0, (int)(windowSize.x/2.0), windowSize.y));
     left.setPosition(0, (float)(direction * alpha * (double)left.getTexture()->getSize().y));
 
-    sf::Sprite right(temp);
+    static sf::Sprite right(temp);
     right.setTextureRect(sf::IntRect((int)(windowSize.x/2.0), 0, windowSize.x, windowSize.y));
     right.setPosition((float)(windowSize.x/2.0f), (float)(direction * -alpha * (double)right.getTexture()->getSize().y));
 
@@ -41,8 +41,8 @@ public:
 
     renderer.display(); // flip and ready the buffer
 
-    sf::Texture temp2(renderer.getTexture());
-    sf::Sprite next(temp2);
+    static sf::Texture temp2(renderer.getTexture());
+    static sf::Sprite next(temp2);
 
     renderer.submit(next);
     renderer.submit(left);

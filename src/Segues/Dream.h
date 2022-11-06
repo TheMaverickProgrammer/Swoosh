@@ -29,7 +29,7 @@ public:
     const bool optimized = getController().getRequestedQuality() == quality::mobile;
     const bool useShader = getController().isShadersEnabled();
 
-    sf::Texture temp, temp2;
+    static sf::Texture temp, temp2;
 
     if (firstPass || !optimized) {
       renderer.clear(this->getLastActivityBGColor());
@@ -63,7 +63,7 @@ public:
       states.shader = &shader;
     }
 
-    sf::Sprite sprite(temp2); // dummy. we just need something with the screen size to draw with
+    static sf::Sprite sprite(temp2); // dummy. we just need something with the screen size to draw with
     renderer.submit(sprite, states);
 
     firstPass = false;

@@ -15,9 +15,9 @@ namespace swoosh {
 
             template<typename Event>
             void submit(const Event& event) {
-                constexpr bool ofEventBase = std::is_base_of_v<EventBase, Event>;
-                static_assert(ofEventBase, "Cannot submit `event` because it is not base of EventBase");
-                broadcast(typeid(Event).name(), (void*)&event, ofEventBase);
+                //constexpr bool ofEventBase = std::is_base_of<typename EventBase, typename Event>::value;
+                //static_assert(ofEventBase, "Cannot submit `event` because it does not have a base class of EventBase type");
+                broadcast(typeid(Event).name(), (void*)&event, true /*ofEventBase*/);
             }
         };
 

@@ -454,7 +454,7 @@ public:
   void onDraw(IRenderer& renderer) override {
     sf::RenderWindow& window = getController().getWindow();
 
-    renderer.submit(bg);
+    renderer.submit(Immediate(bg));
 
     for (auto& t : trails) {
       renderer.submit(t.sprite);
@@ -501,11 +501,11 @@ public:
 
       numeral = sf::Sprite(*numeralTexture[10]); // X
       numeral.setPosition(player.pos.x, player.pos.y - 100);
-      renderer.submit(numeral);
+      renderer.submit(Immediate(numeral));
 
       numeral = sf::Sprite(*numeralTexture[lives]);
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
-      renderer.submit(numeral);
+      renderer.submit(Immediate(numeral));
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);
       renderer.submit(playerLife);

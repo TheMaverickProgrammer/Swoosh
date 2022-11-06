@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <Swoosh/Renderers/Renderer.h>
 #include <Swoosh/Segue.h>
 #include <Swoosh/Ease.h>
 #include <Swoosh/EmbedGLSL.h>
@@ -74,7 +75,7 @@ public:
       states.shader = &shader;
     }
 
-    renderer.submit(sprite, states);
+    renderer.submit(Immediate(sprite, states));
   }
 
   CheckerboardCustom(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

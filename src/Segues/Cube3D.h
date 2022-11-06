@@ -76,7 +76,7 @@ public:
 
     renderer.clear(getLastActivityBGColor());
 
-    renderer.submit(sprite, states);
+    renderer.submit(Immediate(sprite, states));
 
     firstPass = false;
   }

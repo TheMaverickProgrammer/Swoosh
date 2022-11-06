@@ -64,8 +64,8 @@ public:
     sf::Sprite left(temp2);
     sf::Sprite right(temp3);
 
-    renderer.submit(left);
-    renderer.submit(right);
+    renderer.submit(Immediate(left));
+    renderer.submit(Immediate(right));
 
     firstPass = false;
   }

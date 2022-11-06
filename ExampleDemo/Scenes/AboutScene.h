@@ -114,6 +114,10 @@ public:
         selectFX.play();
 
         if (goback.text == "FIN") {
+          struct Reason {
+            std::string message;
+          };
+
           using effect = segue<Cube3D<direction::right>, sec<2>>;
           getController().pop<effect>();
         }
@@ -156,7 +160,7 @@ public:
     text.setString(info);
     setOrigin(text, 0.5f, 0);
 
-    renderer.submit(text);
+    renderer.submit(Immediate(text));
 
     text.setFont(font);
     text.setFillColor(sf::Color::Black);

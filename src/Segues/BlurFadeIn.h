@@ -82,7 +82,7 @@ public:
     renderer.display();
     temp2 = sf::Texture(renderer.getTexture());
 
-    sf::Sprite sprite, sprite2;
+    static sf::Sprite sprite, sprite2;
     sprite.setTexture(temp);
     sprite2.setTexture(temp2);
 
@@ -92,8 +92,8 @@ public:
     sprite.setColor(sf::Color(255, 255, 255, (sf::Uint8)(255.0 * (1-alpha))));
     sprite2.setColor(sf::Color(255, 255, 255, (sf::Uint8)(255.0 * alpha)));
 
-    renderer.submit(sprite);
-    renderer.submit(sprite2);
+    renderer.submit(Immediate(sprite));
+    renderer.submit(Immediate(sprite2));
 
     firstPass = false;
   }

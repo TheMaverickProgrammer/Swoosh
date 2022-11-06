@@ -2,7 +2,7 @@
 #include <Swoosh/Renderers/Renderer.h>
 
 namespace swoosh {
-    class SimpleRenderer : public Renderer<> {
+    class SimpleRenderer : public Renderer<Immediate> {
         sf::RenderTexture surface;
         std::list<RenderSource> sources;
 
@@ -38,7 +38,11 @@ namespace swoosh {
         }
 
         void onEvent(const RenderSource& event) override { 
-            sources.push_back(std::move(event));
+            sources.push_back(event);
+        }
+
+        void onEvent(const Immediate& event) override {
+            surface.draw(event.drawable(), event.states());
         }
     };
 }
