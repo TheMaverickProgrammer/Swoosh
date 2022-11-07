@@ -35,8 +35,8 @@ int main()
   // Swoosh now supports generating blank activities from window contents!
   // The segue will copy the window at startup and use it as part of 
   // the screen transition as demonstrated here
-  //app.push<segue<ZoomOut>::to<MainMenuScene>>();
-  app.push<MainMenuScene>();
+  app.push<segue<ZoomOut>::to<MainMenuScene>>();
+  // app.push<MainMenuScene>(); // uncomment this and comment the line above for old behavior
 
   sf::Texture* cursorTexture = loadTexture(CURSOR_PATH);
   sf::Sprite cursor;
