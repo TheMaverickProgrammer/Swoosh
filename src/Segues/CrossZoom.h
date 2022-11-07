@@ -41,8 +41,6 @@ public:
       temp = last;
     }
 
-    sf::Sprite sprite(temp);
-
     renderer.clear(this->getNextActivityBGColor());
 
     if (firstPass || !optimized) {
@@ -62,7 +60,7 @@ public:
     shader.setTexture2(&temp2);
 
     if(useShader) {
-      shader.apply(surface);
+      shader.apply(renderer);
     }
 
     firstPass = false;

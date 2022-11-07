@@ -129,14 +129,13 @@ public:
   void onStart() override {
     std::cout << "MainMenuScene OnStart called" << std::endl;
     themeMusic.play();
-    onResume(); // TODO: remove after debugging
   }
 
   void onUpdate(double elapsed) override {
     timer.update(sf::seconds((float)elapsed));
 
     if (!inFocus && fadeMusic) {
-      themeMusic.setVolume(themeMusic.getVolume() * 0.90f); // fades out the music
+      themeMusic.setVolume(themeMusic.getVolume() * 0.98f); // fades out the music
     }
 
     int i = 0;
@@ -169,18 +168,18 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          using segue = segue<DreamCustom<50>, sec<3>>;
+          using segue = segue<RetroBlit, sec<3>>;
           using intent = segue::to<GameplayScene>;
           getController().push<intent>(savefile);
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          using segue = segue<BlurFadeIn, sec<2>>;
+          using segue = segue<RadialCCW, sec<2>>;
           using intent = segue::to<HiScoreScene>;
           getController().push<intent>(savefile);
         }
         else if (b.text == ABOUT_OPTION) {
-          using segue = segue<VerticalSlice, sec<2>>;
+          using segue = segue<PageTurn, sec<2>>;
           using intent = segue::to<AboutScene>;
           getController().push<intent>();
         }
@@ -208,7 +207,7 @@ public:
 
 
   void onResume() override {
-    timer.reset();
+    //timer.reset();
 
     inFocus = true;
 

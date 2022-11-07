@@ -66,7 +66,7 @@ public:
       states.shader = &shader;
     }
 
-    renderer.submit(sprite, states);
+    renderer.submit(Immediate(sprite, states));
   }
 
   DiamondTileSwipe(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

@@ -25,13 +25,13 @@ public:
     this->drawLastActivity(renderer);
 
     renderer.display(); // flip and ready the buffer
-    static sf::Texture temp(renderer.getTexture()); // Make a copy of the source texture
+    sf::Texture temp(renderer.getTexture()); // Make a copy of the source texture
 
-    static sf::Sprite left(temp); 
+    sf::Sprite left(temp); 
     left.setTextureRect(sf::IntRect(0, 0, (int)(windowSize.x/2.0), windowSize.y));
     left.setPosition(0, (float)(direction * alpha * (double)left.getTexture()->getSize().y));
 
-    static sf::Sprite right(temp);
+    sf::Sprite right(temp);
     right.setTextureRect(sf::IntRect((int)(windowSize.x/2.0), 0, windowSize.x, windowSize.y));
     right.setPosition((float)(windowSize.x/2.0f), (float)(direction * -alpha * (double)right.getTexture()->getSize().y));
 
@@ -41,12 +41,12 @@ public:
 
     renderer.display(); // flip and ready the buffer
 
-    static sf::Texture temp2(renderer.getTexture());
-    static sf::Sprite next(temp2);
+    sf::Texture temp2(renderer.getTexture());
+    sf::Sprite next(temp2);
 
-    renderer.submit(next);
-    renderer.submit(left);
-    renderer.submit(right);
+    renderer.submit(Immediate(next));
+    renderer.submit(Immediate(left));
+    renderer.submit(Immediate(right));
   }
 
   VerticalSlice(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

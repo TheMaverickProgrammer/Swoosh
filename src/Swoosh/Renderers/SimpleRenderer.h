@@ -15,14 +15,12 @@ namespace swoosh {
             for(RenderSource& source : sources) {
                 surface.draw(source.drawable(), source.states());
             }
+
+            sources.clear();
         }
 
         void display() override {
             surface.display();
-
-            // the texture target is written to and about to be displayed
-            // we do not need these sources anymore
-            sources.clear();
         }
 
         void clear(sf::Color color) override {

@@ -50,6 +50,7 @@ namespace swoosh {
         (this->getController().*setActivityViewFunc)(renderer, last);
         renderer.clear(last->getBGColor());
         last->onDraw(renderer);
+        renderer.draw();
         (this->getController().*resetViewFunc)(renderer);
       }
     }
@@ -58,6 +59,7 @@ namespace swoosh {
       (this->getController().*setActivityViewFunc)(renderer, next);
       renderer.clear(next->getBGColor());
       next->onDraw(renderer);
+      renderer.draw();
       (this->getController().*resetViewFunc)(renderer);
     }
 

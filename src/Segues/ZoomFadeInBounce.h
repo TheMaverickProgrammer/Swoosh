@@ -65,7 +65,7 @@ public:
       states.shader = &shader;
     }
 
-    renderer.submit(sprite, states);
+    renderer.submit(Immediate(sprite, states));
 
     firstPass = false;
   }

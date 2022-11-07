@@ -281,15 +281,12 @@ namespace swoosh {
     class RetroBlit final : public Shader {
     private:
       std::string RETRO_BLIT_SHADER;
-      int kernelCols{}, kernelRows{};
       float alpha{};
       sf::Texture* texture{ nullptr };
 
     public:
       void setTexture(sf::Texture* tex) { if (!tex) return; texture = tex; shader.setUniform("texture", *texture); }
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", alpha); }
-      void setKernelCols(int kcols) { this->kernelCols = kcols; shader.setUniform("cols", kernelCols); }
-      void setKernelRows(int krows) { this->kernelRows = krows; shader.setUniform("rows", kernelRows); }
 
       void apply(IRenderer& renderer) override {
         if (!texture) return;
@@ -303,32 +300,27 @@ namespace swoosh {
         renderer.submit(Immediate(sprite, states));
       }
 
-      RetroBlit(int kcols = 10, int krows = 10) {
+      RetroBlit() {
         this->RETRO_BLIT_SHADER = GLSL(
           110,
           uniform sampler2D texture;
           uniform float progress;
-          uniform int cols;
-          uniform int rows;
 
-          float rand(vec2 co) {
-            return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+          vec4 channelBitrate(vec4 inColor, int bit) { 
+            float bitDepth = pow(2.0, abs(float(bit))); 
+            vec4 outColor = floor(inColor * bitDepth) / bitDepth; 
+            return outColor; 
           }
 
           void main() {
             vec2 p = gl_TexCoord[0].xy;
-            vec2 size = vec2(cols, rows);
             vec4 color = texture2D(texture, p.xy);
-            float r = rand(floor(vec2(size) * color.xy));
-            float m = smoothstep(0.0, 0.0, r - (progress * (1.0)));
-            gl_FragColor = mix(color, vec4(0.0, 0.0, 0.0, 0.0), m);
+            gl_FragColor = channelBitrate(color,int(8.0*progress));
           }
         );
 
         shader.loadFromMemory(this->RETRO_BLIT_SHADER, sf::Shader::Fragment);
 
-        kernelCols = kcols;
-        kernelRows = krows;
         texture = nullptr;
         alpha = 0;
       }
@@ -639,7 +631,7 @@ namespace swoosh {
         states.shader = &shader;
 
         renderer.clear(sf::Color::Transparent);
-        renderer.submit(buffer, states);
+        renderer.submit(Immediate(buffer, states));
       }
 
       PageTurn(sf::Vector2u size, const int cellSize = 10) {
