@@ -3,6 +3,7 @@
 #include "GameplayScene.h"
 #include "HiscoreScene.h"
 #include "AboutScene.h"
+#include "../CustomRenderer.h"
 #include "../TextureLoader.h"
 #include "../Particle.h"
 #include "../Button.h"

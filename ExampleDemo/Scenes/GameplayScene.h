@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../CustomRenderer.h"
 #include "../TextureLoader.h"
 #include "../Particle.h"
 #include "../ResourcePaths.h"
@@ -25,12 +26,15 @@ private:
   sf::Sprite bg;
 
   sf::Texture* playerTexture;
+  sf::Texture* playerNormal;
   particle player;
   std::vector<particle> trails;
 
   sf::Texture* enemyTexture;
+  sf::Texture* enemyNormal;
   std::vector<particle> enemies;
 
+  sf::Texture * meteorBigNormal;
   sf::Texture * meteorBig, *meteorMed, *meteorSmall, *meteorTiny, *btn;
   std::vector<particle> meteors;
 
@@ -99,6 +103,8 @@ public:
     bg.setTextureRect({ 0, 0, (int)windowSize.x, (int)windowSize.y });
 
     meteorBig = loadTexture(METEOR_BIG_PATH);
+    meteorBigNormal = loadTexture(METEOR_BIG_NORMAL_PATH);
+
     meteorMed = loadTexture(METEOR_MED_PATH);
     meteorSmall = loadTexture(METEOR_SMALL_PATH);
     meteorTiny = loadTexture(METEOR_TINY_PATH);
@@ -106,12 +112,14 @@ public:
     laserTexture = loadTexture(LASER_BEAM_PATH);
     shieldTexture = loadTexture(SHIELD_LOW_PATH);
     enemyTexture = loadTexture(ENEMY_PATH);
+    enemyNormal = loadTexture(ENEMY_NORMAL_PATH);
     extraLifeTexture = loadTexture(EXTRA_LIFE_PATH);
 
     star = sf::Sprite(*extraLifeTexture);
     setOrigin(star, 0.5, 0.5);
 
     playerTexture = loadTexture(PLAYER_PATH);
+    playerNormal = loadTexture(PLAYER_NORMAL_PATH);
     player.sprite = sf::Sprite(*playerTexture);
 
     setOrigin(player.sprite, 0.5, 0.5);
@@ -461,11 +469,11 @@ public:
     }
 
     for (auto& m : meteors) {
-      renderer.submit(m.sprite);
+      renderer.submit(Fake3D(m.sprite, *meteorBigNormal));
     }
 
     for (auto& e : enemies) {
-      renderer.submit(e.sprite);
+      renderer.submit(Fake3D(e.sprite, *enemyNormal));
     }
 
     for (auto& l : lasers) {
@@ -491,7 +499,7 @@ public:
 
 
     if (lives >= 0) {
-      renderer.submit(player.sprite);
+      renderer.submit(Fake3D(player.sprite, *playerNormal));
 
       if (hasShield) {
         shield.setPosition(player.pos);

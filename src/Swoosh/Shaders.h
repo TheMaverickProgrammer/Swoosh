@@ -801,5 +801,73 @@ namespace swoosh {
 
       ~RadialCCW() { ; }
     };
+
+    /**
+      @class Deferred
+      @brief Using an additional normal map texture and light parameters, shades a sprite with pseudo 3D lighting
+    */
+    class Deferred final : public Shader {
+    private:
+      std::string SHADER_FRAG;
+      sf::Sprite* sprite{ nullptr };
+      sf::Texture* normal{ nullptr };
+      sf::Vector3f light{}, cam{};
+
+    public:
+      void apply(IRenderer& renderer) override {
+        if (!(this->sprite && this->normal)) return;
+
+        sf::RenderStates states;
+        states.shader = &shader;
+
+        renderer.submit(Immediate(*sprite, states));
+      }
+
+      void setSprite(sf::Sprite* sprite) { if (!sprite) return; this->sprite = sprite; shader.setUniform("current", sf::Shader::CurrentTexture); sf::Vector2f pos2D = sprite->getPosition(); sf::Vector3f pos = sf::Vector3f(pos2D.x, pos2D.y, 0); shader.setUniform("var_Position", pos); }
+      void setNormal(sf::Texture* tex) { if (!tex) return; this->normal = tex; shader.setUniform("normal", *normal); }
+      void setLight(sf::Vector3f pos) { this->light = pos; shader.setUniform("lightPos", light); }
+      void setCamera(sf::Vector3f pos) { this->cam = pos; shader.setUniform("cameraPos", cam); }
+
+      Deferred() {
+        /** 
+          fragment shader 
+        **/
+        SHADER_FRAG = GLSL(
+        110,
+        uniform sampler2D current;
+        uniform sampler2D normal;
+        uniform vec3 cameraPos;
+        uniform vec3 lightPos;
+        uniform vec3 var_Position;
+
+        void main()
+        {
+          gl_FragColor = texture2D(current, gl_TexCoord[0].xy);
+          vec3 Normal = normalize(texture2D(normal, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
+
+          vec3 LightDirection = normalize(lightPos - var_Position);
+
+          float NdotLD = max(dot(Normal, LightDirection), 0.0);
+
+          gl_FragColor.rgb *= 0.25 + 0.75 * NdotLD;
+
+          // ambient color
+          float alpha = 0.25;
+          gl_FragColor.rgb += alpha*vec3(94.0/255.0, 63.0/255.0, 107.0/255.0);
+
+          vec3 CameraDirection = normalize(cameraPos - var_Position);
+          vec3 LightDirectionReflected = reflect(-LightDirection, Normal);
+
+          float CDdotLDR = max(dot(CameraDirection, LightDirectionReflected), 0.0);
+          // TODO allow reflective values
+          //gl_FragColor.rgb += pow(CDdotLDR, 128.0);
+        }
+        );
+
+        shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
+      }
+
+      ~Deferred() { ; }
+    };
   }
 }

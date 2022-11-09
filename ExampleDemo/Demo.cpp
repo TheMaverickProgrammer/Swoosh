@@ -5,6 +5,7 @@
 #include <Segues/ZoomOut.h>
 #include <SFML/Window.hpp>
 #include "Scenes/MainMenuScene.h"
+#include "CustomRenderer.h"
 
 using namespace swoosh;
 
@@ -16,8 +17,9 @@ int main()
   window.setMouseCursorVisible(false);
 
   // Create an AC with the current window as our target to draw to
-  SimpleRenderer renderer(window.getSize());
-  ActivityController app(window, renderer);
+  // SimpleRenderer simple(window.getSize());
+  CustomRenderer custom(window.getSize());
+  ActivityController app(window, custom);
 
   // 10/9/2020 
   // For mobile devices or low-end GPU's, you can request optimized 
@@ -82,6 +84,7 @@ int main()
 
     sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     cursor.setPosition(mousepos);
+    custom.setLightPos(sf::Vector3f(mousepos.x, mousepos.y, 10.f));
 
     // Draw the mouse cursor over everything else
     window.draw(cursor);
