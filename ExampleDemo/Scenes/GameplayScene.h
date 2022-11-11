@@ -22,20 +22,23 @@ using namespace swoosh::types;
 
 class GameplayScene : public Activity {
 private:
-  sf::Texture* bgTexture;
+  sf::Texture* btn;
+  sf::Texture* bgTexture, *bgNormal;
   sf::Sprite bg;
 
   sf::Texture* playerTexture;
   sf::Texture* playerNormal;
   particle player;
+
+  sf::Texture* trailTexture;
   std::vector<particle> trails;
 
   sf::Texture* enemyTexture;
   sf::Texture* enemyNormal;
   std::vector<particle> enemies;
 
-  sf::Texture * meteorBigNormal;
-  sf::Texture * meteorBig, *meteorMed, *meteorSmall, *meteorTiny, *btn;
+  sf::Texture * meteorBigN, *meteorMedN, *meteorSmallN, *meteorTinyN;
+  sf::Texture* meteorBig, * meteorMed, * meteorSmall, * meteorTiny;
   std::vector<particle> meteors;
 
   sf::Texture *laserTexture;
@@ -99,15 +102,20 @@ public:
 
     bgTexture = loadTexture(PURPLE_BG_PATH);
     bgTexture->setRepeated(true);
+    bgNormal = loadTexture(PURPLE_BG_N_PATH);
+    bgNormal->setRepeated(true);
     bg = sf::Sprite(*bgTexture);
     bg.setTextureRect({ 0, 0, (int)windowSize.x, (int)windowSize.y });
 
     meteorBig = loadTexture(METEOR_BIG_PATH);
-    meteorBigNormal = loadTexture(METEOR_BIG_NORMAL_PATH);
-
     meteorMed = loadTexture(METEOR_MED_PATH);
     meteorSmall = loadTexture(METEOR_SMALL_PATH);
     meteorTiny = loadTexture(METEOR_TINY_PATH);
+
+    meteorBigN = loadTexture(METEOR_BIG_N_PATH);
+    meteorMedN = loadTexture(METEOR_MED_N_PATH);
+    meteorSmallN = loadTexture(METEOR_SMALL_N_PATH);
+    meteorTinyN = loadTexture(METEOR_TINY_N_PATH);
 
     laserTexture = loadTexture(LASER_BEAM_PATH);
     shieldTexture = loadTexture(SHIELD_LOW_PATH);
@@ -121,8 +129,9 @@ public:
     playerTexture = loadTexture(PLAYER_PATH);
     playerNormal = loadTexture(PLAYER_NORMAL_PATH);
     player.sprite = sf::Sprite(*playerTexture);
-
     setOrigin(player.sprite, 0.5, 0.5);
+
+    trailTexture = loadTexture(PLAYER_TRAIL_PATH);
 
     shield = sf::Sprite(*shieldTexture);
     setOrigin(shield, 0.5, 0.5);
@@ -174,6 +183,7 @@ public:
     player.speed = sf::Vector2f(0, 0);
     player.sprite.setPosition(player.pos);
     player.friction = sf::Vector2f(0.96f, 0.96f);
+    setOrigin(player.sprite, 0.5, 0.5);
     alpha = 0;
     hasShield = true;
   }
@@ -225,7 +235,7 @@ public:
         for (auto& l : lasers) {
           if (e.lifetime != 0) break; // Reward player once
           if (doesCollide(l.sprite, e.sprite)) {
-            l.life = 0;
+            // TODO: l.life = 0;
             e.lifetime = 1; // trigger scale out
             score += 1000;
           }
@@ -239,7 +249,7 @@ public:
 
       if (lives >= 0 && e.lifetime == 0) {
         if (alpha >= 255.0 && doesCollide(e.sprite, player.sprite)) {
-          if (hasShield && !killShield) {
+          /*if (hasShield && !killShield) {
             shieldChannel.play();
             killShield = true; // give us time to protect from other enemies
             alpha = 100; // invincibility 
@@ -255,6 +265,7 @@ public:
           }
 
           e.lifetime = 1.0; // trigger scale out on this enemy
+          */
         }
 
         double angle = angleTo(player.pos, e.pos);
@@ -288,7 +299,7 @@ public:
       l.sprite.setPosition(l.pos);
       l.life -= elapsed;
 
-      double ratio = 3*l.life / l.lifetime;
+      double ratio = 4*l.life / l.lifetime;
       ratio = std::min(ratio, 1.0);
 
       l.sprite.setColor(sf::Color((sf::Uint8)(ratio*l.sprite.getColor().r), (sf::Uint8)(ratio*l.sprite.getColor().g), (sf::Uint8)(ratio*l.sprite.getColor().b), 255));
@@ -341,6 +352,8 @@ public:
       player.speed = delta;
 
       particle trail = player;
+      trail.sprite.setTexture(*trailTexture, true);
+      setOrigin(trail.sprite, 0.5, 0.5);
       trail.life = trail.lifetime = 1.0; // secs
       trails.insert(trails.begin(), trail);
     }
@@ -462,14 +475,30 @@ public:
   void onDraw(IRenderer& renderer) override {
     sf::RenderWindow& window = getController().getWindow();
 
-    renderer.submit(Immediate(bg));
+    renderer.submit(Fake3D(bg, *bgNormal));
 
     for (auto& t : trails) {
       renderer.submit(t.sprite);
+
+      //if (getController().getCurrentRendererIndex() == 1) {
+      //  renderer.submit(Light(10.0f, t.sprite.getPosition(), sf::Color(0U, 0U, 10U, 105U)));
+     // }
     }
 
     for (auto& m : meteors) {
-      renderer.submit(Fake3D(m.sprite, *meteorBigNormal));
+      sf::Texture* normal = meteorTinyN;
+      const sf::Texture* spriteTexture = m.sprite.getTexture();
+      if (spriteTexture == meteorBig) {
+        normal = meteorBigN;
+      } else if (spriteTexture == meteorMed) {
+        normal = meteorMedN;
+      }
+      else if (spriteTexture == meteorSmall) {
+        normal = meteorSmallN;
+      }
+      // else - handled by default value of `normal`
+
+      renderer.submit(Fake3D(m.sprite, *normal));
     }
 
     for (auto& e : enemies) {
@@ -478,6 +507,11 @@ public:
 
     for (auto& l : lasers) {
       renderer.submit(l.sprite);
+
+      // TODO: safer way to handle render source temporaries for "simple" renderer??
+      if (getController().getCurrentRendererIndex() == 1) {
+        renderer.submit(Light(30.0, l.sprite.getPosition(), sf::Color(0, 20, 0, 255)));
+      }
     }
     
     auto windowSize = getController().getVirtualWindowSize();

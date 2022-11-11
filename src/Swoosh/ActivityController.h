@@ -9,6 +9,7 @@
 #include <functional>
 #include <utility>
 #include <cstddef>
+#include <assert.h>
 
 namespace swoosh {
   class CopyWindow; //!< forward decl
@@ -24,7 +25,9 @@ namespace swoosh {
     bool willLeave{}; //!< If true, the activity will leave
     bool useShaders{ true }; //!< If false, segues can considerately use shader effects
     bool clearBeforeDraw{ true }; //!< If true, clears the render target with the Activity's bg color
-    mutable IRenderer* renderer{nullptr}; //!< Renderer to submit draw events to
+    mutable IRenderer* renderer{ nullptr }; //!< Active renderer to submit draw events to
+    std::size_t rendererIdx{ 0 }; //!< Active renderer index
+    const RendererEntries rendererEntries; //!< All registered renderers
 
     //!< Useful for state management and skipping need for dynamic casting
     enum class SegueAction : int {
@@ -48,9 +51,15 @@ namespace swoosh {
     /**
       @brief constructs the activity controller, sets the virtual window size to the window, and initializes default values
     */
-    ActivityController(sf::RenderWindow& window, IRenderer& renderer) : handle(window) {
+    ActivityController(sf::RenderWindow& window, const RendererEntries& rendererEntries) :
+      handle(window),
+      rendererEntries(rendererEntries)
+    {
       virtualWindowSize = handle.getSize();
-      this->renderer = &renderer;
+
+      assert(!rendererEntries.empty() && "ActivityController RenderEntries was empty!");
+      this->renderer = &rendererEntries.front().renderer;
+
       willLeave = false;
       segueAction = SegueAction::none;
       stackAction = StackAction::none;
@@ -60,9 +69,14 @@ namespace swoosh {
     /**
       @brief constructs the activity controller, sets the virtual window size to the user's desired size, and initializes default values
     */
-    ActivityController(sf::RenderWindow& window, sf::Vector2u virtualWindowSize, IRenderer& renderer) : handle(window) {
+    ActivityController(sf::RenderWindow& window, sf::Vector2u virtualWindowSize, const RendererEntries& rendererEntries) :
+      handle(window),
+      rendererEntries(rendererEntries) {
       this->virtualWindowSize = virtualWindowSize;
-      this->renderer = &renderer;
+
+      assert(!rendererEntries.empty() && "ActivityController RenderEntries was empty!");
+      this->renderer = &rendererEntries.front().renderer;
+
       willLeave = false;
       segueAction = SegueAction::none;
       stackAction = StackAction::none;
@@ -106,6 +120,41 @@ namespace swoosh {
     */
     const std::size_t getStackSize() const {
       return activities.size();
+    }
+
+    /**
+      @brief Query the number of registered renderers
+    */
+    const std::size_t getNumOfRenderers() const {
+      return rendererEntries.size();
+    }
+
+    /**
+      @brief Query the active renderer index
+    */
+    const std::size_t getCurrentRendererIndex() const {
+      return rendererIdx;
+    }
+
+    /**
+      @brief Query the active renderer name
+    */
+    const std::string getCurrentRendererName() const {
+      return std::next(rendererEntries.begin(), rendererIdx)->name;
+    }
+
+    /**
+      @brief Sets the active renderer to the entry at the given index parameter
+      @param idx the base-0 index of the renderer in the RendererEntries list to use
+      @return true if the renderer was set successfully, false if the index is invalid
+    */
+    bool setRenderer(std::size_t idx) {
+      if (idx < 0 || idx >= getNumOfRenderers()) return false;
+
+      rendererIdx = idx;
+      renderer = &std::next(rendererEntries.begin(), idx)->renderer;
+
+      return true;
     }
 
     /**

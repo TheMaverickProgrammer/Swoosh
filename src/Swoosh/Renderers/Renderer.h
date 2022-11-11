@@ -1,11 +1,20 @@
 #pragma once
 #include <Swoosh/Events/Events.h>
 #include <SFML/Graphics.hpp>
+#include <list>
 
 using swoosh::events::IDispatcher;
 using swoosh::events::ISubscriber;
 
 namespace swoosh {
+  class IRenderer;
+  struct RendererEntry {
+    const char* name;
+    IRenderer& renderer;
+  };
+
+  using RendererEntries = std::list<RendererEntry>;
+
   class RenderSource {
   private:
     const sf::Drawable& ref;

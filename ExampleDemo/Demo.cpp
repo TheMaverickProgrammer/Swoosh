@@ -17,9 +17,10 @@ int main()
   window.setMouseCursorVisible(false);
 
   // Create an AC with the current window as our target to draw to
-  // SimpleRenderer simple(window.getSize());
+  SimpleRenderer simple(window.getSize());
   CustomRenderer custom(window.getSize());
-  ActivityController app(window, custom);
+  RendererEntries renderOptions = { { "simple", simple }, { "custom", custom } };
+  ActivityController app(window, renderOptions);
 
   // 10/9/2020 
   // For mobile devices or low-end GPU's, you can request optimized 
@@ -69,6 +70,18 @@ int main()
       else if (event.type == sf::Event::GainedFocus) {
         pause = false;
       }
+      else if (event.type == sf::Event::KeyPressed) {
+        // Toggle to different renderers using F-keys
+        sf::Keyboard::Key code = event.key.code;
+        if (code == sf::Keyboard::F1) {
+          app.setRenderer(0);
+          window.setTitle("Swoosh Demo (renderer=" + app.getCurrentRendererName() + ")");
+        }
+        else if (code == sf::Keyboard::F2) {
+          app.setRenderer(1);
+          window.setTitle("Swoosh Demo (renderer=" + app.getCurrentRendererName() + ")");
+        }
+      }
     }
 
     // do not update segues when the window is frozen
@@ -79,12 +92,20 @@ int main()
     // We clear after updating so that other items can copy the screen's contents
     window.clear();
 
-    // draw() will directly draw onto the window's render buffer
-    app.draw();
-
+    // Track the mouse and create a light source for this pass on the mouse!
     sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     cursor.setPosition(mousepos);
-    custom.setLightPos(sf::Vector3f(mousepos.x, mousepos.y, 10.f));
+
+    if (app.getCurrentRendererIndex() == 1) {
+      custom.submit(Light(10.0f, mousepos, sf::Color(50U, 50U, 100U)));
+
+      sf::Vector2u size = app.getVirtualWindowSize();
+      sf::Vector2f center = sf::Vector2f(size.x / 2.0f, size.y / 2.0f);
+      custom.submit(Light(10.0f, center, sf::Color(160U, 160U, 160U, 255U)));
+    }
+
+    // draw() will directly draw onto the window's render buffer
+    app.draw();
 
     // Draw the mouse cursor over everything else
     window.draw(cursor);

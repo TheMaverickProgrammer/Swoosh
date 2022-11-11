@@ -809,24 +809,55 @@ namespace swoosh {
     class Deferred final : public Shader {
     private:
       std::string SHADER_FRAG;
-      sf::Sprite* sprite{ nullptr };
-      sf::Texture* normal{ nullptr };
-      sf::Vector3f light{}, cam{};
+      sf::Vector3f cam{};
+      sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * light{ nullptr };
 
     public:
       void apply(IRenderer& renderer) override {
-        if (!(this->sprite && this->normal)) return;
+        if (!(diffuse && normal && light)) return;
+
+        diffuse->display();
+        normal->display();
+        light->display();
+        renderer.display();
+
+        const sf::Texture texDiffuse = diffuse->getTexture();
+        const sf::Texture texNormal = normal->getTexture();
+        const sf::Texture texLight = light->getTexture();
+        const sf::Texture out = renderer.getTexture();
+
+        shader.setUniform("ui", sf::Shader::CurrentTexture);
+        shader.setUniform("diffuse", texDiffuse);
+        shader.setUniform("normal", texNormal);
+        shader.setUniform("light", texLight);
 
         sf::RenderStates states;
         states.shader = &shader;
-
-        renderer.submit(Immediate(*sprite, states));
+        sf::Sprite temp(out);
+        renderer.clear();
+        renderer.submit(Immediate(temp, states));
       }
 
-      void setSprite(sf::Sprite* sprite) { if (!sprite) return; this->sprite = sprite; shader.setUniform("current", sf::Shader::CurrentTexture); sf::Vector2f pos2D = sprite->getPosition(); sf::Vector3f pos = sf::Vector3f(pos2D.x, pos2D.y, 0); shader.setUniform("var_Position", pos); }
-      void setNormal(sf::Texture* tex) { if (!tex) return; this->normal = tex; shader.setUniform("normal", *normal); }
-      void setLight(sf::Vector3f pos) { this->light = pos; shader.setUniform("lightPos", light); }
-      void setCamera(sf::Vector3f pos) { this->cam = pos; shader.setUniform("cameraPos", cam); }
+      void setCamera(sf::Vector3f pos) { 
+        this->cam = pos; 
+        shader.setUniform("cameraPos", cam); 
+      }
+
+      void setLightsArray(sf::Glsl::Vec3* pos, sf::Glsl::Vec4* color, float* radius, size_t maxLights) {
+        shader.setUniformArray("arrLightPos", pos, maxLights);
+        shader.setUniformArray("arrLightColor", color, maxLights);
+        shader.setUniformArray("arrLightRadius", radius, maxLights);
+      }
+
+      void setLightCount(int count) {
+        shader.setUniform("arrLightCount", count);
+      }
+
+      void setSurfaces(sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* lightIn) {
+        diffuse = diffuseIn;
+        normal = normalIn;
+        light = lightIn;
+      }
 
       Deferred() {
         /** 
@@ -834,33 +865,68 @@ namespace swoosh {
         **/
         SHADER_FRAG = GLSL(
         110,
-        uniform sampler2D current;
+        const int MAX_LIGHTS = 30;
+        uniform vec3 arrLightPos[MAX_LIGHTS];
+        uniform vec4 arrLightColor[MAX_LIGHTS];
+        uniform float arrLightRadius[MAX_LIGHTS];
+        uniform int arrLightCount;
+        uniform sampler2D ui;
+        uniform sampler2D diffuse;
         uniform sampler2D normal;
+        uniform sampler2D light;
         uniform vec3 cameraPos;
-        uniform vec3 lightPos;
-        uniform vec3 var_Position;
 
         void main()
         {
-          gl_FragColor = texture2D(current, gl_TexCoord[0].xy);
-          vec3 Normal = normalize(texture2D(normal, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
+          vec2 xy = gl_TexCoord[0].xy;
+          vec3 position = vec3(xy, 0);
+          vec4 pxUi = texture2D(ui, xy);
+          vec4 pxDiffuse = texture2D(diffuse, xy);
+          vec4 pxNormal = texture2D(normal, xy);
+          vec4 pxLight = texture2D(light, xy);
+          float Specular = pxDiffuse.a;
+          gl_FragColor.rgb = pxDiffuse.rgb*0.1; // ambient component
 
-          vec3 LightDirection = normalize(lightPos - var_Position);
+          vec3 Normal = normalize(pxNormal.rgb * 2.0 - 1.0);
+          //vec3 Normal = pxNormal.rgb;
 
-          float NdotLD = max(dot(Normal, LightDirection), 0.0);
+          float shipHeight = 8.0;
+          float depth = Normal.z * pxDiffuse.a * shipHeight;
+          vec4 fogColor = vec4(0.5, 0.5, 0.5, gl_FragColor.a);
 
-          gl_FragColor.rgb *= 0.25 + 0.75 * NdotLD;
+          for (int i = 0; i < arrLightCount; i++) {
+            vec3 lightColor = arrLightColor[i].rgb;
+            vec3 lightPos = arrLightPos[i];
+            float lightRadius = arrLightRadius[i];
+            float constant = 1.0;
+            float linear = 0.7;
+            float quadratic = 1.8;
+            float distance = length(lightPos - position);
+            float attenuation = 1.0 / (1.0 + linear * distance + quadratic * distance * distance);
+            // TODO: attenuation *= pxLight.a;
 
-          // ambient color
-          float alpha = 0.25;
-          gl_FragColor.rgb += alpha*vec3(94.0/255.0, 63.0/255.0, 107.0/255.0);
+            if (distance >= lightRadius) continue;
 
-          vec3 CameraDirection = normalize(cameraPos - var_Position);
-          vec3 LightDirectionReflected = reflect(-LightDirection, Normal);
+            vec3 LightDirection = normalize(arrLightPos[i] - position);
 
-          float CDdotLDR = max(dot(CameraDirection, LightDirectionReflected), 0.0);
-          // TODO allow reflective values
-          //gl_FragColor.rgb += pow(CDdotLDR, 128.0);
+            // calculate bump + diffuse
+            float NdotLD = max(dot(Normal, LightDirection), 0.0);
+            vec3 diffuse_i = NdotLD* lightColor*pxDiffuse.rgb;
+            
+            // calculate specular
+            vec3 halfwayDir = normalize(LightDirection + normalize(vec3(0.5, 0.5, 1.0) - position));
+            float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
+            vec3 specular_i = lightColor * spec * Specular;
+
+            // add the light
+            gl_FragColor.rgb += attenuation * (diffuse_i + specular_i);
+          }
+
+          // fake fog?
+          //gl_FragColor.rgb = mix(gl_FragColor, fogColor, (1.0-pxNormal.z)*0.5).rgb;
+
+          // draw UI on top if any
+          gl_FragColor = vec4(gl_FragColor.rgb*(1.0-pxUi.a) + pxUi.rgb, 1.0);
         }
         );
 

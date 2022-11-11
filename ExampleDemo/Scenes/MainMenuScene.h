@@ -169,7 +169,7 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          using segue = segue<RetroBlit, sec<3>>;
+          using segue = segue<HorizontalOpen>;
           using intent = segue::to<GameplayScene>;
           getController().push<intent>(savefile);
           fadeMusic = true;
