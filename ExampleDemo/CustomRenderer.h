@@ -3,43 +3,53 @@
 #include <Swoosh/Shaders.h>
 #include <functional>
 #include <array>
+#include <optional>
 
 struct Fake3D : RenderSource {
   sf::Texture& normal;
   sf::Sprite& sprite;
+  std::optional<sf::Texture*> emissive;
   float z{};
-  explicit Fake3D(sf::Sprite& src, sf::Texture& normal, float z = 0) : 
+  explicit Fake3D(sf::Sprite& src, sf::Texture& normal, std::optional<sf::Texture*> emissive = nullptr, float z = 0) :
     RenderSource(src),
     normal(normal),
     sprite(src),
+    emissive(emissive),
     z(z)
   {}
 };
 
 struct Light : RenderSource {
   float radius{};
-  sf::Vector2f position{};
+  sf::Vector3f position{};
   sf::Color color{ sf::Color::White };
   sf::CircleShape circle{};
-  explicit Light(float radius, sf::Vector2f position, sf::Color color) :
+  float specular{};
+  explicit Light(float radius, sf::Vector3f position, sf::Color color, float specular = 0.0f) :
     RenderSource(circle),
-    radius(radius), 
-    position(position), 
-    color(color)
+    radius(radius),
+    position(position),
+    color(color),
+    specular(specular)
   {
     circle.setPointCount(360);
     circle.setRadius(radius);
     circle.setFillColor(color);
-    circle.setPosition(position);
+    circle.setPosition({ position.x, position.y });
 
     sf::FloatRect bounds = circle.getLocalBounds();
     circle.setOrigin(bounds.width/2, bounds.height/2);
   };
 };
 
+sf::Vector3f WithZ(const sf::Vector2f xy, float z) {
+  return sf::Vector3f(xy.x, xy.y, z);
+}
+
 class CustomRenderer : public Renderer<Immediate, Fake3D, Light> {
-  sf::RenderTexture diffuse, normal, light, out;
-  swoosh::glsl::Deferred shader;
+  sf::RenderTexture diffuse, normal, emissive, out;
+  swoosh::glsl::deferred::LightPass lightShader;
+  swoosh::glsl::deferred::MeshPass meshShader;
   std::list<RenderSource*> sources;
   std::list<RenderSource> memForward;
   std::list<Fake3D> mem3D;
@@ -50,17 +60,16 @@ class CustomRenderer : public Renderer<Immediate, Fake3D, Light> {
   std::array<sf::Glsl::Vec4, 30> lightColor{};
   std::array<float, 30> lightRadius{};
 
-  sf::Vector2u viewPortSize;
 public:
-  CustomRenderer(const sf::Vector2u size) {
-    viewPortSize = size;
-    shader.setCamera(sf::Vector3f(size.x * 0.5f, size.y * 0.5f, 10.f));
+  CustomRenderer(const sf::View view) {
+    const sf::Vector2u size = sf::Vector2u(view.getSize().x, view.getSize().y);
     diffuse.create(size.x, size.y);
     normal.create(size.x, size.y);
-    light.create(size.x, size.y);
+    emissive.create(size.x, size.y);
     out.create(size.x, size.y);
 
-    shader.setSurfaces(&diffuse, &normal, &light);
+    lightShader.setSurfaces(view, &diffuse, &normal, &emissive);
+    meshShader.setSurfaces(&diffuse, &normal, &emissive);
   }
 
   void draw() override {
@@ -69,31 +78,29 @@ public:
 
     for (RenderSource* source : sources) {
       if (Fake3D* ptr3D = dynamic_cast<Fake3D*>(source); ptr3D) {
-        diffuse.draw(ptr3D->sprite);
-        const sf::Texture* prev = ptr3D->sprite.getTexture();
-        ptr3D->sprite.setTexture(ptr3D->normal);
-        normal.draw(ptr3D->sprite);
-        ptr3D->sprite.setTexture(*prev);
-        continue;
-      }
+        sf::Texture* texEmissive = ptr3D->emissive.value();;
+        meshShader.setSprite(&ptr3D->sprite, &ptr3D->normal, texEmissive);
 
-      if (Light* ptrLight = dynamic_cast<Light*>(source); ptrLight) {
-        light.draw(ptrLight->drawable(), lightPass);
+        // bake the currect normals
+        meshShader.apply(*this);
         continue;
       }
 
       out.draw(source->drawable(), source->states());
     }
 
-    // compose the final scene
-    shader.setLightCount((int)nextLightIdx);
-    shader.setLightsArray(lightPos.data(), lightColor.data(), lightRadius.data(), 30);
-    shader.apply(*this);
+    lightShader.clearLights();
+    for (Light& source : memLight) {
+      lightShader.addLight(source.radius, sf::Glsl::Vec3(source.position.x, source.position.y, source.position.z), source.color, source.specular);
+    }
+
+    // compose final scene
+    lightShader.apply(*this);
 
     // reset the light index
     nextLightIdx = 0;
 
-    // clear the buffers
+    // clear the buffer data
     sources.clear();
     memForward.clear();
     mem3D.clear();
@@ -107,14 +114,14 @@ public:
   void clear(sf::Color color) override {
     diffuse.clear(sf::Color::Transparent);
     normal.clear(sf::Color::Transparent);
-    light.clear(sf::Color::Transparent);
+    emissive.clear(sf::Color::Transparent);
     out.clear(color);
   }
 
   void setView(const sf::View& view) override {
     diffuse.setView(view);
     normal.setView(view);
-    light.setView(view);
+    emissive.setView(view);
     out.setView(view);
   }
 
@@ -137,21 +144,6 @@ public:
   }
 
   void onEvent(const Light& event) override {
-    const sf::Vector2f pos = event.position;
-    memLight.emplace_back(event.radius, pos, event.color);
-    sources.push_back(&memLight.back());
-
-    std::size_t idx = std::min(nextLightIdx++, lightPos.size() - 1);
-    lightPos[idx] = sf::Glsl::Vec3(pos.x/viewPortSize.x, pos.y/viewPortSize.y, 0.5f);
-    sf::Glsl::Vec4 glsl_vec4 = sf::Glsl::Vec4(event.color);
-    lightColor[idx] = glsl_vec4;
-
-    float maxBrightness = std::max(std::max(glsl_vec4.x, glsl_vec4.y), glsl_vec4.z);
-    float constant = 1.0;
-    float linear = 0.7;
-    float quadratic = 1.8;
-    float factor = sqrt(linear * linear - 4.0 * quadratic * (constant - (256.0 / 5.0) * maxBrightness));
-    float radius = (-linear + factor) / (2.0 * quadratic);
-    lightRadius[idx] = radius;
+    memLight.emplace_back(event);
   }
 };

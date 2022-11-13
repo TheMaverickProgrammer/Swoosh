@@ -7,8 +7,8 @@ namespace swoosh {
     std::list<RenderSource> sources;
 
   public:
-    SimpleRenderer(const sf::Vector2u size) {
-      surface.create(size.x, size.y);
+    SimpleRenderer(const sf::View view) {
+      surface.create(view.getSize().x, view.getSize().y);
     }
 
     void draw() override {

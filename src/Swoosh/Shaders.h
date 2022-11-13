@@ -803,137 +803,222 @@ namespace swoosh {
     };
 
     /**
-      @class Deferred
-      @brief Using an additional normal map texture and light parameters, shades a sprite with pseudo 3D lighting
+      @namespace deferred
+      @brief Using an additional normal map texture and light parameters, shades a scene with 3D lighting
     */
-    class Deferred final : public Shader {
-    private:
-      std::string SHADER_FRAG;
-      sf::Vector3f cam{};
-      sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * light{ nullptr };
+    namespace deferred {
+      class MeshPass final : public Shader {
+      private:
+        std::string SHADER_FRAG;
+        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * emissive{ nullptr };
+        sf::Sprite* currSprite{ nullptr };
+        sf::Texture* currNormal{ nullptr };
+        sf::Texture* currEmissive{ nullptr };
+      public:
+        void apply(IRenderer& renderer) override {
+          if (!(diffuse && normal && emissive && currSprite)) return;
+          sf::RenderStates states;
+          states.shader = &shader;
 
-    public:
-      void apply(IRenderer& renderer) override {
-        if (!(diffuse && normal && light)) return;
+          shader.setUniform("normal", sf::Shader::CurrentTexture);
+          shader.setUniform("rotation", currSprite->getRotation());
 
-        diffuse->display();
-        normal->display();
-        light->display();
-        renderer.display();
+          // draw the albedo/diffuse pass (normal sprite)
+          diffuse->draw(*currSprite);
 
-        const sf::Texture texDiffuse = diffuse->getTexture();
-        const sf::Texture texNormal = normal->getTexture();
-        const sf::Texture texLight = light->getTexture();
-        const sf::Texture out = renderer.getTexture();
+          // next, draw the normals
 
-        shader.setUniform("ui", sf::Shader::CurrentTexture);
-        shader.setUniform("diffuse", texDiffuse);
-        shader.setUniform("normal", texNormal);
-        shader.setUniform("light", texLight);
+          // store the original texture in temp
+          const sf::Texture* temp = currSprite->getTexture();
+          // use the normal texture and draw
+          currSprite->setTexture(*currNormal);
+          normal->draw(*currSprite, states);
 
-        sf::RenderStates states;
-        states.shader = &shader;
-        sf::Sprite temp(out);
-        renderer.clear();
-        renderer.submit(Immediate(temp, states));
-      }
-
-      void setCamera(sf::Vector3f pos) { 
-        this->cam = pos; 
-        shader.setUniform("cameraPos", cam); 
-      }
-
-      void setLightsArray(sf::Glsl::Vec3* pos, sf::Glsl::Vec4* color, float* radius, size_t maxLights) {
-        shader.setUniformArray("arrLightPos", pos, maxLights);
-        shader.setUniformArray("arrLightColor", color, maxLights);
-        shader.setUniformArray("arrLightRadius", radius, maxLights);
-      }
-
-      void setLightCount(int count) {
-        shader.setUniform("arrLightCount", count);
-      }
-
-      void setSurfaces(sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* lightIn) {
-        diffuse = diffuseIn;
-        normal = normalIn;
-        light = lightIn;
-      }
-
-      Deferred() {
-        /** 
-          fragment shader 
-        **/
-        SHADER_FRAG = GLSL(
-        110,
-        const int MAX_LIGHTS = 30;
-        uniform vec3 arrLightPos[MAX_LIGHTS];
-        uniform vec4 arrLightColor[MAX_LIGHTS];
-        uniform float arrLightRadius[MAX_LIGHTS];
-        uniform int arrLightCount;
-        uniform sampler2D ui;
-        uniform sampler2D diffuse;
-        uniform sampler2D normal;
-        uniform sampler2D light;
-        uniform vec3 cameraPos;
-
-        void main()
-        {
-          vec2 xy = gl_TexCoord[0].xy;
-          vec3 position = vec3(xy, 0);
-          vec4 pxUi = texture2D(ui, xy);
-          vec4 pxDiffuse = texture2D(diffuse, xy);
-          vec4 pxNormal = texture2D(normal, xy);
-          vec4 pxLight = texture2D(light, xy);
-          float Specular = pxDiffuse.a;
-          gl_FragColor.rgb = pxDiffuse.rgb*0.1; // ambient component
-
-          vec3 Normal = normalize(pxNormal.rgb * 2.0 - 1.0);
-          //vec3 Normal = pxNormal.rgb;
-
-          float shipHeight = 8.0;
-          float depth = Normal.z * pxDiffuse.a * shipHeight;
-          vec4 fogColor = vec4(0.5, 0.5, 0.5, gl_FragColor.a);
-
-          for (int i = 0; i < arrLightCount; i++) {
-            vec3 lightColor = arrLightColor[i].rgb;
-            vec3 lightPos = arrLightPos[i];
-            float lightRadius = arrLightRadius[i];
-            float constant = 1.0;
-            float linear = 0.7;
-            float quadratic = 1.8;
-            float distance = length(lightPos - position);
-            float attenuation = 1.0 / (1.0 + linear * distance + quadratic * distance * distance);
-            // TODO: attenuation *= pxLight.a;
-
-            if (distance >= lightRadius) continue;
-
-            vec3 LightDirection = normalize(arrLightPos[i] - position);
-
-            // calculate bump + diffuse
-            float NdotLD = max(dot(Normal, LightDirection), 0.0);
-            vec3 diffuse_i = NdotLD* lightColor*pxDiffuse.rgb;
-            
-            // calculate specular
-            vec3 halfwayDir = normalize(LightDirection + normalize(vec3(0.5, 0.5, 1.0) - position));
-            float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
-            vec3 specular_i = lightColor * spec * Specular;
-
-            // add the light
-            gl_FragColor.rgb += attenuation * (diffuse_i + specular_i);
+          // next, draw the emissive
+          if (currEmissive) {
+            // use the emissive texture and draw
+            currSprite->setTexture(*currEmissive);
+            emissive->draw(*currSprite);
           }
 
-          // fake fog?
-          //gl_FragColor.rgb = mix(gl_FragColor, fogColor, (1.0-pxNormal.z)*0.5).rgb;
-
-          // draw UI on top if any
-          gl_FragColor = vec4(gl_FragColor.rgb*(1.0-pxUi.a) + pxUi.rgb, 1.0);
+          // restore original texture
+          currSprite->setTexture(*temp);
         }
-        );
 
-        shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
-      }
+        void setSurfaces(sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* emissiveIn) {
+          diffuse = diffuseIn;
+          normal = normalIn;
+          emissive = emissiveIn;
+        }
 
-      ~Deferred() { ; }
-    };
+        void setSprite(sf::Sprite* sprite, sf::Texture* normal, sf::Texture* emissive) {
+          currSprite = sprite;
+          currNormal = normal;
+          currEmissive = emissive;
+        }
+
+        MeshPass() {
+          /**
+            fragment shader
+          **/
+          SHADER_FRAG = GLSL(
+            110,
+            uniform sampler2D normal;
+            uniform float rotation;
+
+            // rotates in 2D only
+            vec4 rotate(vec4 v, float angle) {
+              float r = radians(angle);
+              return vec4(cos(r) * v.x, sin(r) * v.y, v.zw);
+            }
+
+            void main()
+            {
+              vec2 xy = gl_TexCoord[0].xy;
+              vec4 pxNormal = texture2D(normal, xy);
+              vec4 n = pxNormal * 2.0 - 1.0;
+              n = rotate(n, rotation);
+              pxNormal = (n + 1.0) / 2.0;
+              gl_FragColor = pxNormal;
+            }
+          );
+
+          shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
+        }
+
+        ~MeshPass() { ; }
+      };
+
+      class LightPass final : public Shader {
+      private:
+        std::string SHADER_FRAG;
+        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * emissive{ nullptr };
+
+        struct light_t {
+          float radius{};
+          sf::Glsl::Vec3 position{};
+          sf::Glsl::Vec4 color{ sf::Color::White };
+          float specular{};
+        };
+
+        std::list<light_t> lights;
+
+      public:
+        void apply(IRenderer& renderer) override {
+          if (!(diffuse && normal && emissive)) return;
+
+          diffuse->display();
+          normal->display();
+          emissive->display();
+
+          const sf::Texture texDiffuse = diffuse->getTexture();
+          const sf::Texture texNormal = normal->getTexture();
+          const sf::Texture texEmissive = emissive->getTexture();
+
+          // prepare the renderer for drawing
+          renderer.clear();
+
+          shader.setUniform("ui", sf::Shader::CurrentTexture);
+          shader.setUniform("diffuse", texDiffuse);
+          shader.setUniform("normal", texNormal);
+          shader.setUniform("emissive", texEmissive);
+
+          sf::RenderStates states;
+          states.shader = &shader;
+
+          for (auto& light : lights) {
+            shader.setUniform("lightPos", light.position);
+            shader.setUniform("lightColor", light.color);
+            shader.setUniform("lightRadius", light.radius);
+            shader.setUniform("lightSpecular", light.specular);
+
+            const sf::Texture out = renderer.getTexture();
+
+            sf::Sprite temp(out);
+            renderer.submit(Immediate(temp, states));
+
+            renderer.display();
+          }
+        }
+
+        void clearLights() {
+          lights.clear();
+        }
+
+        void addLight(float radius, sf::Glsl::Vec3 pos, sf::Glsl::Vec4 color, float specular) {
+          lights.push_back({ radius, pos, color, specular });
+        }
+
+        void setSurfaces(sf::View view, sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* emissiveIn) {
+          shader.setUniform("InvProj", sf::Glsl::Mat4(view.getInverseTransform().getMatrix()));
+          diffuse = diffuseIn;
+          normal = normalIn;
+          emissive = emissiveIn;
+        }
+
+        LightPass() {
+          /**
+            fragment shader
+          **/
+          SHADER_FRAG = GLSL(
+            110,
+            uniform vec3 lightPos;
+            uniform vec4 lightColor;
+            uniform float lightRadius;
+            uniform float lightSpecular;
+            uniform mat4 InvProj;
+            uniform sampler2D ui;
+            uniform sampler2D diffuse;
+            uniform sampler2D normal;
+            uniform sampler2D emissive;
+
+            void main()
+            {
+              vec2 xy = gl_TexCoord[0].xy;
+              vec4 pxUi = texture2D(ui, xy);
+              vec4 pxDiffuse = texture2D(diffuse, xy);
+              vec4 pxNormal = texture2D(normal, xy);
+              vec4 pxEmissive = texture2D(emissive, xy);
+
+              float Specular = 1.0; // TODO encode specular into pxDiffuse.a;
+              vec3 ambient = pxDiffuse.rgb * 0.1; // ambient component
+
+              float depth = 0.5; // TODO: use depth buffer
+              depth = depth * 2.0 - 1.0;
+              vec2 flippedXY = vec2(xy.x, 1.0 - xy.y); // NOTE: why am I having to do this? SFML quirk? 11/12/2022
+              vec4 position = vec4(flippedXY * 2.0 - 1.0, depth, 1.0);
+              position = InvProj * position;
+              position /= position.w;
+
+              vec3 Normal = normalize(pxNormal.rgb * 2.0 - 1.0);
+              vec3 LightDir = normalize(lightPos - position.xyz);
+
+              float distance = length(lightPos - position.xyz);
+              float attenuation = 1.0 - pow(clamp(distance / lightRadius, 0.0, 1.0), 2.0);
+
+              // calculate bump + diffuse
+              float NdotLD = clamp(dot(Normal, LightDir), 0.0, 1.0);
+              vec3 diffuse_i = NdotLD * lightColor.rgb * pxDiffuse.rgb;
+
+              // calculate specular
+              // n = LDir + normal(camPos-fragPos)
+              vec3 halfwayDir = normalize(LightDir + normalize(vec3(0.5, 0.5, 1.0) - vec3(flippedXY, depth)));
+              float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
+              vec3 specular_i = lightColor.rgb * spec * lightSpecular;
+
+              // add the light
+              gl_FragColor = vec4(pxUi.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0) + pxEmissive;
+
+              // draw UI on top if any
+              // gl_FragColor = vec4(gl_FragColor.rgb*(1.0-pxUi.a) + pxUi.rgb, 1.0);
+            }
+          );
+
+          shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
+        }
+
+        ~LightPass() { ; }
+      };
+    }
   }
 }

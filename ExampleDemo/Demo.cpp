@@ -17,8 +17,8 @@ int main()
   window.setMouseCursorVisible(false);
 
   // Create an AC with the current window as our target to draw to
-  SimpleRenderer simple(window.getSize());
-  CustomRenderer custom(window.getSize());
+  SimpleRenderer simple(window.getView());
+  CustomRenderer custom(window.getView());
   RendererEntries renderOptions = { { "simple", simple }, { "custom", custom } };
   ActivityController app(window, renderOptions);
 
@@ -97,11 +97,11 @@ int main()
     cursor.setPosition(mousepos);
 
     if (app.getCurrentRendererIndex() == 1) {
-      custom.submit(Light(10.0f, mousepos, sf::Color(50U, 50U, 100U)));
+      custom.submit(Light(128.0f, WithZ(mousepos, 10.f), sf::Color(50U, 50U, 100U), 1.0));
 
       sf::Vector2u size = app.getVirtualWindowSize();
       sf::Vector2f center = sf::Vector2f(size.x / 2.0f, size.y / 2.0f);
-      custom.submit(Light(10.0f, center, sf::Color(160U, 160U, 160U, 255U)));
+      custom.submit(Light(1000.0f, WithZ(center, 300.0f), sf::Color(255U, 205U, 255U, 150U)));
     }
 
     // draw() will directly draw onto the window's render buffer

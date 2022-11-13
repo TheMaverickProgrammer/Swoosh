@@ -23,11 +23,12 @@ using namespace swoosh::types;
 class GameplayScene : public Activity {
 private:
   sf::Texture* btn;
-  sf::Texture* bgTexture, *bgNormal;
+  sf::Texture* bgTexture, * bgNormal, * bgEmissive;
   sf::Sprite bg;
 
   sf::Texture* playerTexture;
   sf::Texture* playerNormal;
+  sf::Texture* playerEmissive;
   particle player;
 
   sf::Texture* trailTexture;
@@ -35,6 +36,7 @@ private:
 
   sf::Texture* enemyTexture;
   sf::Texture* enemyNormal;
+  sf::Texture* enemyEmissive;
   std::vector<particle> enemies;
 
   sf::Texture * meteorBigN, *meteorMedN, *meteorSmallN, *meteorTinyN;
@@ -62,8 +64,10 @@ private:
   sf::SoundBuffer shieldFX;
   sf::SoundBuffer gameOverFX;
   sf::SoundBuffer extraLifeFX;
+  sf::SoundBuffer explodeFX;
   sf::Sound laserChannel;
   sf::Sound shieldChannel;
+  sf::Sound explodeChannel;
   sf::Sound extraLifeChannel;
   sf::Sound gameOverChannel;
   sf::Music ingameMusic;
@@ -91,19 +95,23 @@ public:
     shieldFX.loadFromFile(SHIELD_DOWN_SFX_PATH);
     gameOverFX.loadFromFile(LOSE_SFX_PATH);
     extraLifeFX.loadFromFile(TWO_TONE_SFX_PATH);
+    explodeFX.loadFromFile(EXPLODE_SFX_PATH);
 
     laserChannel.setBuffer(laserFX);
     shieldChannel.setBuffer(shieldFX);
     gameOverChannel.setBuffer(gameOverFX);
     extraLifeChannel.setBuffer(extraLifeFX);
+    explodeChannel.setBuffer(explodeFX);
 
     sf::Vector2u windowSize = getController().getVirtualWindowSize();
     setView(windowSize);
 
-    bgTexture = loadTexture(PURPLE_BG_PATH);
+    bgTexture = loadTexture(GAME_BG_PATH);
     bgTexture->setRepeated(true);
-    bgNormal = loadTexture(PURPLE_BG_N_PATH);
+    bgNormal = loadTexture(GAME_BG_N_PATH);
     bgNormal->setRepeated(true);
+    bgEmissive = loadTexture(GAME_BG_E_PATH);
+    bgEmissive->setRepeated(true);
     bg = sf::Sprite(*bgTexture);
     bg.setTextureRect({ 0, 0, (int)windowSize.x, (int)windowSize.y });
 
@@ -121,13 +129,15 @@ public:
     shieldTexture = loadTexture(SHIELD_LOW_PATH);
     enemyTexture = loadTexture(ENEMY_PATH);
     enemyNormal = loadTexture(ENEMY_NORMAL_PATH);
-    extraLifeTexture = loadTexture(EXTRA_LIFE_PATH);
+    enemyEmissive = loadTexture(ENEMY_EMISSIVE_PATH);
 
+    extraLifeTexture = loadTexture(EXTRA_LIFE_PATH);
     star = sf::Sprite(*extraLifeTexture);
     setOrigin(star, 0.5, 0.5);
 
     playerTexture = loadTexture(PLAYER_PATH);
     playerNormal = loadTexture(PLAYER_NORMAL_PATH);
+    playerEmissive = loadTexture(PLAYER_EMISSIVE_PATH);
     player.sprite = sf::Sprite(*playerTexture);
     setOrigin(player.sprite, 0.5, 0.5);
 
@@ -210,6 +220,20 @@ public:
       m.pos += sf::Vector2f(m.speed.x * (float)elapsed, m.speed.y * (float)elapsed);
       m.sprite.setPosition(m.pos);
       m.sprite.setRotation(m.pos.x);
+
+      const sf::Vector2u window = getController().getVirtualWindowSize();
+      if (m.pos.x > window.x + 100) {
+        m.pos.x = -50;
+      } else if (m.pos.x < -100) {
+        m.pos.x = window.x + 50;
+      }
+
+      if (m.pos.y > window.y + 100) {
+        m.pos.y = -50;
+      }
+      else if (m.pos.y < -100) {
+        m.pos.y = window.y + 50;
+      }
     }
 
     int i = 0;
@@ -235,9 +259,10 @@ public:
         for (auto& l : lasers) {
           if (e.lifetime != 0) break; // Reward player once
           if (doesCollide(l.sprite, e.sprite)) {
-            // TODO: l.life = 0;
-            e.lifetime = 1; // trigger scale out
+            l.life = 0;
+            e.lifetime = 1.0; // trigger scale out
             score += 1000;
+            explodeChannel.play();
           }
         }
       }
@@ -299,11 +324,6 @@ public:
       l.sprite.setPosition(l.pos);
       l.life -= elapsed;
 
-      double ratio = 4*l.life / l.lifetime;
-      ratio = std::min(ratio, 1.0);
-
-      l.sprite.setColor(sf::Color((sf::Uint8)(ratio*l.sprite.getColor().r), (sf::Uint8)(ratio*l.sprite.getColor().g), (sf::Uint8)(ratio*l.sprite.getColor().b), 255));
-
       if (l.life <= 0) {
         lasers.erase(lasers.begin() + i);
         continue;
@@ -312,7 +332,7 @@ public:
       i++;
     }
 
-    if (rand() % 50 == 0 && enemies.size() < 10 && inFocus) {
+    if (rand() % 50 == 0 && enemies.size() < 20 && inFocus) {
       spawnEnemy();
 
       if (rand() % 30 == 0 && !isExtraLifeSpawned) {
@@ -479,10 +499,6 @@ public:
 
     for (auto& t : trails) {
       renderer.submit(t.sprite);
-
-      //if (getController().getCurrentRendererIndex() == 1) {
-      //  renderer.submit(Light(10.0f, t.sprite.getPosition(), sf::Color(0U, 0U, 10U, 105U)));
-     // }
     }
 
     for (auto& m : meteors) {
@@ -502,7 +518,13 @@ public:
     }
 
     for (auto& e : enemies) {
-      renderer.submit(Fake3D(e.sprite, *enemyNormal));
+      renderer.submit(Fake3D(e.sprite, *enemyNormal, enemyEmissive));
+
+      if (e.lifetime > 0) {
+        const float alpha = std::max(0.f, (float)(e.life / e.lifetime));
+        const float beta = 1.0f - alpha;
+        renderer.submit(Light(100.0f + (200.0f*beta), WithZ(e.sprite.getPosition(), 100.0f), sf::Color(255, 255*beta, 0, 255*alpha), 5.0f));
+      }
     }
 
     for (auto& l : lasers) {
@@ -510,7 +532,7 @@ public:
 
       // TODO: safer way to handle render source temporaries for "simple" renderer??
       if (getController().getCurrentRendererIndex() == 1) {
-        renderer.submit(Light(30.0, l.sprite.getPosition(), sf::Color(0, 20, 0, 255)));
+        renderer.submit(Light(80.0, WithZ(l.sprite.getPosition(), 5.0f), sf::Color(0, 215, 0, 255), 2.0f));
       }
     }
     
@@ -533,7 +555,7 @@ public:
 
 
     if (lives >= 0) {
-      renderer.submit(Fake3D(player.sprite, *playerNormal));
+      renderer.submit(Fake3D(player.sprite, *playerNormal, playerEmissive));
 
       if (hasShield) {
         shield.setPosition(player.pos);
