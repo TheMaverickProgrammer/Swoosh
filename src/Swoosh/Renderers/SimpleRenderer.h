@@ -2,9 +2,8 @@
 #include <Swoosh/Renderers/Renderer.h>
 
 namespace swoosh {
-  class SimpleRenderer : public Renderer<Immediate> {
+  class SimpleRenderer : public Renderer<> {
     sf::RenderTexture surface;
-    std::list<RenderSource> sources;
 
   public:
     SimpleRenderer(const sf::View view) {
@@ -12,11 +11,11 @@ namespace swoosh {
     }
 
     void draw() override {
-      for (RenderSource& source : sources) {
-        surface.draw(source.drawable(), source.states());
-      }
-
-      sources.clear();
+      /* 
+      Intentionally empty because the simple renderer 
+      draws submitted resources directly to the 
+      target surface and doesn't need a special draw step 
+      */
     }
 
     void display() override {
@@ -36,10 +35,6 @@ namespace swoosh {
     }
 
     void onEvent(const RenderSource& event) override {
-      sources.push_back(event);
-    }
-
-    void onEvent(const Immediate& event) override {
       surface.draw(event.drawable(), event.states());
     }
   };

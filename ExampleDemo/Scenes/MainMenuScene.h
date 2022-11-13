@@ -242,10 +242,15 @@ public:
   }
 
   void onDraw(IRenderer& renderer) override {
-    renderer.submit(Immediate(bg));
+    const bool isCustomRenderer = getController().getCurrentRendererName() == "custom";
+    renderer.submit(Fake3D(bg));
 
     for (auto& p : particles) {
       renderer.submit(p.sprite);
+
+      if (isCustomRenderer) {
+        renderer.submit(Light(80.0, WithZ(p.sprite.getPosition(), 5.0f), sf::Color(215, 0, 215, 255), 2.0f));
+      }
     }
 
     int i = 0;

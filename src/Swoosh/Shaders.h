@@ -874,12 +874,9 @@ namespace swoosh {
 
             void main()
             {
-              vec2 xy = gl_TexCoord[0].xy;
-              vec4 pxNormal = texture2D(normal, xy);
-              vec4 n = pxNormal * 2.0 - 1.0;
-              n = rotate(n, rotation);
-              pxNormal = (n + 1.0) / 2.0;
-              gl_FragColor = pxNormal;
+              vec4 pxNormal = texture2D(normal, gl_TexCoord[0].xy);
+              vec4 n = rotate(pxNormal * 2.0 - 1.0, rotation);
+              gl_FragColor = (n + 1.0) / 2.0;
             }
           );
 
@@ -892,7 +889,7 @@ namespace swoosh {
       class LightPass final : public Shader {
       private:
         std::string SHADER_FRAG;
-        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * emissive{ nullptr };
+        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr };
 
         struct light_t {
           float radius{};
@@ -905,24 +902,19 @@ namespace swoosh {
 
       public:
         void apply(IRenderer& renderer) override {
-          if (!(diffuse && normal && emissive)) return;
+          if (!(diffuse && normal)) return;
 
           diffuse->display();
           normal->display();
-          emissive->display();
-
           const sf::Texture texDiffuse = diffuse->getTexture();
           const sf::Texture texNormal = normal->getTexture();
-          const sf::Texture texEmissive = emissive->getTexture();
 
           // prepare the renderer for drawing
-          renderer.clear();
+          // renderer.clear(); // TODO: this is causing problems in swoosh segues and removing emissive?
 
-          shader.setUniform("ui", sf::Shader::CurrentTexture);
+          shader.setUniform("accumulation", sf::Shader::CurrentTexture);
           shader.setUniform("diffuse", texDiffuse);
           shader.setUniform("normal", texNormal);
-          shader.setUniform("emissive", texEmissive);
-
           sf::RenderStates states;
           states.shader = &shader;
 
@@ -932,12 +924,11 @@ namespace swoosh {
             shader.setUniform("lightRadius", light.radius);
             shader.setUniform("lightSpecular", light.specular);
 
+            renderer.display();
             const sf::Texture out = renderer.getTexture();
 
             sf::Sprite temp(out);
             renderer.submit(Immediate(temp, states));
-
-            renderer.display();
           }
         }
 
@@ -949,11 +940,10 @@ namespace swoosh {
           lights.push_back({ radius, pos, color, specular });
         }
 
-        void setSurfaces(sf::View view, sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* emissiveIn) {
+        void setSurfaces(sf::View view, sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn) {
           shader.setUniform("InvProj", sf::Glsl::Mat4(view.getInverseTransform().getMatrix()));
           diffuse = diffuseIn;
           normal = normalIn;
-          emissive = emissiveIn;
         }
 
         LightPass() {
@@ -967,21 +957,19 @@ namespace swoosh {
             uniform float lightRadius;
             uniform float lightSpecular;
             uniform mat4 InvProj;
-            uniform sampler2D ui;
+            uniform sampler2D accumulation;
             uniform sampler2D diffuse;
             uniform sampler2D normal;
-            uniform sampler2D emissive;
 
             void main()
             {
               vec2 xy = gl_TexCoord[0].xy;
-              vec4 pxUi = texture2D(ui, xy);
+              vec4 pxOut = texture2D(accumulation, xy);
               vec4 pxDiffuse = texture2D(diffuse, xy);
               vec4 pxNormal = texture2D(normal, xy);
-              vec4 pxEmissive = texture2D(emissive, xy);
 
               float Specular = 1.0; // TODO encode specular into pxDiffuse.a;
-              vec3 ambient = pxDiffuse.rgb * 0.1; // ambient component
+              vec3 ambient = pxDiffuse.rgb * 0.1; // TODO: ambient factor?
 
               float depth = 0.5; // TODO: use depth buffer
               depth = depth * 2.0 - 1.0;
@@ -1001,16 +989,12 @@ namespace swoosh {
               vec3 diffuse_i = NdotLD * lightColor.rgb * pxDiffuse.rgb;
 
               // calculate specular
-              // n = LDir + normal(camPos-fragPos)
               vec3 halfwayDir = normalize(LightDir + normalize(vec3(0.5, 0.5, 1.0) - vec3(flippedXY, depth)));
               float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
               vec3 specular_i = lightColor.rgb * spec * lightSpecular;
 
               // add the light
-              gl_FragColor = vec4(pxUi.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0) + pxEmissive;
-
-              // draw UI on top if any
-              // gl_FragColor = vec4(gl_FragColor.rgb*(1.0-pxUi.a) + pxUi.rgb, 1.0);
+              gl_FragColor = vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0);
             }
           );
 

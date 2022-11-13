@@ -6,11 +6,11 @@
 #include <optional>
 
 struct Fake3D : RenderSource {
-  sf::Texture& normal;
-  sf::Sprite& sprite;
-  std::optional<sf::Texture*> emissive;
+  sf::Sprite sprite;
+  sf::Texture* normal{ nullptr };
+  sf::Texture* emissive{ nullptr };
   float z{};
-  explicit Fake3D(sf::Sprite& src, sf::Texture& normal, std::optional<sf::Texture*> emissive = nullptr, float z = 0) :
+  explicit Fake3D(const sf::Sprite& src, sf::Texture* normal = nullptr, sf::Texture* emissive = nullptr, float z = 0) :
     RenderSource(src),
     normal(normal),
     sprite(src),
@@ -50,7 +50,6 @@ class CustomRenderer : public Renderer<Immediate, Fake3D, Light> {
   sf::RenderTexture diffuse, normal, emissive, out;
   swoosh::glsl::deferred::LightPass lightShader;
   swoosh::glsl::deferred::MeshPass meshShader;
-  std::list<RenderSource*> sources;
   std::list<RenderSource> memForward;
   std::list<Fake3D> mem3D;
   std::list<Light> memLight;
@@ -68,25 +67,16 @@ public:
     emissive.create(size.x, size.y);
     out.create(size.x, size.y);
 
-    lightShader.setSurfaces(view, &diffuse, &normal, &emissive);
+    lightShader.setSurfaces(view, &diffuse, &normal);
     meshShader.setSurfaces(&diffuse, &normal, &emissive);
   }
 
   void draw() override {
-    sf::RenderStates lightPass;
-    lightPass.blendMode = sf::BlendAdd;
+    for (Fake3D& source : mem3D) {
+      meshShader.setSprite(&source.sprite, source.normal, source.emissive);
 
-    for (RenderSource* source : sources) {
-      if (Fake3D* ptr3D = dynamic_cast<Fake3D*>(source); ptr3D) {
-        sf::Texture* texEmissive = ptr3D->emissive.value();;
-        meshShader.setSprite(&ptr3D->sprite, &ptr3D->normal, texEmissive);
-
-        // bake the currect normals
-        meshShader.apply(*this);
-        continue;
-      }
-
-      out.draw(source->drawable(), source->states());
+      // bake the currect normals
+      meshShader.apply(*this);
     }
 
     lightShader.clearLights();
@@ -94,14 +84,23 @@ public:
       lightShader.addLight(source.radius, sf::Glsl::Vec3(source.position.x, source.position.y, source.position.z), source.color, source.specular);
     }
 
-    // compose final scene
+    // compose final shaded scene
     lightShader.apply(*this);
+
+    emissive.display();
+    const sf::Texture texEmissive = emissive.getTexture();
+    const sf::Sprite sprEmissive = sf::Sprite(texEmissive);
+    out.draw(sprEmissive);
+
+    // draw forward rendered content
+    for (RenderSource& source : memForward) {
+      out.draw(source.drawable());
+    }
 
     // reset the light index
     nextLightIdx = 0;
 
     // clear the buffer data
-    sources.clear();
     memForward.clear();
     mem3D.clear();
     memLight.clear();
@@ -131,7 +130,6 @@ public:
 
   void onEvent(const RenderSource& event) override {
     memForward.emplace_back(event);
-    sources.push_back(&memForward.back());
   }
 
   void onEvent(const Immediate& event) override {
@@ -140,7 +138,6 @@ public:
 
   void onEvent(const Fake3D& event) override {
     mem3D.emplace_back(event);
-    sources.push_back(&mem3D.back());
   }
 
   void onEvent(const Light& event) override {

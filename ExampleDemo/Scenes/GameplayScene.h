@@ -274,7 +274,7 @@ public:
 
       if (lives >= 0 && e.lifetime == 0) {
         if (alpha >= 255.0 && doesCollide(e.sprite, player.sprite)) {
-          /*if (hasShield && !killShield) {
+          if (hasShield && !killShield) {
             shieldChannel.play();
             killShield = true; // give us time to protect from other enemies
             alpha = 100; // invincibility 
@@ -290,7 +290,6 @@ public:
           }
 
           e.lifetime = 1.0; // trigger scale out on this enemy
-          */
         }
 
         double angle = angleTo(player.pos, e.pos);
@@ -493,9 +492,10 @@ public:
   }
 
   void onDraw(IRenderer& renderer) override {
+    const bool isCustomRenderer = getController().getCurrentRendererName() == "custom";
     sf::RenderWindow& window = getController().getWindow();
 
-    renderer.submit(Fake3D(bg, *bgNormal));
+    renderer.submit(Fake3D(bg, bgNormal));
 
     for (auto& t : trails) {
       renderer.submit(t.sprite);
@@ -514,11 +514,11 @@ public:
       }
       // else - handled by default value of `normal`
 
-      renderer.submit(Fake3D(m.sprite, *normal));
+      renderer.submit(Fake3D(m.sprite, normal));
     }
 
     for (auto& e : enemies) {
-      renderer.submit(Fake3D(e.sprite, *enemyNormal, enemyEmissive));
+      renderer.submit(Fake3D(e.sprite, enemyNormal, enemyEmissive));
 
       if (e.lifetime > 0) {
         const float alpha = std::max(0.f, (float)(e.life / e.lifetime));
@@ -530,8 +530,7 @@ public:
     for (auto& l : lasers) {
       renderer.submit(l.sprite);
 
-      // TODO: safer way to handle render source temporaries for "simple" renderer??
-      if (getController().getCurrentRendererIndex() == 1) {
+      if (isCustomRenderer) {
         renderer.submit(Light(80.0, WithZ(l.sprite.getPosition(), 5.0f), sf::Color(0, 215, 0, 255), 2.0f));
       }
     }
@@ -555,7 +554,7 @@ public:
 
 
     if (lives >= 0) {
-      renderer.submit(Fake3D(player.sprite, *playerNormal, playerEmissive));
+      renderer.submit(Fake3D(player.sprite, playerNormal, playerEmissive));
 
       if (hasShield) {
         shield.setPosition(player.pos);
@@ -565,11 +564,11 @@ public:
 
       numeral = sf::Sprite(*numeralTexture[10]); // X
       numeral.setPosition(player.pos.x, player.pos.y - 100);
-      renderer.submit(Immediate(numeral));
+      renderer.submit(numeral);
 
       numeral = sf::Sprite(*numeralTexture[lives]);
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
-      renderer.submit(Immediate(numeral));
+      renderer.submit(numeral);
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);
       renderer.submit(playerLife);
