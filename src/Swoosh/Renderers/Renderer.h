@@ -25,13 +25,13 @@ namespace swoosh {
       : ref(src), statesIn(states) {}
     virtual ~RenderSource() {}
 
-    const sf::Drawable& drawable() const { return ref; }
+    virtual const sf::Drawable& drawable() const { return ref; }
     const sf::RenderStates& states() const { return statesIn; }
   };
 
   class Immediate : public RenderSource {
   public:
-    explicit Immediate(const sf::Drawable& src, const sf::RenderStates& states = sf::RenderStates()) : RenderSource(src, states) {}
+    Immediate(const sf::Drawable& src, const sf::RenderStates& states = sf::RenderStates()) : RenderSource(src, states) {}
   };
 
   class IRenderer : public IDispatcher<RenderSource> {

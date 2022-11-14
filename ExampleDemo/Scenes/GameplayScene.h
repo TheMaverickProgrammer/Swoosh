@@ -564,11 +564,11 @@ public:
 
       numeral = sf::Sprite(*numeralTexture[10]); // X
       numeral.setPosition(player.pos.x, player.pos.y - 100);
-      renderer.submit(numeral);
+      renderer.submit(Clone(numeral));
 
       numeral = sf::Sprite(*numeralTexture[lives]);
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
-      renderer.submit(numeral);
+      renderer.submit(Clone(numeral));
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);
       renderer.submit(playerLife);

@@ -42,6 +42,17 @@ struct Light : RenderSource {
   };
 };
 
+template<typename T>
+struct Clone : RenderSource {
+  const std::shared_ptr<T> in;
+  static inline const sf::RectangleShape dummy{};
+  Clone(const T& in) : RenderSource(dummy), in(std::make_shared<T>(in)) {}
+
+  const sf::Drawable& drawable() const override{
+    return *in.get();
+  }
+};
+
 sf::Vector3f WithZ(const sf::Vector2f xy, float z) {
   return sf::Vector3f(xy.x, xy.y, z);
 }
@@ -64,11 +75,10 @@ public:
     const sf::Vector2u size = sf::Vector2u(view.getSize().x, view.getSize().y);
     diffuse.create(size.x, size.y);
     normal.create(size.x, size.y);
-    emissive.create(size.x, size.y);
     out.create(size.x, size.y);
 
     lightShader.setSurfaces(view, &diffuse, &normal);
-    meshShader.setSurfaces(&diffuse, &normal, &emissive);
+    meshShader.setSurfaces(&diffuse, &normal, &out);
   }
 
   void draw() override {
@@ -87,13 +97,12 @@ public:
     // compose final shaded scene
     lightShader.apply(*this);
 
-    emissive.display();
-    const sf::Texture texEmissive = emissive.getTexture();
-    const sf::Sprite sprEmissive = sf::Sprite(texEmissive);
-    out.draw(sprEmissive);
-
     // draw forward rendered content
     for (RenderSource& source : memForward) {
+      if (const Clone<sf::Sprite>* ptr = dynamic_cast<const Clone<sf::Sprite>*>(&source); ptr) {
+        out.draw(ptr->drawable());
+        continue;
+      }
       out.draw(source.drawable());
     }
 
@@ -129,7 +138,7 @@ public:
   }
 
   void onEvent(const RenderSource& event) override {
-    memForward.emplace_back(event);
+    memForward.push_back(event);
   }
 
   void onEvent(const Immediate& event) override {

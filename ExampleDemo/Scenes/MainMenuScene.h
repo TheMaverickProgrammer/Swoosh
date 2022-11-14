@@ -55,7 +55,7 @@ using namespace swoosh::types;
 
 class MainMenuScene : public Activity {
 private:
-  sf::Texture* bgTexture;
+  sf::Texture* bgTexture, *bgNormal;
   sf::Texture* starTexture;
   sf::Texture* blueButton, *redButton, *greenButton;
 
@@ -88,6 +88,7 @@ public:
     fadeMusic = false;
 
     bgTexture = loadTexture(MENU_BG_PATH);
+    bgNormal = loadTexture(MENU_BG_N_PATH);
     bg = sf::Sprite(*bgTexture);
 
     starTexture = loadTexture(STAR_PATH);
@@ -208,8 +209,6 @@ public:
 
 
   void onResume() override {
-    //timer.reset();
-
     inFocus = true;
 
     // If fadeMusic == true, then we were coming from demo, the music changes
@@ -222,7 +221,7 @@ public:
 
     std::cout << "MainMenuScene OnResume called" << std::endl;
 
-    for (int i = 100; i > 0; i--) {
+    for (int i = 50; i > 0; i--) {
       int randNegative = rand() % 2 == 0 ? -1 : 1;
       int randSpeedX = rand() % 80;
       randSpeedX *= randNegative;
@@ -236,6 +235,7 @@ public:
       p.life = 3.0;
       p.lifetime = 3.0;
       p.sprite.setPosition(p.pos);
+      setOrigin(p.sprite, 0.5, 0.5);
 
       particles.push_back(p);
     }
@@ -243,14 +243,10 @@ public:
 
   void onDraw(IRenderer& renderer) override {
     const bool isCustomRenderer = getController().getCurrentRendererName() == "custom";
-    renderer.submit(Fake3D(bg));
+    renderer.submit(Fake3D(bg, bgNormal));
 
     for (auto& p : particles) {
       renderer.submit(p.sprite);
-
-      if (isCustomRenderer) {
-        renderer.submit(Light(80.0, WithZ(p.sprite.getPosition(), 5.0f), sf::Color(215, 0, 215, 255), 2.0f));
-      }
     }
 
     int i = 0;
@@ -272,13 +268,16 @@ public:
     double offset = 0;
 
     // For each letter in the string, make it jump while preserving placement
-    for (int i = 0; i < strlen(GAME_TITLE); i++) {
+    size_t len = strlen(GAME_TITLE);
+    double frequency = swoosh::ease::pi * 2.0 / len;
+    double dt = timer.getElapsed().asSeconds();
+    for (int i = 0; i < len; i++) {
       menuText.setFillColor(sf::Color::White);
       menuText.setString(GAME_TITLE[i]);
       setOrigin(menuText, 0.5, 0.5); // origin is in the center of the letter
 
       // This creates our wave over all letters
-      double ratio = (ease::pi) / strlen(GAME_TITLE);
+      double ratio = (ease::pi) / len;
       double wave = (std::sin(timer.getElapsed().asSeconds()*2.0+((i+1)*ratio)));
 
       // Only add the peaks
@@ -296,6 +295,16 @@ public:
 
       menuText.setPosition(sf::Vector2f((float)(startX + offset), (float)startY));
       renderer.submit(Immediate(menuText));
+
+
+      if (isCustomRenderer) {
+
+        sf::Uint8 r = ((sin(frequency * i + 2 + dt) + 1.0) / 2.0) * 255U;
+        sf::Uint8 g = ((sin(frequency * i + 0 + dt) + 1.0) / 2.0) * 255U;
+        sf::Uint8 b = ((sin(frequency * i + 4 + dt) + 1.0) / 2.0) * 255U;
+
+        renderer.submit(Light(160.0, WithZ(menuText.getPosition(), 50.0f), sf::Color(r, g, b, 255), 0.1f));
+      }
     }
   }
 

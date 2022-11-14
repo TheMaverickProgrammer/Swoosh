@@ -96,8 +96,9 @@ int main()
     sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     cursor.setPosition(mousepos);
 
-    if (app.getCurrentRendererIndex() == 1) {
-      custom.submit(Light(128.0f, WithZ(mousepos, 10.f), sf::Color(50U, 50U, 100U), 1.0));
+    const bool isCustomRenderer = app.getCurrentRendererName() == "custom";
+    if (isCustomRenderer) {
+      custom.submit(Light(256.0f, WithZ(mousepos, 10.f), sf::Color(100U, 100U, 150U), 1.0));
 
       sf::Vector2u size = app.getVirtualWindowSize();
       sf::Vector2f center = sf::Vector2f(size.x / 2.0f, size.y / 2.0f);

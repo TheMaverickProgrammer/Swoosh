@@ -4,6 +4,7 @@ constexpr auto MANUAL_FONT = "resources/manual.ttf";
 
 constexpr auto SFML_PATH         = "resources/SFML.png";
 constexpr auto MENU_BG_PATH      = "resources/menu.png";
+constexpr auto MENU_BG_N_PATH    = "resources/menu_n.png";
 constexpr auto GAME_BG_PATH      = "resources/SpaceShooterRedux/Backgrounds/purple.png";
 constexpr auto GAME_BG_N_PATH    = "resources/SpaceShooterRedux/Backgrounds/purple_n.png";
 constexpr auto GAME_BG_E_PATH    = "resources/SpaceShooterRedux/Backgrounds/background_e.png";
