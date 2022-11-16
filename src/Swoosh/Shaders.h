@@ -807,54 +807,61 @@ namespace swoosh {
       @brief Using an additional normal map texture and light parameters, shades a scene with 3D lighting
     */
     namespace deferred {
+      struct MeshData {
+        sf::Sprite* sprite{ nullptr };
+        sf::Texture* normal{ nullptr };
+        sf::Texture* esm{ nullptr }; // Emissive (R), Specular (G), Metallic (B)
+        float metallic{};
+        float specular{};
+      };
       class MeshPass final : public Shader {
       private:
         std::string SHADER_FRAG;
-        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * emissive{ nullptr };
-        sf::Sprite* currSprite{ nullptr };
-        sf::Texture* currNormal{ nullptr };
-        sf::Texture* currEmissive{ nullptr };
+        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * esm{ nullptr };
+        MeshData meshData;
+
       public:
         void apply(IRenderer& renderer) override {
-          if (!(diffuse && normal && emissive && currSprite)) return;
+          if (!(diffuse && normal && esm && meshData.sprite)) return;
+
           sf::RenderStates states;
           states.shader = &shader;
 
+          sf::Sprite& sprite = *meshData.sprite;
           shader.setUniform("normal", sf::Shader::CurrentTexture);
-          shader.setUniform("rotation", currSprite->getRotation());
+          shader.setUniform("rotation", sprite.getRotation());
 
           // draw the albedo/diffuse pass (normal sprite)
-          diffuse->draw(*currSprite);
+          diffuse->draw(sprite);
 
           // next, draw the normals
 
           // store the original texture in temp
-          const sf::Texture* temp = currSprite->getTexture();
+          const sf::Texture* temp = sprite.getTexture();
           // use the normal texture and draw
-          currSprite->setTexture(*currNormal);
-          normal->draw(*currSprite, states);
+          sprite.setTexture(*meshData.normal);
 
-          // next, draw the emissive
-          if (currEmissive) {
+          normal->draw(sprite, states);
+
+          // next, draw the esm
+          if (meshData.esm) {
             // use the emissive texture and draw
-            currSprite->setTexture(*currEmissive);
-            emissive->draw(*currSprite);
+            sprite.setTexture(*meshData.esm);
+            esm->draw(sprite);
           }
 
           // restore original texture
-          currSprite->setTexture(*temp);
+          sprite.setTexture(*temp);
         }
 
-        void setSurfaces(sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* emissiveIn) {
+        void setSurfaces(sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* esmIn) {
           diffuse = diffuseIn;
           normal = normalIn;
-          emissive = emissiveIn;
+          esm = esmIn;
         }
 
-        void setSprite(sf::Sprite* sprite, sf::Texture* normal, sf::Texture* emissive) {
-          currSprite = sprite;
-          currNormal = normal;
-          currEmissive = emissive;
+        void setMeshData(const MeshData& data) {
+          meshData = data;
         }
 
         MeshPass() {
@@ -889,7 +896,7 @@ namespace swoosh {
       class LightPass final : public Shader {
       private:
         std::string SHADER_FRAG;
-        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr };
+        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * esm{ nullptr };
 
         struct light_t {
           float radius{};
@@ -902,12 +909,14 @@ namespace swoosh {
 
       public:
         void apply(IRenderer& renderer) override {
-          if (!(diffuse && normal)) return;
+          if (!(diffuse && normal && esm)) return;
 
           diffuse->display();
           normal->display();
+          esm->display();
           const sf::Texture texDiffuse = diffuse->getTexture();
           const sf::Texture texNormal = normal->getTexture();
+          const sf::Texture texESM = esm->getTexture();
 
           // prepare the renderer for drawing
           // renderer.clear(); // TODO: this is causing problems in swoosh segues and removing emissive?
@@ -915,6 +924,7 @@ namespace swoosh {
           shader.setUniform("accumulation", sf::Shader::CurrentTexture);
           shader.setUniform("diffuse", texDiffuse);
           shader.setUniform("normal", texNormal);
+          shader.setUniform("esm", texESM);
           sf::RenderStates states;
           states.shader = &shader;
 
@@ -940,10 +950,11 @@ namespace swoosh {
           lights.push_back({ radius, pos, color, specular });
         }
 
-        void setSurfaces(sf::View view, sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn) {
+        void setSurfaces(sf::View view, sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* esmIn) {
           shader.setUniform("InvProj", sf::Glsl::Mat4(view.getInverseTransform().getMatrix()));
           diffuse = diffuseIn;
           normal = normalIn;
+          esm = esmIn;
         }
 
         LightPass() {
@@ -952,7 +963,7 @@ namespace swoosh {
           **/
           SHADER_FRAG = GLSL(
             110,
-            uniform vec3 lightPos;
+            uniform vec3 lightPos; // TODO: use structs (UBO) in SFML?
             uniform vec4 lightColor;
             uniform float lightRadius;
             uniform float lightSpecular;
@@ -960,6 +971,7 @@ namespace swoosh {
             uniform sampler2D accumulation;
             uniform sampler2D diffuse;
             uniform sampler2D normal;
+            uniform sampler2D esm;
 
             void main()
             {
@@ -967,12 +979,15 @@ namespace swoosh {
               vec4 pxOut = texture2D(accumulation, xy);
               vec4 pxDiffuse = texture2D(diffuse, xy);
               vec4 pxNormal = texture2D(normal, xy);
-
-              float Specular = 1.0; // TODO encode specular into pxDiffuse.a;
-              vec3 ambient = pxDiffuse.rgb * 0.1; // TODO: ambient factor?
+              vec4 pxESM = texture2D(esm, xy);
 
               float depth = 0.5; // TODO: use depth buffer
               depth = depth * 2.0 - 1.0;
+
+              float emissive = pxESM.r; // emissive surface component
+              float specular = pxESM.g; // specular surface component
+              float metallic = pxESM.b; // reflective metal surface component
+
               vec2 flippedXY = vec2(xy.x, 1.0 - xy.y); // NOTE: why am I having to do this? SFML quirk? 11/12/2022
               vec4 position = vec4(flippedXY * 2.0 - 1.0, depth, 1.0);
               position = InvProj * position;
@@ -986,15 +1001,20 @@ namespace swoosh {
 
               // calculate bump + diffuse
               float NdotLD = clamp(dot(Normal, LightDir), 0.0, 1.0);
+
+              vec3 metal_i = texture2D(diffuse, xy + NdotLD).rgb * metallic;
               vec3 diffuse_i = NdotLD * lightColor.rgb * pxDiffuse.rgb;
+
+              // combine with diffuse
+              diffuse_i = (metallic * metal_i) + ((1.0 - metallic) * diffuse_i);
 
               // calculate specular
               vec3 halfwayDir = normalize(LightDir + normalize(vec3(0.5, 0.5, 1.0) - vec3(flippedXY, depth)));
-              float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
-              vec3 specular_i = lightColor.rgb * spec * lightSpecular;
+              float specularIntensity = pow(max(dot(Normal, halfwayDir), 0.0), 16.0) * specular;
+              vec3 specular_i = lightColor.rgb * specularIntensity * lightSpecular;
 
-              // add the light
-              gl_FragColor = vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0);
+              // combine all lights
+              gl_FragColor = vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0) + vec4(emissive*pxDiffuse.rgb, pxDiffuse.a);
             }
           );
 

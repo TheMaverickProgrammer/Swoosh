@@ -24,13 +24,13 @@ constexpr auto METEOR_TINY_N_PATH = "resources/SpaceShooterRedux/PNG/Meteors/met
 constexpr auto SHIELD_HIGH_PATH  = "resources/SpaceShooterRedux/PNG/Effects/shield1.png";
 constexpr auto SHIELD_LOW_PATH   = "resources/SpaceShooterRedux/PNG/Effects/shield2.png";
 constexpr auto PLAYER_PATH       = "resources/SpaceShooterRedux/PNG/playerShip1_orange.png";
-constexpr auto PLAYER_NORMAL_PATH= "resources/SpaceShooterRedux/PNG/playerShip1_n.png";
-constexpr auto PLAYER_EMISSIVE_PATH = "resources/SpaceShooterRedux/PNG/playerShip1_e.png";
+constexpr auto PLAYER_N_PATH= "resources/SpaceShooterRedux/PNG/playerShip1_n.png";
+constexpr auto PLAYER_E_PATH = "resources/SpaceShooterRedux/PNG/playerShip1_e.png";
 constexpr auto PLAYER_TRAIL_PATH = "resources/SpaceShooterRedux/PNG/Lasers/laserBlue08.png";
 constexpr auto LASER_BEAM_PATH   = "resources/SpaceShooterRedux/PNG/Lasers/laserGreen10.png";
 constexpr auto ENEMY_PATH        = "resources/SpaceShooterRedux/PNG/Enemies/enemyGreen3.png";
-constexpr auto ENEMY_NORMAL_PATH = "resources/SpaceShooterRedux/PNG/Enemies/enemyGreen3_n.png";
-constexpr auto ENEMY_EMISSIVE_PATH = "resources/SpaceShooterRedux/PNG/Enemies/enemyGreen3_e.png";
+constexpr auto ENEMY_N_PATH = "resources/SpaceShooterRedux/PNG/Enemies/enemyGreen3_n.png";
+constexpr auto ENEMY_E_PATH = "resources/SpaceShooterRedux/PNG/Enemies/enemyGreen3_e.png";
 constexpr auto EXTRA_LIFE_PATH   = "resources/SpaceShooterRedux/PNG/Power-ups/star_gold.png";
 
 const char* NUMERAL_PATH[11] = {

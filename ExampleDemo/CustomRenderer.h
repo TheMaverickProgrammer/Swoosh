@@ -5,17 +5,11 @@
 #include <array>
 #include <optional>
 
-struct Fake3D : RenderSource {
-  sf::Sprite sprite;
-  sf::Texture* normal{ nullptr };
-  sf::Texture* emissive{ nullptr };
-  float z{};
-  explicit Fake3D(const sf::Sprite& src, sf::Texture* normal = nullptr, sf::Texture* emissive = nullptr, float z = 0) :
-    RenderSource(src),
-    normal(normal),
-    sprite(src),
-    emissive(emissive),
-    z(z)
+struct Draw3D : RenderSource {
+  glsl::deferred::MeshData data;
+  explicit Draw3D(sf::Sprite& spr, sf::Texture* normal, sf::Texture* emissive = nullptr, float metallic = 0, float specular = 0) :
+    RenderSource(spr),
+    data({ &spr, normal, emissive, metallic, specular })
   {}
 };
 
@@ -57,12 +51,12 @@ sf::Vector3f WithZ(const sf::Vector2f xy, float z) {
   return sf::Vector3f(xy.x, xy.y, z);
 }
 
-class CustomRenderer : public Renderer<Immediate, Fake3D, Light> {
-  sf::RenderTexture diffuse, normal, emissive, out;
+class CustomRenderer : public Renderer<Immediate, Draw3D, Light> {
+  sf::RenderTexture diffuse, normal, esm, special, out;
   swoosh::glsl::deferred::LightPass lightShader;
   swoosh::glsl::deferred::MeshPass meshShader;
   std::list<RenderSource> memForward;
-  std::list<Fake3D> mem3D;
+  std::list<Draw3D> mem3D;
   std::list<Light> memLight;
 
   std::size_t nextLightIdx{ 0 };
@@ -75,15 +69,16 @@ public:
     const sf::Vector2u size = sf::Vector2u(view.getSize().x, view.getSize().y);
     diffuse.create(size.x, size.y);
     normal.create(size.x, size.y);
+    esm.create(size.x, size.y);
     out.create(size.x, size.y);
 
-    lightShader.setSurfaces(view, &diffuse, &normal);
-    meshShader.setSurfaces(&diffuse, &normal, &out);
+    meshShader.setSurfaces(&diffuse, &normal, &esm);
+    lightShader.setSurfaces(view, &diffuse, &normal, &esm);
   }
 
   void draw() override {
-    for (Fake3D& source : mem3D) {
-      meshShader.setSprite(&source.sprite, source.normal, source.emissive);
+    for (Draw3D& source : mem3D) {
+      meshShader.setMeshData(source.data);
 
       // bake the currect normals
       meshShader.apply(*this);
@@ -99,6 +94,7 @@ public:
 
     // draw forward rendered content
     for (RenderSource& source : memForward) {
+      // TODO: fix or remove
       if (const Clone<sf::Sprite>* ptr = dynamic_cast<const Clone<sf::Sprite>*>(&source); ptr) {
         out.draw(ptr->drawable());
         continue;
@@ -122,14 +118,14 @@ public:
   void clear(sf::Color color) override {
     diffuse.clear(sf::Color::Transparent);
     normal.clear(sf::Color::Transparent);
-    emissive.clear(sf::Color::Transparent);
+    esm.clear(sf::Color::Transparent);
     out.clear(color);
   }
 
   void setView(const sf::View& view) override {
     diffuse.setView(view);
     normal.setView(view);
-    emissive.setView(view);
+    esm.setView(view);
     out.setView(view);
   }
 
@@ -145,7 +141,7 @@ public:
     out.draw(event.drawable(), event.states());
   }
 
-  void onEvent(const Fake3D& event) override {
+  void onEvent(const Draw3D& event) override {
     mem3D.emplace_back(event);
   }
 

@@ -243,7 +243,7 @@ public:
 
   void onDraw(IRenderer& renderer) override {
     const bool isCustomRenderer = getController().getCurrentRendererName() == "custom";
-    renderer.submit(Fake3D(bg, bgNormal));
+    renderer.submit(Draw3D(bg, bgNormal));
 
     for (auto& p : particles) {
       renderer.submit(p.sprite);

@@ -28,7 +28,7 @@ private:
 
   sf::Texture* playerTexture;
   sf::Texture* playerNormal;
-  sf::Texture* playerEmissive;
+  sf::Texture* playerEsm;
   particle player;
 
   sf::Texture* trailTexture;
@@ -36,7 +36,7 @@ private:
 
   sf::Texture* enemyTexture;
   sf::Texture* enemyNormal;
-  sf::Texture* enemyEmissive;
+  sf::Texture* enemyEsm;
   std::vector<particle> enemies;
 
   sf::Texture * meteorBigN, *meteorMedN, *meteorSmallN, *meteorTinyN;
@@ -128,16 +128,16 @@ public:
     laserTexture = loadTexture(LASER_BEAM_PATH);
     shieldTexture = loadTexture(SHIELD_LOW_PATH);
     enemyTexture = loadTexture(ENEMY_PATH);
-    enemyNormal = loadTexture(ENEMY_NORMAL_PATH);
-    enemyEmissive = loadTexture(ENEMY_EMISSIVE_PATH);
+    enemyNormal = loadTexture(ENEMY_N_PATH);
+    enemyEsm = loadTexture(ENEMY_E_PATH);
 
     extraLifeTexture = loadTexture(EXTRA_LIFE_PATH);
     star = sf::Sprite(*extraLifeTexture);
     setOrigin(star, 0.5, 0.5);
 
     playerTexture = loadTexture(PLAYER_PATH);
-    playerNormal = loadTexture(PLAYER_NORMAL_PATH);
-    playerEmissive = loadTexture(PLAYER_EMISSIVE_PATH);
+    playerNormal = loadTexture(PLAYER_N_PATH);
+    playerEsm = loadTexture(PLAYER_E_PATH);
     player.sprite = sf::Sprite(*playerTexture);
     setOrigin(player.sprite, 0.5, 0.5);
 
@@ -495,7 +495,7 @@ public:
     const bool isCustomRenderer = getController().getCurrentRendererName() == "custom";
     sf::RenderWindow& window = getController().getWindow();
 
-    renderer.submit(Fake3D(bg, bgNormal));
+    renderer.submit(Draw3D(bg, bgNormal));
 
     for (auto& t : trails) {
       renderer.submit(t.sprite);
@@ -514,11 +514,11 @@ public:
       }
       // else - handled by default value of `normal`
 
-      renderer.submit(Fake3D(m.sprite, normal));
+      renderer.submit(Draw3D(m.sprite, normal));
     }
 
     for (auto& e : enemies) {
-      renderer.submit(Fake3D(e.sprite, enemyNormal, enemyEmissive));
+      renderer.submit(Draw3D(e.sprite, enemyNormal, enemyEsm));
 
       if (e.lifetime > 0) {
         const float alpha = std::max(0.f, (float)(e.life / e.lifetime));
@@ -554,7 +554,7 @@ public:
 
 
     if (lives >= 0) {
-      renderer.submit(Fake3D(player.sprite, playerNormal, playerEmissive));
+      renderer.submit(Draw3D(player.sprite, playerNormal, playerEsm, 0.5f));
 
       if (hasShield) {
         shield.setPosition(player.pos);
