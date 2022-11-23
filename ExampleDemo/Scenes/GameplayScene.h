@@ -564,10 +564,14 @@ public:
 
       numeral = sf::Sprite(*numeralTexture[10]); // X
       numeral.setPosition(player.pos.x, player.pos.y - 100);
+
+      // NOTE: `numeral` sprie is re-used so we clone its current state before submitting!
       renderer.submit(Clone(numeral));
 
       numeral = sf::Sprite(*numeralTexture[lives]);
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
+
+      // NOTE: The original `numeral` sprite is submitted without changing the cloned copies!
       renderer.submit(numeral);
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);

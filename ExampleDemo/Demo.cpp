@@ -16,10 +16,14 @@ int main()
   window.setVerticalSyncEnabled(true);
   window.setMouseCursorVisible(false);
 
-  // Create an AC with the current window as our target to draw to
+  // 11/23/2022 (NEW BEHAVIOR!)
+  // Swoosh now enables custom render pipelines and
+  // can switch between them in real-time
   SimpleRenderer simple(window.getView());
   CustomRenderer custom(window.getView());
   RendererEntries renderOptions = { { "simple", simple }, { "custom", custom } };
+
+    // Create an AC with the current window as our target to draw to
   ActivityController app(window, renderOptions);
 
   // 10/9/2020 
@@ -96,6 +100,7 @@ int main()
     sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     cursor.setPosition(mousepos);
 
+    // We can filter what we submit to the renderer by checking the current renderer's name or ID
     const bool isCustomRenderer = app.getCurrentRendererName() == "custom";
     if (isCustomRenderer) {
       custom.submit(Light(256.0f, WithZ(mousepos, 10.f), sf::Color(100U, 100U, 150U), 1.0));
