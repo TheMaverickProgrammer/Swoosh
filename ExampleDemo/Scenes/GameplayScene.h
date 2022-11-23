@@ -523,7 +523,7 @@ public:
       if (e.lifetime > 0) {
         const float alpha = std::max(0.f, (float)(e.life / e.lifetime));
         const float beta = 1.0f - alpha;
-        renderer.submit(Light(100.0f + (200.0f*beta), WithZ(e.sprite.getPosition(), 100.0f), sf::Color(255, 255*beta, 0, 255*alpha), 5.0f));
+        renderer.submit(Light(100.0f + (200.0f*beta), WithZ(e.sprite.getPosition(), 100.0f), sf::Color(255, 255*beta, 0, 255*alpha), 10.0f, 0.5f));
       }
     }
 
@@ -568,7 +568,7 @@ public:
 
       numeral = sf::Sprite(*numeralTexture[lives]);
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
-      renderer.submit(Clone(numeral));
+      renderer.submit(numeral);
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);
       renderer.submit(playerLife);

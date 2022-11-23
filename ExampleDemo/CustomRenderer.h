@@ -19,12 +19,14 @@ struct Light : RenderSource {
   sf::Color color{ sf::Color::White };
   sf::CircleShape circle{};
   float specular{};
-  explicit Light(float radius, sf::Vector3f position, sf::Color color, float specular = 0.0f) :
+  float cutoff{};
+  explicit Light(float radius, sf::Vector3f position, sf::Color color, float specular = 0.0f, float cutoff = 0.0f) :
     RenderSource(circle),
     radius(radius),
     position(position),
     color(color),
-    specular(specular)
+    specular(specular),
+    cutoff(cutoff)
   {
     circle.setPointCount(360);
     circle.setRadius(radius);
@@ -34,17 +36,6 @@ struct Light : RenderSource {
     sf::FloatRect bounds = circle.getLocalBounds();
     circle.setOrigin(bounds.width/2, bounds.height/2);
   };
-};
-
-template<typename T>
-struct Clone : RenderSource {
-  const std::shared_ptr<T> in;
-  static inline const sf::RectangleShape dummy{};
-  Clone(const T& in) : RenderSource(dummy), in(std::make_shared<T>(in)) {}
-
-  const sf::Drawable& drawable() const override{
-    return *in.get();
-  }
 };
 
 sf::Vector3f WithZ(const sf::Vector2f xy, float z) {
@@ -86,7 +77,8 @@ public:
 
     lightShader.clearLights();
     for (Light& source : memLight) {
-      lightShader.addLight(source.radius, sf::Glsl::Vec3(source.position.x, source.position.y, source.position.z), source.color, source.specular);
+      lightShader.addLight(source.radius, 
+      sf::Glsl::Vec3(source.position.x, source.position.y, source.position.z), source.color, source.specular, source.cutoff);
     }
 
     // compose final shaded scene
@@ -94,11 +86,6 @@ public:
 
     // draw forward rendered content
     for (RenderSource& source : memForward) {
-      // TODO: fix or remove
-      if (const Clone<sf::Sprite>* ptr = dynamic_cast<const Clone<sf::Sprite>*>(&source); ptr) {
-        out.draw(ptr->drawable());
-        continue;
-      }
       out.draw(source.drawable());
     }
 

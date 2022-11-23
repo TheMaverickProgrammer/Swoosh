@@ -11,13 +11,13 @@ namespace swoosh {
     struct IDispatcher {
       virtual ~IDispatcher() {}
 
-      virtual void broadcast(const char* name, void* src, bool isIRenderSource) = 0;
+      virtual void broadcast(const char* name, void* src) = 0;
 
       template<typename Event>
       void submit(const Event& event) {
         constexpr bool ofEventBase = std::is_base_of<typename EventBase, typename Event>::value;
-        static_assert(ofEventBase, "Cannot submit `event` because it does not have a base class of EventBase type");
-        broadcast(typeid(Event).name(), (void*)&event, ofEventBase);
+        static_assert(ofEventBase, "Cannot submit `event` because it does not have a base class `RenderSource`");
+        broadcast(typeid(Event).name(), (void*)&event);
       }
     };
 
@@ -44,11 +44,14 @@ namespace swoosh {
       }
       virtual ~ISubscriber() {}
 
-      void redirect(const char* name, void* src, bool ofBaseEvent) {
-        if (types.count(name))
+      void redirect(const char* name, void* src) {
+        if (types.count(name)) {
           types[name](this, src);
-        else if (ofBaseEvent)
-          onEvent(*((const EventBase*)src));
+          return;
+        }
+        
+        // else assertion gaurantees this must be type with base of `EventBase`
+        onEvent(*((const EventBase*)src));
       }
 
       virtual void onEvent(const EventBase& other) = 0;

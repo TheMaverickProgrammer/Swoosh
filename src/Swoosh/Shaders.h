@@ -903,6 +903,7 @@ namespace swoosh {
           sf::Glsl::Vec3 position{};
           sf::Glsl::Vec4 color{ sf::Color::White };
           float specular{};
+          float cutoff{};
         };
 
         std::list<light_t> lights;
@@ -933,6 +934,7 @@ namespace swoosh {
             shader.setUniform("lightColor", light.color);
             shader.setUniform("lightRadius", light.radius);
             shader.setUniform("lightSpecular", light.specular);
+            shader.setUniform("lightCutoff", light.cutoff);
 
             renderer.display();
             const sf::Texture out = renderer.getTexture();
@@ -946,8 +948,8 @@ namespace swoosh {
           lights.clear();
         }
 
-        void addLight(float radius, sf::Glsl::Vec3 pos, sf::Glsl::Vec4 color, float specular) {
-          lights.push_back({ radius, pos, color, specular });
+        void addLight(float radius, sf::Glsl::Vec3 pos, sf::Glsl::Vec4 color, float specular, float cutoff) {
+          lights.push_back({ radius, pos, color, specular, cutoff });
         }
 
         void setSurfaces(sf::View view, sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* esmIn) {
@@ -967,6 +969,7 @@ namespace swoosh {
             uniform vec4 lightColor;
             uniform float lightRadius;
             uniform float lightSpecular;
+            uniform float lightCutoff;
             uniform mat4 InvProj;
             uniform sampler2D accumulation;
             uniform sampler2D diffuse;
@@ -994,10 +997,19 @@ namespace swoosh {
               position /= position.w;
 
               vec3 Normal = normalize(pxNormal.rgb * 2.0 - 1.0);
-              vec3 LightDir = normalize(lightPos - position.xyz);
+              
+              vec3 Light = lightPos - position.xyz;
+              vec3 LightDir = normalize(Light);
 
-              float distance = length(lightPos - position.xyz);
-              float attenuation = 1.0 - pow(clamp(distance / lightRadius, 0.0, 1.0), 2.0);
+              float distance = length(Light);
+              float d = max(distance - lightRadius, 0.0);
+              Light /= d;
+              float denom = d/lightRadius + 1.0;
+              float attenuation = 1.0 / (denom*denom);
+
+              // apply cutoff
+              attenuation = (attenuation - lightCutoff) / (1.0 - lightCutoff);
+              attenuation = max(attenuation, 0.0);
 
               // calculate bump + diffuse
               float NdotLD = clamp(dot(Normal, LightDir), 0.0, 1.0);
@@ -1014,7 +1026,8 @@ namespace swoosh {
               vec3 specular_i = lightColor.rgb * specularIntensity * lightSpecular;
 
               // combine all lights
-              gl_FragColor = vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0) + vec4(emissive*pxDiffuse.rgb, pxDiffuse.a);
+              vec4 emissive_i =  vec4(0); // TODO: vec4(emissive*pxDiffuse.rgb, pxDiffuse.a);
+              gl_FragColor = vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0) + emissive_i;
             }
           );
 

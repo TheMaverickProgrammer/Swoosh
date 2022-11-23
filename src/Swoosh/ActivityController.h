@@ -648,6 +648,9 @@ namespace swoosh {
 
       // draw screen
       handle.draw(post);
+
+      // Flush renderer-owned memory
+      renderer->flushMemory();
     }
 
   private:
