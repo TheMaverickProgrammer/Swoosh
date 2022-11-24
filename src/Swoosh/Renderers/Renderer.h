@@ -146,10 +146,7 @@ namespace swoosh {
     virtual void flushMemory() = 0;
 
   public:
-    /**
-      @brief deconstructor gaurantees `flushMemory` function is called
-    */
-    virtual ~IRenderer() { flushMemory(); }
+    virtual ~IRenderer() { }
 
     /**
       @brief This shortcut for SFML users submits any drawable as a basic render event
@@ -239,6 +236,9 @@ namespace swoosh {
     }
 
   public:
-    virtual ~Renderer() {}
+    /**
+      @brief deconstructor gaurantees `flushMemory` function is called
+    */
+    virtual ~Renderer() { flushMemory(); }
   };
 }

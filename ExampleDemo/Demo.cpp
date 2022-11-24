@@ -100,16 +100,6 @@ int main()
     sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     cursor.setPosition(mousepos);
 
-    // We can filter what we submit to the renderer by checking the current renderer's name or ID
-    const bool isCustomRenderer = app.getCurrentRendererName() == "custom";
-    if (isCustomRenderer) {
-      custom.submit(Light(256.0f, WithZ(mousepos, 10.f), sf::Color(100U, 100U, 150U), 1.0));
-
-      sf::Vector2u size = app.getVirtualWindowSize();
-      sf::Vector2f center = sf::Vector2f(size.x / 2.0f, size.y / 2.0f);
-      custom.submit(Light(1000.0f, WithZ(center, 300.0f), sf::Color(255U, 205U, 255U, 150U)));
-    }
-
     // draw() will directly draw onto the window's render buffer
     app.draw();
 

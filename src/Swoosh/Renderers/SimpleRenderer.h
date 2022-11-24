@@ -11,7 +11,9 @@ namespace swoosh {
 
   public:
     SimpleRenderer(const sf::View view) {
-      surface.create(view.getSize().x, view.getSize().y);
+      const unsigned int ux = (unsigned int)view.getSize().x;
+      const unsigned int uy = (unsigned int)view.getSize().y;
+      surface.create(ux, uy);
     }
 
     void draw() override {

@@ -223,16 +223,16 @@ public:
 
       const sf::Vector2u window = getController().getVirtualWindowSize();
       if (m.pos.x > window.x + 100) {
-        m.pos.x = -50;
+        m.pos.x = -50.0f;
       } else if (m.pos.x < -100) {
-        m.pos.x = window.x + 50;
+        m.pos.x = (float)window.x + 50.f;
       }
 
-      if (m.pos.y > window.y + 100) {
-        m.pos.y = -50;
+      if (m.pos.y > (float)window.y + 100) {
+        m.pos.y = -50.0f;
       }
       else if (m.pos.y < -100) {
-        m.pos.y = window.y + 50;
+        m.pos.y = (float)window.y + 50.0f;
       }
     }
 
@@ -494,11 +494,23 @@ public:
   void onDraw(IRenderer& renderer) override {
     const bool isCustomRenderer = getController().getCurrentRendererName() == "custom";
     sf::RenderWindow& window = getController().getWindow();
+    auto windowSize = getController().getVirtualWindowSize();
+
+    // Track the mouse and create a light source for this pass on the mouse!
+    sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+    // We can filter what we submit to the renderer by checking the current renderer's name or ID
+    if (isCustomRenderer) {
+      renderer.submit(Light(256.0f, WithZ(mousepos, 10.f), sf::Color(100U, 100U, 150U), 1.0));
+
+      sf::Vector2f center = sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f);
+      renderer.submit(Light(1000.0f, WithZ(center, 300.0f), sf::Color(255U, 205U, 255U, 150U)));
+    }
 
     renderer.submit(Draw3D(bg, bgNormal));
 
     for (auto& t : trails) {
-      renderer.submit(t.sprite);
+      renderer.submit(Draw3D(t.sprite, nullptr, trailTexture));
     }
 
     for (auto& m : meteors) {
@@ -523,7 +535,8 @@ public:
       if (e.lifetime > 0) {
         const float alpha = std::max(0.f, (float)(e.life / e.lifetime));
         const float beta = 1.0f - alpha;
-        renderer.submit(Light(100.0f + (200.0f*beta), WithZ(e.sprite.getPosition(), 100.0f), sf::Color(255, 255*beta, 0, 255*alpha), 10.0f, 0.5f));
+        const sf::Uint8 ch = sf::Uint8(alpha*255);
+        renderer.submit(Light(100.0f + (200.0f*beta), WithZ(e.sprite.getPosition(), 100.0f), sf::Color(255, ch, 0, ch), 10.0f, 0.5f));
       }
     }
 
@@ -531,12 +544,10 @@ public:
       renderer.submit(l.sprite);
 
       if (isCustomRenderer) {
-        renderer.submit(Light(80.0, WithZ(l.sprite.getPosition(), 5.0f), sf::Color(0, 215, 0, 255), 2.0f));
+        renderer.submit(Light(100.0, WithZ(l.sprite.getPosition(), 4.0f), sf::Color(0, 215, 0, 255), 2.0f));
       }
     }
     
-    auto windowSize = getController().getVirtualWindowSize();
-
     text.setString(std::string("score: ") + std::to_string(score));
     setOrigin(text, 1, 0);
     text.setPosition(sf::Vector2f((float)windowSize.x - 50.0f, 0.0f));

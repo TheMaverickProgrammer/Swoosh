@@ -204,9 +204,7 @@ public:
 
   void onEnter() override {
     std::cout << "MainMenuScene OnEnter called" << std::endl;
-
   }
-
 
   void onResume() override {
     inFocus = true;
@@ -296,12 +294,11 @@ public:
       menuText.setPosition(sf::Vector2f((float)(startX + offset), (float)startY));
       renderer.submit(Immediate(menuText));
 
-
       if (isCustomRenderer) {
 
-        sf::Uint8 r = ((sin(frequency * i + 2 + dt) + 1.0) / 2.0) * 255U;
-        sf::Uint8 g = ((sin(frequency * i + 0 + dt) + 1.0) / 2.0) * 255U;
-        sf::Uint8 b = ((sin(frequency * i + 4 + dt) + 1.0) / 2.0) * 255U;
+        sf::Uint8 r = sf::Uint8(((sin(frequency * i + 2 + dt) + 1.0) / 2.0) * 255U);
+        sf::Uint8 g = sf::Uint8(((sin(frequency * i + 0 + dt) + 1.0) / 2.0) * 255U);
+        sf::Uint8 b = sf::Uint8(((sin(frequency * i + 4 + dt) + 1.0) / 2.0) * 255U);
 
         renderer.submit(Light(160.0, WithZ(menuText.getPosition(), 50.0f), sf::Color(r, g, b, 255), 0.1f));
       }

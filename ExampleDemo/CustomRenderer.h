@@ -81,14 +81,15 @@ class CustomRenderer : public Renderer<Immediate, Draw3D, Light> {
   std::list<Draw3D> mem3D;
   std::list<Light> memLight;
 
-  std::size_t nextLightIdx{ 0 };
   std::array<sf::Glsl::Vec3, 30> lightPos{};
   std::array<sf::Glsl::Vec4, 30> lightColor{};
   std::array<float, 30> lightRadius{};
 
 public:
   CustomRenderer(const sf::View view) {
-    const sf::Vector2u size = sf::Vector2u(view.getSize().x, view.getSize().y);
+    const unsigned int ux = (unsigned int)view.getSize().x;
+    const unsigned int uy = (unsigned int)view.getSize().y;
+    const sf::Vector2u size = sf::Vector2u(ux, uy);
     diffuse.create(size.x, size.y);
     normal.create(size.x, size.y);
     esm.create(size.x, size.y);
@@ -107,21 +108,24 @@ public:
     }
 
     lightShader.clearLights();
+    bool applyLight = memLight.size() > 0;
     for (Light& source : memLight) {
       lightShader.addLight(source.radius, 
-      sf::Glsl::Vec3(source.position.x, source.position.y, source.position.z), source.color, source.specular, source.cutoff);
+      source.position, 
+      source.color, 
+      source.specular, 
+      source.cutoff);
     }
 
     // compose final shaded scene
-    lightShader.apply(*this);
+    if(applyLight) {
+      lightShader.apply(*this);
+    }
 
     // draw forward rendered content
     for (RenderSource& source : memForward) {
       out.draw(source.drawable());
     }
-
-    // reset the light index
-    nextLightIdx = 0;
 
     // clear the buffer data
     memForward.clear();
