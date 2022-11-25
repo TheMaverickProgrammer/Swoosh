@@ -173,12 +173,6 @@ namespace swoosh {
     virtual void draw() = 0;
 
     /**
-      @brief Implementation defined. The ActivityController display step invokes this callback.
-      @note This function must be used to prepare the final texture for displaying to the screen.
-    */
-    virtual void display() = 0;
-
-    /**
       @brief Implementation defined. The ActivityController draw step invokes this callback.
       @note This function must be used to clear all render surfaces before drawing to them.
     */
@@ -191,11 +185,21 @@ namespace swoosh {
     virtual void setView(const sf::View& view) = 0;
 
     /**
-      @brief Implementation defined. Segues and the Window use the texture to show the final image.
-      @note The texture returned will be the final image that shows up on the screen.
-      @return sf::Texture to display
+      @brief Return the render texture target that represents the screen's fully composed output
+      @return sf::RenderTexture& a reference to the render texture target
     */
-    virtual sf::Texture getTexture() = 0;
+    virtual sf::RenderTexture& getRenderTextureTarget() = 0;
+
+    /**
+      @brief Prepares the render texture target for displaying on the screen by invoking `display()`
+    */
+    void display() { getRenderTextureTarget().display(); }
+
+    /**
+     * @brief Creates a texture copy of the current renderer's output for the scene. Useful for displaying or doing post-processing effects.
+     * @return sf::Texture
+    */
+    sf::Texture getTexture() { return getRenderTextureTarget().getTexture(); }
   };
 
   /**
@@ -205,7 +209,7 @@ namespace swoosh {
     @example class MyRenderer : Renderer<UI, Layers, Particles>{ ... }
   */
   template<typename... Ts>
-  class Renderer : public IRenderer, public ISubscriber<RenderSource, ClonedSource, Ts...> {
+  class Renderer : public IRenderer, public ISubscriber<RenderSource, Immediate, ClonedSource, Ts...> {
   private:
     std::vector<ClonedSource> clonedMem; //!< Track ClonedSource objects
 
@@ -217,11 +221,18 @@ namespace swoosh {
     }
 
     /**
-      @brief Built-in event handler for cloned sources unpacks and submits contained event data
+      @brief Built-in event handler for cloned source events that unpacks and re-submits contained event data
     */
     void onEvent(const ClonedSource& event) override {
       ClonedSource& ref = clonedMem.emplace_back(std::move(event));
       this->redirect(ref.name, ref.mem);
+    }
+
+    /**
+    @brief Built-in event handler for immediate render events that draw directly to the assigned render target at the time of call
+    */
+    void onEvent(const Immediate& event) override {
+      getRenderTextureTarget().draw(event.drawable(), event.states());
     }
 
     /**

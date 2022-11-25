@@ -24,8 +24,8 @@ namespace swoosh {
       */
     }
 
-    void display() override {
-      surface.display();
+    sf::RenderTexture& getRenderTextureTarget() {
+      return surface;
     }
 
     void clear(sf::Color color) override {
@@ -34,10 +34,6 @@ namespace swoosh {
 
     void setView(const sf::View& view) override {
       surface.setView(view);
-    }
-
-    sf::Texture getTexture() override {
-      return surface.getTexture();
     }
 
     /**

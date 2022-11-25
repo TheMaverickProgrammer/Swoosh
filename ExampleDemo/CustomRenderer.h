@@ -68,12 +68,11 @@ sf::Vector3f WithZ(const sf::Vector2f xy, float z) {
 /**
   @class CustomRenderer
   @brief A custom renderer example that uses swoosh shaders to compose a 3D scene
-  Uses `Immediate` render event as a tag to draw to the surface as a composite operation (immediately)
   Uses `Draw3D` render event as a tag to draw the sprite multiple times with different G-buffer texture values
   Uses `Light` render event as a tag to calculate the final lighting in the scene
   The end result is a partial implementation of a deferred renderer commonly used in advanced 3D applications
 */
-class CustomRenderer : public Renderer<Immediate, Draw3D, Light> {
+class CustomRenderer : public Renderer<Draw3D, Light> {
   sf::RenderTexture diffuse, normal, esm, special, out;
   swoosh::glsl::deferred::LightPass lightShader;
   swoosh::glsl::deferred::MeshPass meshShader;
@@ -133,10 +132,6 @@ public:
     memLight.clear();
   }
 
-  void display() override {
-    out.display();
-  }
-
   void clear(sf::Color color) override {
     // for G-buffers the clear color must always be transparent
     diffuse.clear(sf::Color::Transparent);
@@ -152,16 +147,12 @@ public:
     out.setView(view);
   }
 
-  sf::Texture getTexture() override {
-    return out.getTexture();
+  sf::RenderTexture& getRenderTextureTarget() override {
+    return out;
   }
 
   void onEvent(const RenderSource& event) override {
     memForward.push_back(event);
-  }
-
-  void onEvent(const Immediate& event) override {
-    out.draw(event.drawable(), event.states());
   }
 
   void onEvent(const Draw3D& event) override {
