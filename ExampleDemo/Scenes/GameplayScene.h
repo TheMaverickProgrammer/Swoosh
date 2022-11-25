@@ -544,7 +544,7 @@ public:
       renderer.submit(l.sprite);
 
       if (isCustomRenderer) {
-        renderer.submit(Light(100.0, WithZ(l.sprite.getPosition(), 4.0f), sf::Color(0, 215, 0, 255), 2.0f));
+        renderer.submit(Light(100.0, WithZ(l.sprite.getPosition(), 9.0f), sf::Color(0, 215, 0, 255), 20.0f));
       }
     }
     

@@ -292,7 +292,7 @@ public:
       if (menuText.getString() == ' ') { offset += menuText.getCharacterSize(); }
 
       menuText.setPosition(sf::Vector2f((float)(startX + offset), (float)startY));
-      renderer.submit(Immediate(menuText));
+      renderer.submit(Clone(menuText));
 
       if (isCustomRenderer) {
 

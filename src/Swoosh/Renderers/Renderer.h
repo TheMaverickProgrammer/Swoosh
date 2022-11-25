@@ -89,10 +89,10 @@ namespace swoosh {
     // clone event data from SFML primitives, wrapping it in a RenderSource on the heap
     template<typename T>
     struct usefulCopier_t<T, false> {
-      static RenderSource* exec(const T& from, sf::Drawable* dptr, const char** tname) { 
+      static RenderSource* exec(const T& from, sf::Drawable** dptr, const char** tname) { 
         *tname = typeid(RenderSource).name();
-        dptr = new T(from);
-        return new RenderSource(*dptr);
+        *dptr = new T(from);
+        return new RenderSource(**dptr);
       }
     };
   }
@@ -129,7 +129,7 @@ namespace swoosh {
   ClonedSource Clone(const T& t) {
     const char* tname {0};
     sf::Drawable* dptr {nullptr};
-    RenderSource* ptr = ::usefulCopier<T>::exec(t, dptr, &tname);
+    RenderSource* ptr = ::usefulCopier<T>::exec(t, &dptr, &tname);
     return ClonedSource((void*)ptr, dptr, tname);
   }
 

@@ -138,6 +138,7 @@ public:
   }
 
   void clear(sf::Color color) override {
+    // for G-buffers the clear color must always be transparent
     diffuse.clear(sf::Color::Transparent);
     normal.clear(sf::Color::Transparent);
     esm.clear(sf::Color::Transparent);

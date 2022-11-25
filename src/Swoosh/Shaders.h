@@ -920,7 +920,7 @@ namespace swoosh {
           const sf::Texture texESM = esm->getTexture();
 
           // prepare the renderer for drawing
-          // renderer.clear(); // TODO: this is causing problems in swoosh segues and removing emissive?
+          renderer.clear();
 
           shader.setUniform("accumulation", sf::Shader::CurrentTexture);
           shader.setUniform("diffuse", texDiffuse);
