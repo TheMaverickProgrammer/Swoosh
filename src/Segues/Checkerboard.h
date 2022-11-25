@@ -75,7 +75,7 @@ public:
       states.shader = &shader;
     }
 
-    renderer.submit(Immediate(sprite, states));
+    renderer.submit(Immediate(&sprite, states));
   }
 
   CheckerboardCustom(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

@@ -152,7 +152,7 @@ public:
     sf::RenderWindow& window = getController().getWindow();
 
     renderer.clear(sf::Color::Black);
-    renderer.submit(sfml);
+    renderer.submit(&sfml);
 
     text.setFont(manual);
     text.setPosition(sf::Vector2f(screenMid, 200));
@@ -160,7 +160,7 @@ public:
     text.setString(info);
     setOrigin(text, 0.5f, 0);
 
-    renderer.submit(Immediate(text));
+    renderer.submit(Immediate(&text));
 
     text.setFont(font);
     text.setFillColor(sf::Color::Black);

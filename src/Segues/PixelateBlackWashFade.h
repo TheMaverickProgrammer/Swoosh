@@ -71,7 +71,7 @@ public:
       sf::RectangleShape blackout;
       blackout.setSize(sf::Vector2f((float)renderer.getTexture().getSize().x, (float)renderer.getTexture().getSize().y));
       blackout.setFillColor(sf::Color(0, 0, 0, (sf::Uint8)(alpha * (double)255)));
-      renderer.submit(Immediate(blackout));
+      renderer.submit(Immediate(&blackout));
     }
   }
 

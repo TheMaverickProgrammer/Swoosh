@@ -43,9 +43,9 @@ public:
     sf::Texture temp2(renderer.getTexture());
     sf::Sprite right(temp2);
 
-    renderer.submit(Immediate(right));
-    renderer.submit(Immediate(top));
-    renderer.submit(Immediate(bottom));
+    renderer.submit(Immediate(&right));
+    renderer.submit(Immediate(&top));
+    renderer.submit(Immediate(&bottom));
   }
 
   HorizontalOpen(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

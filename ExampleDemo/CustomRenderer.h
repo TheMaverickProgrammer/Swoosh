@@ -10,14 +10,15 @@
   @brief A render event with material data that can render 2D graphics as psuedo-3D
 */
 struct Draw3D : RenderSource {
-  glsl::deferred::MeshData data; // !< aggregate data for the 2D model 
-  explicit Draw3D(sf::Sprite& spr, 
-  sf::Texture* normal, 
-  sf::Texture* emissive = nullptr, 
-  float metallic = 0, 
-  float specular = 0) :
+  glsl::deferred::MeshData data; // !< aggregate data for the 2D model
+
+  explicit Draw3D(sf::Sprite* spr, 
+    sf::Texture* normal, 
+    sf::Texture* emissive = nullptr, 
+    float metallic = 0, 
+    float specular = 0) :
     RenderSource(spr),
-    data({ &spr, normal, emissive, metallic, specular })
+    data({ spr, normal, emissive, metallic, specular })
   {}
 };
 
@@ -33,12 +34,13 @@ struct Light : RenderSource {
   sf::CircleShape circle{};
   float specular{};
   float cutoff{};
+
   explicit Light(float radius, 
-  sf::Vector3f position, 
-  sf::Color color, 
-  float specular = 0.0f, 
-  float cutoff = 0.0f) :
-    RenderSource(circle),
+    sf::Vector3f position, 
+    sf::Color color, 
+    float specular = 0.0f, 
+    float cutoff = 0.0f) :
+    RenderSource(&circle),
     radius(radius),
     position(position),
     color(color),
@@ -80,10 +82,6 @@ class CustomRenderer : public Renderer<Draw3D, Light> {
   std::list<Draw3D> mem3D;
   std::list<Light> memLight;
 
-  std::array<sf::Glsl::Vec3, 30> lightPos{};
-  std::array<sf::Glsl::Vec4, 30> lightColor{};
-  std::array<float, 30> lightRadius{};
-
 public:
   CustomRenderer(const sf::View view) {
     const unsigned int ux = (unsigned int)view.getSize().x;
@@ -123,7 +121,7 @@ public:
 
     // draw forward rendered content
     for (RenderSource& source : memForward) {
-      out.draw(source.drawable());
+      out.draw(*source.drawable());
     }
 
     // clear the buffer data

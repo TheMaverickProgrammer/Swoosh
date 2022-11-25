@@ -40,7 +40,7 @@ namespace swoosh {
      * @brief The only event handler. All drawables will be promptly drawn into the render surface
     */
     void onEvent(const RenderSource& event) override {
-      surface.draw(event.drawable(), event.states());
+      surface.draw(*event.drawable(), event.states());
     }
   };
 }

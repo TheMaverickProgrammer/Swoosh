@@ -804,7 +804,7 @@ namespace swoosh {
     void onUpdate(double elapsed) override { };
 
     void onDraw(IRenderer& renderer) override {
-      renderer.submit(drawable);
+      renderer.submit(&drawable);
     }
   }; // CopyWindow
 

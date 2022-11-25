@@ -44,9 +44,9 @@ public:
     sf::Texture temp2(renderer.getTexture());
     sf::Sprite next(temp2);
 
-    renderer.submit(Immediate(next));
-    renderer.submit(Immediate(left));
-    renderer.submit(Immediate(right));
+    renderer.submit(Immediate(&next));
+    renderer.submit(Immediate(&left));
+    renderer.submit(Immediate(&right));
   }
 
   VerticalSlice(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

@@ -53,8 +53,8 @@ public:
     left.setColor(sf::Color(255, 255, 255, (sf::Uint8)((1.0-alpha) * 255.0)));
     right.setColor(sf::Color(255, 255, 255, (sf::Uint8)(alpha * 255.0)));
 
-    renderer.submit(Immediate(left));
-    renderer.submit(Immediate(right));
+    renderer.submit(Immediate(&left));
+    renderer.submit(Immediate(&right));
 
     firstPass = false;
   }

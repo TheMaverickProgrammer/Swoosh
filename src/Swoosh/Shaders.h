@@ -61,7 +61,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture);
 
-        renderer.submit(Immediate(sprite, states));
+        renderer.submit(Immediate(&sprite, states));
       }
 
       FastGaussianBlur(int numOfKernels) {
@@ -168,7 +168,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        renderer.submit(Immediate(sprite, states));
+        renderer.submit(Immediate(&sprite, states));
       }
 
       Checkerboard(int cols = 10, int rows = 10) {
@@ -231,7 +231,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture);
 
-        renderer.submit(Immediate(sprite, states));
+        renderer.submit(Immediate(&sprite, states));
       }
 
       CircleMask() {
@@ -297,7 +297,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture);
 
-        renderer.submit(Immediate(sprite, states));
+        renderer.submit(Immediate(&sprite, states));
       }
 
       RetroBlit() {
@@ -355,7 +355,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        renderer.submit(Immediate(sprite, states));
+        renderer.submit(Immediate(&sprite, states));
       }
 
       CrossZoom() {
@@ -470,7 +470,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        renderer.submit(Immediate(sprite, states));
+        renderer.submit(Immediate(&sprite, states));
       }
 
       Morph() {
@@ -631,7 +631,7 @@ namespace swoosh {
         states.shader = &shader;
 
         renderer.clear(sf::Color::Transparent);
-        renderer.submit(Immediate(buffer, states));
+        renderer.submit(Immediate(&buffer, states));
       }
 
       PageTurn(sf::Vector2u size, const int cellSize = 10) {
@@ -715,7 +715,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*this->texture);
 
-        renderer.submit(Immediate(sprite, states));
+        renderer.submit(Immediate(&sprite, states));
       }
 
       void setTexture(sf::Texture* tex) { if (!tex) return; this->texture = tex; shader.setUniform("texture", *this->texture); }
@@ -765,7 +765,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        renderer.submit(Immediate(sprite, states));
+        renderer.submit(Immediate(&sprite, states));
       }
 
       void setTexture1(sf::Texture* tex) { if (!tex) return; this->texture1 = tex; shader.setUniform("texture", *texture1); }
@@ -940,7 +940,7 @@ namespace swoosh {
             const sf::Texture out = renderer.getTexture();
 
             sf::Sprite temp(out);
-            renderer.submit(Immediate(temp, states));
+            renderer.submit(Immediate(&temp, states));
           }
         }
 

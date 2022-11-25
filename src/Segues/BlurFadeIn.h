@@ -92,8 +92,8 @@ public:
     sprite.setColor(sf::Color(255, 255, 255, (sf::Uint8)(255.0 * (1-alpha))));
     sprite2.setColor(sf::Color(255, 255, 255, (sf::Uint8)(255.0 * alpha)));
 
-    renderer.submit(Immediate(sprite));
-    renderer.submit(Immediate(sprite2));
+    renderer.submit(Immediate(&sprite));
+    renderer.submit(Immediate(&sprite2));
 
     firstPass = false;
   }

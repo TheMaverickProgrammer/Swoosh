@@ -29,7 +29,7 @@ public:
     sf::RectangleShape whiteout;
     whiteout.setSize(sf::Vector2f((float)renderer.getTexture().getSize().x, (float)renderer.getTexture().getSize().y));
     whiteout.setFillColor(sf::Color(0, 0, 0, (sf::Uint8)(alpha*255)));
-    renderer.submit(Immediate(whiteout));
+    renderer.submit(Immediate(&whiteout));
   }
 
   BlackWashFade(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) { /* ... */ }

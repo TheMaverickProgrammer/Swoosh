@@ -507,10 +507,10 @@ public:
       renderer.submit(Light(1000.0f, WithZ(center, 300.0f), sf::Color(255U, 205U, 255U, 150U)));
     }
 
-    renderer.submit(Draw3D(bg, bgNormal));
+    renderer.submit(Draw3D(&bg, bgNormal));
 
     for (auto& t : trails) {
-      renderer.submit(Draw3D(t.sprite, nullptr, trailTexture));
+      renderer.submit(Draw3D(&t.sprite, nullptr, trailTexture));
     }
 
     for (auto& m : meteors) {
@@ -526,11 +526,11 @@ public:
       }
       // else - handled by default value of `normal`
 
-      renderer.submit(Draw3D(m.sprite, normal));
+      renderer.submit(Draw3D(&m.sprite, normal));
     }
 
     for (auto& e : enemies) {
-      renderer.submit(Draw3D(e.sprite, enemyNormal, enemyEsm));
+      renderer.submit(Draw3D(&e.sprite, enemyNormal, enemyEsm));
 
       if (e.lifetime > 0) {
         const float alpha = std::max(0.f, (float)(e.life / e.lifetime));
@@ -541,7 +541,7 @@ public:
     }
 
     for (auto& l : lasers) {
-      renderer.submit(l.sprite);
+      renderer.submit(&l.sprite);
 
       if (isCustomRenderer) {
         renderer.submit(Light(100.0, WithZ(l.sprite.getPosition(), 9.0f), sf::Color(0, 215, 0, 255), 20.0f));
@@ -559,18 +559,18 @@ public:
       text.setFillColor(sf::Color::White);
     }
 
-    renderer.submit(text);
+    renderer.submit(&text);
 
-    if (isExtraLifeSpawned) renderer.submit(star);
+    if (isExtraLifeSpawned) renderer.submit(&star);
 
 
     if (lives >= 0) {
-      renderer.submit(Draw3D(player.sprite, playerNormal, playerEsm, 0.5f));
+      renderer.submit(Draw3D(&player.sprite, playerNormal, playerEsm, 0.5f));
 
       if (hasShield) {
         shield.setPosition(player.pos);
         shield.setRotation(player.sprite.getRotation());
-        renderer.submit(shield);
+        renderer.submit(&shield);
       }
 
       numeral = sf::Sprite(*numeralTexture[10]); // X
@@ -583,10 +583,10 @@ public:
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
 
       // NOTE: The original `numeral` sprite is submitted without changing the cloned copies!
-      renderer.submit(numeral);
+      renderer.submit(&numeral);
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);
-      renderer.submit(playerLife);
+      renderer.submit(&playerLife);
     }
   }
 

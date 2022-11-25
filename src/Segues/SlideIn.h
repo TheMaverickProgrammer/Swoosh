@@ -47,8 +47,8 @@ public:
 
     right.setPosition((float)-lr * (1.0f-(float)alpha) * right.getTexture()->getSize().x, (float)-ud * (1.0f-(float)alpha) * right.getTexture()->getSize().y);
 
-    renderer.submit(Immediate(left));
-    renderer.submit(Immediate(right));
+    renderer.submit(Immediate(&left));
+    renderer.submit(Immediate(&right));
   }
 
   SlideIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) { 

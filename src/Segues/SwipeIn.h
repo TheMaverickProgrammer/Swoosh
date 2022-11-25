@@ -85,8 +85,8 @@ public:
     top.setTextureRect(sf::IntRect(l, u, r, d));
 
     renderer.clear();
-    renderer.submit(Immediate(bottom));
-    renderer.submit(Immediate(top));
+    renderer.submit(Immediate(&bottom));
+    renderer.submit(Immediate(&top));
   }
 
   SwipeIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

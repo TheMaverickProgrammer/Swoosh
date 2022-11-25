@@ -31,7 +31,7 @@ namespace swoosh {
   */
   class RenderSource {
   private:
-    const sf::Drawable& ref; //!< Reference to SFML primitive
+    const sf::Drawable* dptr{nullptr}; //!< pointer to SFML primitive
     const sf::RenderStates statesIn; //!< Copy of the render states to draw the primitive
 
   public:
@@ -39,14 +39,14 @@ namespace swoosh {
       @brief constructs a RenderSource event from an SFML primitive and optional render states
       @example renderer.submit(RenderSource(sprite, states));
     */
-    explicit RenderSource(const sf::Drawable& src, const sf::RenderStates& states = sf::RenderStates())
-      : ref(src), statesIn(states) {}
+    explicit RenderSource(const sf::Drawable* src, const sf::RenderStates& states = sf::RenderStates())
+      : dptr(src), statesIn(states) {}
     virtual ~RenderSource() {}
 
     /**
-      @brief Returns the SFML primitive
+      @brief Returns a pointer to the SFML primitive
     */
-    const sf::Drawable& drawable() const { return ref; }
+    const sf::Drawable* drawable() const { return dptr; }
 
     /**
       @brief Returns the render states info
@@ -62,9 +62,9 @@ namespace swoosh {
   public:
     /**
       @brief constructs an Immediate render event type
-      @example renderer.submit(Immediate(sprite, states));
+      @example renderer.submit(Immediate(&sprite, states));
     */
-    Immediate(const sf::Drawable& src, const sf::RenderStates& states = sf::RenderStates()) : RenderSource(src, states) {}
+    Immediate(const sf::Drawable* src, const sf::RenderStates& states = sf::RenderStates()) : RenderSource(src, states) {}
   };
 
   // internal utility structs
@@ -92,7 +92,7 @@ namespace swoosh {
       static RenderSource* exec(const T& from, sf::Drawable** dptr, const char** tname) { 
         *tname = typeid(RenderSource).name();
         *dptr = new T(from);
-        return new RenderSource(**dptr);
+        return new RenderSource(*dptr);
       }
     };
   }
@@ -116,7 +116,7 @@ namespace swoosh {
     sf::Drawable* dptr {nullptr}; //!< ptr to SFML drawable (may be nullptr)
 
     ClonedSource(void* memIn, sf::Drawable* dptr, const char* nameIn) : 
-      name(nameIn), mem(memIn), dptr(dptr), RenderSource(*dptr) {}
+      name(nameIn), mem(memIn), dptr(dptr), RenderSource(dptr) {}
   };
 
   /**
@@ -150,10 +150,10 @@ namespace swoosh {
 
     /**
       @brief This shortcut for SFML users submits any drawable as a basic render event
-      @param drawable any class that inherits from SFML drawable
+      @param drawable a pointer to any class that inherits from SFML drawable
       @param states RenderState info for this graphic
     */
-    void submit(const sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates()) {
+    void submit(const sf::Drawable* drawable, const sf::RenderStates& states = sf::RenderStates()) {
       IDispatcher::submit(RenderSource(drawable, states));
     }
 
@@ -232,7 +232,7 @@ namespace swoosh {
     @brief Built-in event handler for immediate render events that draw directly to the assigned render target at the time of call
     */
     void onEvent(const Immediate& event) override {
-      getRenderTextureTarget().draw(event.drawable(), event.states());
+      getRenderTextureTarget().draw(*event.drawable(), event.states());
     }
 
     /**
