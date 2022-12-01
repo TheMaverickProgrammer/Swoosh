@@ -20,6 +20,11 @@ struct Draw3D : RenderSource {
     RenderSource(spr),
     data({ spr, normal, emissive, metallic, specular })
   {}
+
+  Draw3D WithZ(float z) {
+    data.WithZ(z);
+    return *this;
+  }
 };
 
 /**
@@ -75,9 +80,11 @@ sf::Vector3f WithZ(const sf::Vector2f xy, float z) {
   The end result is a partial implementation of a deferred renderer commonly used in advanced 3D applications
 */
 class CustomRenderer : public Renderer<Draw3D, Light> {
-  sf::RenderTexture diffuse, normal, esm, special, out;
-  swoosh::glsl::deferred::LightPass lightShader;
-  swoosh::glsl::deferred::MeshPass meshShader;
+  sf::RenderTexture position, diffuse, normal, esm, out;
+  glsl::deferred::PositionPass positionShader;
+  glsl::deferred::LightPass lightShader;
+  glsl::deferred::EmissivePass emissiveShader;
+  glsl::deferred::MeshPass meshShader;
   std::list<RenderSource> memForward;
   std::list<Draw3D> mem3D;
   std::list<Light> memLight;
@@ -87,21 +94,31 @@ public:
     const unsigned int ux = (unsigned int)view.getSize().x;
     const unsigned int uy = (unsigned int)view.getSize().y;
     const sf::Vector2u size = sf::Vector2u(ux, uy);
+
+    position.create(size.x, size.y);
     diffuse.create(size.x, size.y);
     normal.create(size.x, size.y);
     esm.create(size.x, size.y);
     out.create(size.x, size.y);
 
-    meshShader.setSurfaces(&diffuse, &normal, &esm);
-    lightShader.setSurfaces(view, &diffuse, &normal, &esm);
+    meshShader.configure(&diffuse, &normal, &esm);
+    positionShader.configure(-100, 100, view, &position);
+    lightShader.configure(view, &position, &diffuse, &normal, &esm);
+    emissiveShader.configure(&diffuse, &esm);
   }
 
   void draw() override {
+    mem3D.sort([](Draw3D& a, Draw3D& b) { return a.data.getPosition3D().z < b.data.getPosition3D().z; });
+    
     for (Draw3D& source : mem3D) {
-      meshShader.setMeshData(source.data);
-
+      
       // bake the currect normals
+      meshShader.setMeshData(source.data);
       meshShader.apply(*this);
+
+      // bake the position data
+      positionShader.setMeshData(source.data);
+      positionShader.apply(*this);
     }
 
     lightShader.clearLights();
@@ -114,10 +131,13 @@ public:
       source.cutoff);
     }
 
-    // compose final shaded scene
+    // render light geometry over the scene
     if(applyLight) {
       lightShader.apply(*this);
     }
+
+    // draw emissive lighting
+    emissiveShader.apply(*this);
 
     // draw forward rendered content
     for (RenderSource& source : memForward) {
@@ -132,6 +152,7 @@ public:
 
   void clear(sf::Color color) override {
     // for G-buffers the clear color must always be transparent
+    position.clear(sf::Color::Transparent);
     diffuse.clear(sf::Color::Transparent);
     normal.clear(sf::Color::Transparent);
     esm.clear(sf::Color::Transparent);
@@ -139,6 +160,7 @@ public:
   }
 
   void setView(const sf::View& view) override {
+    position.setView(view);
     diffuse.setView(view);
     normal.setView(view);
     esm.setView(view);

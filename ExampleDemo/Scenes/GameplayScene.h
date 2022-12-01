@@ -501,13 +501,15 @@ public:
 
     // We can filter what we submit to the renderer by checking the current renderer's name or ID
     if (isCustomRenderer) {
+      // Draw a light tracking the cursor
       renderer.submit(Light(256.0f, WithZ(mousepos, 10.f), sf::Color(100U, 100U, 150U), 1.0));
 
+      // Draw a light in the scene so we can see everything
       sf::Vector2f center = sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f);
-      renderer.submit(Light(1000.0f, WithZ(center, 300.0f), sf::Color(255U, 205U, 255U, 150U)));
+      renderer.submit(Light(1000.0f, WithZ(center, 100.0f), sf::Color(255U, 205U, 255U, 150U)));
     }
 
-    renderer.submit(Draw3D(&bg, bgNormal));
+    renderer.submit(Draw3D(&bg, bgNormal).WithZ(-100));
 
     for (auto& t : trails) {
       renderer.submit(Draw3D(&t.sprite, nullptr, trailTexture));
@@ -526,7 +528,7 @@ public:
       }
       // else - handled by default value of `normal`
 
-      renderer.submit(Draw3D(&m.sprite, normal));
+      renderer.submit(Draw3D(&m.sprite, normal).WithZ(-50));
     }
 
     for (auto& e : enemies) {
@@ -541,7 +543,7 @@ public:
     }
 
     for (auto& l : lasers) {
-      renderer.submit(&l.sprite);
+      renderer.submit(Draw3D(&l.sprite, nullptr, laserTexture).WithZ(-1.0f));
 
       if (isCustomRenderer) {
         renderer.submit(Light(100.0, WithZ(l.sprite.getPosition(), 9.0f), sf::Color(0, 215, 0, 255), 20.0f));

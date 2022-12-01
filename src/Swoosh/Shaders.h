@@ -804,7 +804,7 @@ namespace swoosh {
 
     /**
       @namespace deferred
-      @brief Using an additional normal map texture and light parameters, shades a scene with 3D lighting
+      @brief Using extra input textures, light parameters, and destination textures: draws a scene with 3D lighting
     */
     namespace deferred {
       struct MeshData {
@@ -813,7 +813,19 @@ namespace swoosh {
         sf::Texture* esm{ nullptr }; // Emissive (R), Specular (G), Metallic (B)
         float metallic{};
         float specular{};
+        float z{};
+
+        MeshData WithZ(float z) {
+          this->z = z;
+          return *this;
+        }
+
+        sf::Glsl::Vec3 getPosition3D() {
+          sf::Vector2f pos2D = sprite->getPosition();
+          return sf::Glsl::Vec3(pos2D.x, pos2D.y, z);
+        }
       };
+
       class MeshPass final : public Shader {
       private:
         std::string SHADER_FRAG;
@@ -854,7 +866,7 @@ namespace swoosh {
           sprite.setTexture(*temp);
         }
 
-        void setSurfaces(sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* esmIn) {
+        void configure(sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* esmIn) {
           diffuse = diffuseIn;
           normal = normalIn;
           esm = esmIn;
@@ -896,7 +908,7 @@ namespace swoosh {
       class LightPass final : public Shader {
       private:
         std::string SHADER_FRAG;
-        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * esm{ nullptr };
+        sf::RenderTexture* position{ nullptr }, * diffuse{ nullptr }, * normal{ nullptr }, * esm{ nullptr };
 
         struct light_t {
           float radius{};
@@ -910,19 +922,22 @@ namespace swoosh {
 
       public:
         void apply(IRenderer& renderer) override {
-          if (!(diffuse && normal && esm)) return;
+          if (!(position && diffuse && normal && esm)) return;
 
           diffuse->display();
           normal->display();
           esm->display();
+          position->display();
           const sf::Texture texDiffuse = diffuse->getTexture();
           const sf::Texture texNormal = normal->getTexture();
           const sf::Texture texESM = esm->getTexture();
+          const sf::Texture texPosition = position->getTexture();
 
           // prepare the renderer for drawing
           renderer.clear();
 
           shader.setUniform("accumulation", sf::Shader::CurrentTexture);
+          shader.setUniform("screenpos", texPosition);
           shader.setUniform("diffuse", texDiffuse);
           shader.setUniform("normal", texNormal);
           shader.setUniform("esm", texESM);
@@ -952,8 +967,13 @@ namespace swoosh {
           lights.push_back({ radius, pos, color, specular, cutoff });
         }
 
-        void setSurfaces(sf::View view, sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* esmIn) {
+        void configure(sf::View view, 
+        sf::RenderTexture* positionIn, 
+        sf::RenderTexture* diffuseIn, 
+        sf::RenderTexture* normalIn, 
+        sf::RenderTexture* esmIn) {
           shader.setUniform("InvProj", sf::Glsl::Mat4(view.getInverseTransform().getMatrix()));
+          position = positionIn;
           diffuse = diffuseIn;
           normal = normalIn;
           esm = esmIn;
@@ -972,6 +992,7 @@ namespace swoosh {
             uniform float lightCutoff;
             uniform mat4 InvProj;
             uniform sampler2D accumulation;
+            uniform sampler2D screenpos;
             uniform sampler2D diffuse;
             uniform sampler2D normal;
             uniform sampler2D esm;
@@ -983,8 +1004,9 @@ namespace swoosh {
               vec4 pxDiffuse = texture2D(diffuse, xy);
               vec4 pxNormal = texture2D(normal, xy);
               vec4 pxESM = texture2D(esm, xy);
+              vec4 pxScreenPos = texture2D(screenpos, xy);
 
-              float depth = 0.5; // TODO: use depth buffer
+              float depth = pxScreenPos.z;
               depth = depth * 2.0 - 1.0;
 
               float emissive = pxESM.r; // emissive surface component
@@ -1026,8 +1048,7 @@ namespace swoosh {
               vec3 specular_i = lightColor.rgb * specularIntensity * lightSpecular;
 
               // combine all lights
-              vec4 emissive_i =  vec4(0); // TODO: vec4(emissive*pxDiffuse.rgb, pxDiffuse.a);
-              gl_FragColor = vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0) + emissive_i;
+              gl_FragColor = vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0);
             }
           );
 
@@ -1035,6 +1056,126 @@ namespace swoosh {
         }
 
         ~LightPass() { ; }
+      };
+
+      class EmissivePass final : public Shader {
+      private:
+        std::string SHADER_FRAG;
+        sf::RenderTexture* diffuse{ nullptr }, * esm{ nullptr };
+
+      public:
+        void apply(IRenderer& renderer) override {
+          if (!(diffuse && esm)) return;
+
+          sf::RenderStates states;
+          states.shader = &shader;
+
+          shader.setUniform("esm", esm);
+          shader.setUniform("diffuse", diffuse);
+
+          renderer.display();
+          const sf::Texture out = renderer.getTexture();
+
+          sf::Sprite temp(out);
+          renderer.submit(Immediate(&temp, states));
+        }
+
+        void configure(sf::RenderTexture* diffuseIn, sf::RenderTexture* esmIn) {
+          diffuse = diffuseIn;
+          esm = esmIn;
+        }
+
+        EmissivePass() {
+          /**
+            fragment shader
+          **/
+          SHADER_FRAG = GLSL(
+            110,
+            uniform sampler2D diffuse;
+            uniform sampler2D esm;
+
+            void main()
+            {
+              vec2 px = gl_TexCoord[0].xy;
+              vec4 pxESM = texture2D(esm, px);
+              gl_FragColor = gl_FragColor.rgba + (pxESM.r*texture2D(diffuse, px));
+            }
+          );
+
+          shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
+        }
+
+        ~EmissivePass() { ; }
+      };
+
+      class PositionPass final : public Shader {
+      private:
+        std::string SHADER_FRAG;
+        sf::RenderTexture* position{ nullptr };
+        MeshData meshData;
+        float nearZ{-1}, farZ{1};
+        sf::View view;
+      public:
+        void setMeshData(const MeshData& data) {
+          meshData = data;
+        }
+
+        void apply(IRenderer& renderer) override {
+          if (!position) return;
+
+          sf::RenderStates states;
+          states.shader = &shader;
+
+          sf::Sprite& sprite = *meshData.sprite;
+          sf::Glsl::Vec3 screenPos = meshData.getPosition3D();
+          screenPos.x /= view.getSize().x;
+          screenPos.y /= view.getSize().y;
+          screenPos.z = (screenPos.z-nearZ)/(farZ-nearZ);
+
+          // clamp values for shader programs
+          screenPos.x = std::clamp(screenPos.x, 0.0f, 1.0f);
+          screenPos.y = std::clamp(screenPos.y, 0.0f, 1.0f);
+          screenPos.z = std::clamp(screenPos.z, 0.0f, 1.0f);
+
+          shader.setUniform("position", screenPos);
+          shader.setUniform("diffuse", sf::Shader::CurrentTexture);
+
+          position->draw(sprite, states);
+        }
+
+        void configure(float nearZIn, 
+        float farZIn, 
+        sf::View viewIn, 
+        sf::RenderTexture* positionIn) {
+          position = positionIn;
+          farZ = farZIn;
+          nearZ = nearZIn;
+          view = viewIn;
+        }
+
+        PositionPass() {
+          /**
+            fragment shader
+          **/
+          SHADER_FRAG = GLSL(
+            110,
+            uniform sampler2D diffuse;
+            uniform vec3 position;
+
+            void main()
+            {
+              vec2 px = gl_TexCoord[0].xy;
+              if(texture2D(diffuse, px).a == 0.0) discard;
+              if(gl_FragColor.z > position.z) discard;
+
+              gl_FragColor = vec4(position, 1.0);
+            }
+          );
+
+          shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
+        }
+
+        ~PositionPass() { ; }
       };
     }
   }
