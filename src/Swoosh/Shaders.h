@@ -1048,7 +1048,7 @@ namespace swoosh {
               vec3 specular_i = lightColor.rgb * specularIntensity * lightSpecular;
 
               // combine all lights
-              gl_FragColor = vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, 1.0);
+              gl_FragColor =  vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, pxDiffuse.a);
             }
           );
 

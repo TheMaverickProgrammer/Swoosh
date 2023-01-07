@@ -64,8 +64,8 @@ public:
 
     right.setPosition((float)(-lr * (1.0-alpha) * right.getTexture()->getSize().x), (float)(-ud * (1.0-alpha) * right.getTexture()->getSize().y));
 
-    renderer.submit(left);
-    renderer.submit(right);
+    renderer.submit(&left);
+    renderer.submit(&right);
 
     firstPass = false;
   }
