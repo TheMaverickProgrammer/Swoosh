@@ -111,12 +111,34 @@ namespace swoosh {
     Memory is deleted at the end of the `draw()` routine in the ActivityController
   */
   struct ClonedSource : RenderSource {
-    const char* name {0}; //!< typename
-    void* mem { nullptr }; //!< type-erased memory
-    sf::Drawable* dptr {nullptr}; //!< ptr to SFML drawable (may be nullptr)
+    class DeletePolicy {
+    public:
+      virtual ~DeletePolicy() {}
+      virtual void free(void*) = 0;
+    };
 
-    ClonedSource(void* memIn, sf::Drawable* dptr, const char* nameIn) : 
-      name(nameIn), mem(memIn), dptr(dptr), RenderSource(dptr) {}
+    template<typename T>
+    struct Deleter : public ClonedSource::DeletePolicy {
+      void free(void* mem) override {
+        T* asT = (T*)mem;
+        delete asT;
+      }
+    };
+
+    const char* name{ 0 }; //!< typename
+    void* mem{ nullptr }; //!< type-erased memory
+    sf::Drawable* dptr{ nullptr }; //!< ptr to SFML drawable (may be nullptr)
+    DeletePolicy* deleter{ nullptr };
+
+    void freeMemory() {
+      delete dptr;
+
+      if (!deleter) return;
+      deleter->free(mem);
+    }
+
+    ClonedSource(void* memIn, sf::Drawable* dptr, const char* nameIn, DeletePolicy* policy = nullptr) : 
+      name(nameIn), mem(memIn), dptr(dptr), deleter(policy), RenderSource(dptr) {}
   };
 
   /**
@@ -127,10 +149,12 @@ namespace swoosh {
   */
   template<typename T>
   ClonedSource Clone(const T& t) {
+    static ClonedSource::Deleter<T> deleter_type_policy;
+
     const char* tname {0};
     sf::Drawable* dptr {nullptr};
     RenderSource* ptr = usefulCopier<T>::exec(t, &dptr, &tname);
-    return ClonedSource((void*)ptr, dptr, tname);
+    return ClonedSource((void*)ptr, dptr, tname, &deleter_type_policy);
   }
 
   /**
@@ -241,8 +265,7 @@ namespace swoosh {
     */
     void flushMemory() override {
       for(ClonedSource& c : clonedMem) {
-        delete c.mem;
-        delete c.dptr;
+        c.freeMemory();
       }
       clonedMem.clear();
     }
