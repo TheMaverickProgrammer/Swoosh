@@ -46,7 +46,7 @@ public:
     int d = 0;
 
     // left
-    if (direction == direction::left) {
+    if (direction == types::direction::left) {
       r = bottom.getTexture()->getSize().x;
       l = (int)(r - (alpha * (double)r));
       u = 0;
@@ -57,7 +57,7 @@ public:
     }
 
     // right
-    if (direction == direction::right) {
+    if (direction == types::direction::right) {
       r = (int)((double)bottom.getTexture()->getSize().x * alpha);
       l = 0;
       u = 0;
@@ -65,7 +65,7 @@ public:
     }
 
     // up
-    if (direction == direction::up) {
+    if (direction == types::direction::up) {
       r = bottom.getTexture()->getSize().x;
       l = 0;
       d = bottom.getTexture()->getSize().y;
@@ -75,7 +75,7 @@ public:
     }
 
     // down 
-    if (direction == direction::down) {
+    if (direction == types::direction::down) {
       r = bottom.getTexture()->getSize().x;
       l = 0;
       u = 0;

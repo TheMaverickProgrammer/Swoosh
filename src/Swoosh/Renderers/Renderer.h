@@ -99,11 +99,11 @@ namespace swoosh {
 
   // shorthand SFNAE for Swoosh render events
   template<typename T>
-  using is_render_event = std::is_base_of<RenderSource, typename T>;
+  using is_render_event = std::is_base_of<RenderSource, T>;
 
   // shorthand SFNAE for SFML primitives
   template<typename T>
-  using is_sfml_primitive = std::is_base_of<sf::Drawable, typename T>;
+  using is_sfml_primitive = std::is_base_of<sf::Drawable, T>;
 
   /**
     @class ClonedSource
@@ -129,7 +129,7 @@ namespace swoosh {
   ClonedSource Clone(const T& t) {
     const char* tname {0};
     sf::Drawable* dptr {nullptr};
-    RenderSource* ptr = ::usefulCopier<T>::exec(t, &dptr, &tname);
+    RenderSource* ptr = usefulCopier<T>::exec(t, &dptr, &tname);
     return ClonedSource((void*)ptr, dptr, tname);
   }
 
@@ -148,14 +148,6 @@ namespace swoosh {
   public:
     virtual ~IRenderer() { }
 
-    /**
-      @brief This shortcut for SFML users submits any drawable as a basic render event
-      @param drawable a pointer to any class that inherits from SFML drawable
-      @param states RenderState info for this graphic
-    */
-    void submit(const sf::Drawable* drawable, const sf::RenderStates& states = sf::RenderStates()) {
-      IDispatcher::submit(RenderSource(drawable, states));
-    }
 
     /**
       @brief Submits a custom render event
@@ -164,6 +156,15 @@ namespace swoosh {
     template<typename Event, typename use = std::enable_if_t<is_render_event<Event>::value>>
     void submit(const Event& event) {
       IDispatcher::submit(event);
+    }
+
+    /**
+      @brief This shortcut for SFML users submits any drawable as a basic render event
+      @param drawable a pointer to any class that inherits from SFML drawable
+      @param states RenderState info for this graphic
+    */
+    void submit(const sf::Drawable* drawable, const sf::RenderStates& states = sf::RenderStates()) {
+      IDispatcher::submit(RenderSource(drawable, states));
     }
 
     /**

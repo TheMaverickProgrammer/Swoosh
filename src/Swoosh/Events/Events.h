@@ -1,5 +1,7 @@
 #pragma once
 #include <map>
+#include <typeinfo>
+#include <type_traits>
 
 //
 // Event dispatcher interfaces introduced in Swoosh v2.0.0
@@ -27,7 +29,7 @@ namespace swoosh {
       */
       template<typename Event>
       void submit(const Event& event) {
-        constexpr bool ofEventBase = std::is_base_of<typename E, typename Event>::value;
+        constexpr bool ofEventBase = std::is_base_of<E, Event>::value;
         static_assert(ofEventBase, "Cannot submit `event` because it does not have a base class `RenderSource`");
         broadcast(typeid(Event).name(), (void*)&event);
       }
