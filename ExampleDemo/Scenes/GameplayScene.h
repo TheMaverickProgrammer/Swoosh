@@ -429,6 +429,10 @@ public:
 
     if(hasShield && killShield)
       hasShield = false;
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num0)) {
+      getController().clearStackSafely();
+    }
   }
 
   void onLeave() override {

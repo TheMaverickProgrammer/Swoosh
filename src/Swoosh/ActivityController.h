@@ -18,10 +18,33 @@ namespace swoosh {
     friend class swoosh::Segue;
 
   private:
+    // helper util for `hasPendingChanges`
+    class pending_raii {
+      bool& value;
+
+    public:
+      pending_raii(bool& source) : value(source) {
+        // Behave like a spin-lock
+        // If this true else-where, wait our turn to acquire it
+        while (value) {};
+        value = true;
+      }
+
+      ~pending_raii() {
+        value = false;
+      }
+
+      void set(const bool newValue) {
+        value = newValue;
+      }
+    };
+
     swoosh::Activity* last{ nullptr }; //!< Pointer of the last activity
     std::stack<swoosh::Activity*> activities; //!< Stack of activities
     sf::RenderWindow& handle; //!< sfml window reference
     sf::Vector2u virtualWindowSize; //!< Window size requested to render with
+    bool hasPendingChanges{}; //!< If true, the activity controller is mutating the stack
+    bool isUpdating{}; //!< If true, the controller is updating activities and may mutate the stack
     bool willLeave{}; //!< If true, the activity will leave
     bool useShaders{ true }; //!< If false, segues can considerately use shader effects
     bool clearBeforeDraw{ true }; //!< If true, clears the render target with the Activity's bg color
@@ -42,6 +65,7 @@ namespace swoosh {
       pop = 0,
       push,
       replace,
+      clear, // clears entire stack
       none
     } stackAction;
 
@@ -88,6 +112,8 @@ namespace swoosh {
       @brief Deconstructor deletes all activities and surfaces cleanly
     */
     virtual ~ActivityController() {
+      hasPendingChanges = true;
+
       if (segueAction != SegueAction::none) {
         swoosh::Segue* effect = static_cast<swoosh::Segue*>(activities.top());
         delete effect;
@@ -99,6 +125,8 @@ namespace swoosh {
         activities.pop();
         delete activity;
       }
+
+      hasPendingChanges = false;
     }
 
     /**
@@ -120,6 +148,14 @@ namespace swoosh {
     */
     const std::size_t getStackSize() const {
       return activities.size();
+    }
+
+    /**
+      @brief Query if the stack is undergoing a change
+      Useful for multithreaded applications
+    */
+    const bool pendingChanges() const {
+      return hasPendingChanges;
     }
 
     /**
@@ -219,6 +255,8 @@ namespace swoosh {
         e.g. queuePop<segue<FadeOut>>(); // will transition from the current scene to the last with a fadeout effect
       */
       void delegateActivityPop(ActivityController& owner) {
+        pending_raii _(owner.hasPendingChanges);
+
         swoosh::Activity* last = owner.activities.top();
         owner.activities.pop();
 
@@ -254,6 +292,8 @@ namespace swoosh {
         */
         template<typename... Args >
         void delegateActivityPush(ActivityController& owner, Args&&... args) {
+          pending_raii _(owner.hasPendingChanges);
+
           bool hasLast = (owner.activities.size() > 0);
           swoosh::Activity* last = hasLast ? owner.activities.top() : owner.generateActivityFromWindow();
           swoosh::Activity* next = new U(owner, std::forward<Args>(args)...);
@@ -281,6 +321,8 @@ namespace swoosh {
         */
         template<typename... Args >
         bool delegateActivityRewind(ActivityController& owner, Args&&... args) {
+          pending_raii _(owner.hasPendingChanges);
+
           std::stack<swoosh::Activity*> original;
 
           bool hasMore = (owner.activities.size() > 1);
@@ -396,6 +438,7 @@ namespace swoosh {
           owner.last = owner.activities.top();
         }
 
+        pending_raii _(hasPendingChanges);
         owner.activities.push(next);
         owner.stackAction = StackAction::push;
       }
@@ -514,6 +557,8 @@ namespace swoosh {
 
         if (!hasLast) { RewindSuccessful = false; return; }
 
+        pending_raii _(hasPendingChanges);
+
         swoosh::Activity* next = owner.activities.top();
 
         while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1) {
@@ -565,6 +610,8 @@ namespace swoosh {
      activities in the segue to help increase performance on lower end hardware
     */
     void update(double elapsed) {
+      pending_raii _(isUpdating);
+
       if (activities.size() == 0)
         return;
 
@@ -576,11 +623,18 @@ namespace swoosh {
       if (activities.size() == 0)
         return;
 
+      if (stackAction == StackAction::clear) {
+        executeClearStackSafely();
+        return;
+      }
+     
       if (stackAction == StackAction::push || stackAction == StackAction::replace) {
         if (activities.size() > 1 && last) {
           last->onExit();
 
           if (stackAction == StackAction::replace) {
+            pending_raii _(hasPendingChanges);
+
             auto top = activities.top();
             activities.pop(); // top
             activities.pop(); // last, to be replaced by top
@@ -653,6 +707,18 @@ namespace swoosh {
       renderer->flushMemory();
     }
 
+    /**
+     @brief Pops everything off the stack with respect to the activity life-cycle (onEnd(), remove, then delete for each entry)
+     This ensures any activity has proper cleanup in the order the consuming software should expect.
+    */
+    void clearStackSafely() {
+      stackAction = StackAction::clear;
+
+      if (isUpdating) return;
+
+      executeClearStackSafely();
+    }
+
   private:
     /**
       @brief Applies an activity's view onto the renderer. This is used internally for segues.
@@ -676,7 +742,10 @@ namespace swoosh {
      @brief This function properly terminates an active segue and pushes the next activity onto the stack
    */
     void endSegue(swoosh::Segue* segue) {
+      pending_raii _(hasPendingChanges);
+
       segue->onEnd();
+
       activities.pop();
 
       swoosh::Activity* next = segue->next;
@@ -716,7 +785,10 @@ namespace swoosh {
        @brief When pop() is invoked, the pop is not executed immediately. It is deffered until it is safe to pop the activity off the stack.
      */
     void executePop() {
+      pending_raii _(hasPendingChanges);
+
       swoosh::Activity* activity = activities.top();
+
       activity->onEnd();
       activities.pop();
 
@@ -724,6 +796,33 @@ namespace swoosh {
         activities.top()->onResume();
 
       delete activity;
+    }
+
+    void executeClearStackSafely() {
+      pending_raii _(hasPendingChanges);
+
+      while (activities.size() > 0) {
+        if (segueAction != SegueAction::none) {
+          swoosh::Segue* segue = static_cast<swoosh::Segue*>(activities.top());
+          segue->onEnd();
+          segue->last->onEnd();
+          segue->next->onEnd();
+          activities.pop(); // top
+          activities.pop(); // last
+          delete segue->last, segue->next, segue;
+          segueAction = SegueAction::none;
+          last = nullptr;
+          continue;
+        }
+
+        Activity* current = activities.top();
+        current->onEnd();
+        activities.pop();
+        delete current;
+      }
+
+      stackAction = StackAction::none;
+      willLeave = false;
     }
 
     /**
