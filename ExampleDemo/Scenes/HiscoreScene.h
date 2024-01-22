@@ -16,6 +16,7 @@
 
 using namespace swoosh;
 using namespace swoosh::types;
+using namespace swoosh::game;
 
 class MainMenuScene;
 
@@ -32,10 +33,6 @@ private:
   sf::SoundBuffer buffer;
   sf::Sound selectFX;
 
-  save& hiscore;
-
-  int lives;
-
   float screenDiv;
   float screenMid;
   float screenBottom;
@@ -45,6 +42,8 @@ private:
 
   bool inFocus;
 public:
+  save& hiscore;
+
   HiScoreScene(ActivityController& controller, save& data) : hiscore(data), Activity(&controller) {
     // Proof that this is the same save file in memory as it is passed around the scenes
     std::cout << "savefile address is " << &data << std::endl;

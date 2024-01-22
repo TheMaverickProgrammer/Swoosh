@@ -20,18 +20,15 @@ namespace swoosh {
       /**
         @brief Implementation defined
       */
-      virtual void broadcast(const char* name, void* src) = 0;
+      virtual void broadcast(const char* name, void* src, bool is_base) = 0;
 
       /**
         @brief Sends the event to the correct handling function
         @param event Event type const reference
-        @note `Event` type must inherit from base type `E`
       */
       template<typename Event>
       void submit(const Event& event) {
-        constexpr bool ofEventBase = std::is_base_of<E, Event>::value;
-        static_assert(ofEventBase, "Cannot submit `event` because it does not have a base class `RenderSource`");
-        broadcast(typeid(Event).name(), (void*)&event);
+        broadcast(typeid(Event).name(), (void*)&event, std::is_base_of<typename std::decay<E>::type, Event>::value);
       }
     };
 
@@ -76,13 +73,14 @@ namespace swoosh {
       /**
         @brief Given a type name, find the registered reciever type and invoke its `onEvent()` function
       */
-      void redirect(const char* name, void* src) {
+      void redirect(const char* name, void* src, bool is_base) {
         if (types.count(name)) {
           types[name](this, src);
           return;
         }
         
-        // assertion gaurantees `src` will have a type with base of `E`
+        // Try to fall-back on a default handler for base types
+        if (!is_base) return;
         onEvent(*((const E*)src));
       }
 

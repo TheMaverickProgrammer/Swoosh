@@ -18,6 +18,12 @@ namespace swoosh
   class ActivityController
   {
     friend class swoosh::Segue;
+    friend class swoosh::Activity;
+
+  public:
+    // Forward decl.
+    template<typename T, typename DurationType>
+    class segue;
 
   private:
     // helper util for `hasPendingChanges`
@@ -53,7 +59,6 @@ namespace swoosh
     sf::Vector2u virtualWindowSize;            //!< Window size requested to render with
     bool hasPendingChanges{};                  //!< If true, the activity controller is mutating the stack
     bool isUpdating{};                         //!< If true, the controller is updating activities and may mutate the stack
-    bool willLeave{};                          //!< If true, the activity will leave
     bool useShaders{true};                     //!< If false, segues can considerately use shader effects
     bool clearBeforeDraw{true};                //!< If true, clears the render target with the Activity's bg color
     mutable IRenderer *renderer{nullptr};      //!< Active renderer to submit draw events to
@@ -63,20 +68,21 @@ namespace swoosh
     //!< Useful for state management and skipping need for dynamic casting
     enum class SegueAction : int
     {
-      pop = 0,
+      none = 0,
       push,
       replace,
-      none
+      pop,
+      rewind
     } segueAction;
 
     //!< Useful for state management
     enum class StackAction : int
     {
-      pop = 0,
+      none = 0,
       push,
       replace,
       clear, // clears entire stack
-      none
+      pop
     } stackAction;
 
     quality qualityLevel{quality::realtime}; //!< requested render quality
@@ -91,9 +97,8 @@ namespace swoosh
       virtualWindowSize = handle.getSize();
 
       assert(!rendererEntries.empty() && "ActivityController RenderEntries was empty!");
-      this->renderer = &rendererEntries.front().renderer;
+      renderer = &rendererEntries.front().renderer;
 
-      willLeave = false;
       segueAction = SegueAction::none;
       stackAction = StackAction::none;
       last = nullptr;
@@ -108,9 +113,8 @@ namespace swoosh
       this->virtualWindowSize = virtualWindowSize;
 
       assert(!rendererEntries.empty() && "ActivityController RenderEntries was empty!");
-      this->renderer = &rendererEntries.front().renderer;
+      renderer = &rendererEntries.front().renderer;
 
-      willLeave = false;
       segueAction = SegueAction::none;
       stackAction = StackAction::none;
 
@@ -122,24 +126,44 @@ namespace swoosh
     */
     virtual ~ActivityController()
     {
-      hasPendingChanges = true;
-
-      if (segueAction != SegueAction::none)
-      {
-        swoosh::Segue *effect = static_cast<swoosh::Segue *>(activities.top());
-        delete effect;
-        activities.pop();
-      }
-
-      while (!activities.empty())
-      {
-        swoosh::Activity *activity = activities.top();
-        activities.pop();
-        delete activity;
-      }
-
-      hasPendingChanges = false;
+      executeClearStackSafely();
     }
+
+    /**
+    @brief A construct to handle pop()'d activities
+    */
+    template<typename ActivityT>
+    class Thenable : public IThenable {
+      friend class ActivityController;
+
+      template<typename T, typename DurationType>
+      friend class segue;
+
+      using CallbackFn = std::function<void(ActivityT&)>;
+      CallbackFn callback;
+
+      explicit Thenable(ActivityT* ptr) {
+        activity = ptr;
+      }
+
+      // No copies
+      Thenable(const Thenable&) = delete;
+
+      // No moves
+      Thenable(Thenable&&) = delete;
+
+      void exec() override {
+        if (!(callback && activity)) return;
+        callback(*dynamic_cast<ActivityT*>(activity));
+      }
+
+    public:
+      static Thenable<ActivityT> dummy;
+
+      void then(const CallbackFn& fn) {
+        callback = fn;
+      }
+    };
 
     /**
       @brief Returns the virtual window size set at construction
@@ -212,6 +236,37 @@ namespace swoosh
       renderer = &std::next(rendererEntries.begin(), idx)->renderer;
 
       return true;
+    }
+
+    /**
+      @brief Query a provided renderer by its entry index
+      @param idx the base-0 index of the renderer in the RendererEntries list
+      @return A pointer to the renderer if valid, nullptr if invalid.
+    */
+    IRenderer* getRenderer(std::size_t idx) {
+      if (idx < 0 || idx >= getNumOfRenderers())
+        return nullptr;
+
+      return &std::next(rendererEntries.begin(), idx)->renderer;
+    }
+
+    /**
+      @brief Query a provided renderer by its typename `RendererT`
+      @return A pointer to the renderer that matches first, nullptr if not found.
+    */
+    template<typename RendererT>
+    RendererT* getRenderer() {
+      auto query = [this](RendererEntry& entry) {
+        return typeid(entry.renderer) == typeid(RendererT);
+      };
+
+      auto iter = 
+        std::find_if(rendererEntries.begin(), rendererEntries.end(), query);
+
+      if (iter == rendererEntries.end())
+        return nullptr;
+
+      return *iter;
     }
 
     /**
@@ -314,13 +369,15 @@ namespace swoosh
       class to
       {
       public:
+        using activity_type = U;
+
         to() { ; }
 
         /**
           @brief This will start a PUSH state for the activity controller and creates a segue object onto the stack
         */
         template <typename... Args>
-        void delegateActivityPush(ActivityController &owner, Args &&...args)
+        IThenable* delegateActivityPush(ActivityController &owner, Args &&...args)
         {
           pending_raii _(owner.hasPendingChanges);
 
@@ -339,6 +396,9 @@ namespace swoosh
           effect->onStart();
           effect->started = true;
           owner.activities.push(effect);
+
+          next->myThenable = new Thenable<U>((U*)next);
+          return next->myThenable;
         }
 
         /**
@@ -354,7 +414,7 @@ namespace swoosh
         {
           pending_raii _(owner.hasPendingChanges);
 
-          std::stack<swoosh::Activity *> original;
+          std::stack<swoosh::Activity*> original;
 
           bool hasMore = (owner.activities.size() > 1);
 
@@ -390,11 +450,14 @@ namespace swoosh
           }
 
           // We did find it, call on end to everything and free memory
+          // Thenables are invalid
           while (original.size() > 0)
           {
             swoosh::Activity *top = original.top();
             top->onEnd();
+
             delete top;
+
             original.pop();
           }
 
@@ -452,30 +515,43 @@ namespace swoosh
     template <typename T>
     struct ResolvePushSegueIntent<T, true>
     {
+      using activity_type = typename T::activity_type;
+
+      IThenable* ithenable{ nullptr };
+
       template <typename... Args>
       ResolvePushSegueIntent(ActivityController &owner, Args &&...args)
       {
-        if (owner.segueAction == SegueAction::none)
-        {
-          owner.segueAction = SegueAction::push;
-          T segueResolve;
-          segueResolve.delegateActivityPush(owner, std::forward<Args>(args)...);
+        if (owner.segueAction != SegueAction::none) {
+          ithenable = &Thenable<activity_type>::dummy;
+          return;
         }
+
+        owner.segueAction = SegueAction::push;
+        T segueResolve;
+
+        ithenable = segueResolve.delegateActivityPush(owner, std::forward<Args>(args)...);
       }
     };
 
     /**
       @class ResolvePushSegueIntent<T, false>
-      @brief If type is NOT a segue, resolves the intention by directly modifying the stack
+      @brief If type is NOT a segue (Activity), resolves the intention by directly modifying the stack
     */
     template <typename T>
     struct ResolvePushSegueIntent<T, false>
     {
+      using activity_type = T;
+
+      IThenable* ithenable{ nullptr };
+
       template <typename... Args>
       ResolvePushSegueIntent(ActivityController &owner, Args &&...args)
       {
-        if (owner.segueAction != SegueAction::none)
+        if (owner.segueAction != SegueAction::none) {
+          ithenable = &Thenable<T>::dummy;
           return;
+        }
 
         swoosh::Activity *next = new T(owner, std::forward<Args>(args)...);
 
@@ -487,16 +563,24 @@ namespace swoosh
         pending_raii _(owner.hasPendingChanges);
         owner.activities.push(next);
         owner.stackAction = StackAction::push;
+
+        next->myThenable = new Thenable<T>(next);
+        ithenable = next->myThenable;
       }
     };
+
+    // Shorthand resolver
+    template<typename T>
+    using Intent = ResolvePushSegueIntent<T, IsSegueType<T>::value>;
 
     /**
       @brief Immediately pushes a segue or activity onto the stack depending on the resolved class type
     */
     template <typename T, typename... Args>
-    void push(Args &&...args)
+    Thenable<typename Intent<T>::activity_type>& push(Args &&...args)
     {
-      ResolvePushSegueIntent<T, IsSegueType<T>::value> intent(*this, std::forward<Args>(args)...);
+      Intent<T> intent(*this, std::forward<Args>(args)...);
+      return *((Thenable<typename Intent<T>::activity_type>*)intent.ithenable);
     }
 
     /**
@@ -505,9 +589,9 @@ namespace swoosh
     template <typename T, typename... Args>
     void replace(Args &&...args)
     {
-      size_t before = this->activities.size();
+      const size_t before = activities.size();
       ResolvePushSegueIntent<T, IsSegueType<T>::value> intent(*this, std::forward<Args>(args)...);
-      size_t after = this->activities.size();
+      const size_t after = activities.size();
 
       // quick feature hack:
       // We check if the push intent was resolved (+1 activity stack)
@@ -534,7 +618,8 @@ namespace swoosh
     const bool pop()
     {
       // Have to have more than 1 on the stack to have a transition effect...
-      bool hasLast = (activities.size() > 1);
+      const size_t activity_len = activities.size();
+      const bool hasLast = (activity_len > 1);
       if (!hasLast || segueAction != SegueAction::none)
         return false;
 
@@ -551,12 +636,12 @@ namespace swoosh
    */
     const bool pop()
     {
-      bool hasMore = (activities.size() > 0);
+      const bool hasMore = (activities.size() > 0);
 
       if (!hasMore || segueAction != SegueAction::none)
         return false;
 
-      willLeave = true;
+      stackAction = StackAction::pop;
 
       return true;
     }
@@ -570,7 +655,7 @@ namespace swoosh
     {
       ResolveRewindSegueIntent(ActivityController &owner) {}
 
-      bool RewindSuccessful;
+      bool rewindSuccessful{};
     };
 
     /**
@@ -580,17 +665,16 @@ namespace swoosh
     template <typename T>
     struct ResolveRewindSegueIntent<T, true>
     {
-      bool RewindSuccessful;
+      bool rewindSuccessful{};
 
       template <typename... Args>
       ResolveRewindSegueIntent(ActivityController &owner, Args &&...args)
       {
-        if (owner.segueAction == SegueAction::none)
-        {
-          owner.segueAction = SegueAction::pop;
-          T segueResolve;
-          RewindSuccessful = segueResolve.delegateActivityRewind(owner, std::forward<Args>(args)...);
-        }
+        if (owner.segueAction != SegueAction::none) return;
+
+        owner.segueAction = SegueAction::rewind;
+        T segueResolve;
+        rewindSuccessful = segueResolve.delegateActivityRewind(owner, std::forward<Args>(args)...);
       }
     };
 
@@ -603,18 +687,18 @@ namespace swoosh
     template <typename T>
     struct ResolveRewindSegueIntent<T, false>
     {
-      bool RewindSuccessful;
+      bool rewindSuccessful{};
 
       template <typename... Args>
       ResolveRewindSegueIntent(ActivityController &owner, Args &&...args)
       {
-        std::stack<swoosh::Activity *> original;
+        std::stack<swoosh::Activity*> original;
 
-        bool hasLast = (owner.activities.size() > 0);
+        const bool hasLast = (owner.activities.size() > 0);
 
         if (!hasLast)
         {
-          RewindSuccessful = false;
+          rewindSuccessful = false;
           return;
         }
 
@@ -622,7 +706,7 @@ namespace swoosh
 
         swoosh::Activity *next = owner.activities.top();
 
-        while (dynamic_cast<T *>(next) == 0 && owner.activities.size() > 1)
+        while (dynamic_cast<T*>(next) == 0 && owner.activities.size() > 1)
         {
           original.push(next);
           owner.activities.pop();
@@ -638,8 +722,18 @@ namespace swoosh
             original.pop();
           }
 
-          RewindSuccessful = false;
+          rewindSuccessful = false;
           return;
+        }
+
+        // Cleanup memory
+        // All thenables are invalidated
+        while (original.size() > 0) {
+          Activity* top = original.top();
+          top->onEnd();
+
+          delete original.top();
+          original.pop();
         }
 
         next->onResume();
@@ -653,11 +747,11 @@ namespace swoosh
     template <typename T, typename... Args>
     bool rewind(Args &&...args)
     {
-      if (this->activities.size() <= 1)
+      if (activities.size() <= 1)
         return false;
 
       ResolveRewindSegueIntent<T, IsSegueType<T>::value> intent(*this, std::forward<Args>(args)...);
-      return intent.RewindSuccessful;
+      return intent.rewindSuccessful;
     }
 
     /**
@@ -667,6 +761,7 @@ namespace swoosh
     {
       if (getStackSize() > 0)
         return activities.top();
+
       return nullptr;
     }
 
@@ -684,22 +779,19 @@ namespace swoosh
       if (activities.size() == 0)
         return;
 
-      if (willLeave)
+      // Stack actions imply no segue
+      if (stackAction == StackAction::pop)
       {
         executePop();
-        willLeave = false;
-      }
-
-      if (activities.size() == 0)
+        stackAction = StackAction::none;
         return;
-
-      if (stackAction == StackAction::clear)
+      } 
+      else if (stackAction == StackAction::clear)
       {
         executeClearStackSafely();
         return;
-      }
-
-      if (stackAction == StackAction::push || stackAction == StackAction::replace)
+      } 
+      else if (stackAction == StackAction::push || stackAction == StackAction::replace)
       {
         if (activities.size() > 1 && last)
         {
@@ -725,6 +817,7 @@ namespace swoosh
         stackAction = StackAction::none;
       }
 
+      // Check for segues
       if (segueAction != SegueAction::none)
       {
         swoosh::Segue *segue = static_cast<swoosh::Segue *>(activities.top());
@@ -740,7 +833,7 @@ namespace swoosh
 
         if (segue->timer.getElapsed().asMilliseconds() >= segue->duration.asMilliseconds())
         {
-          endSegue(segue);
+          executePopSegue(segue);
         }
       }
       else
@@ -825,7 +918,7 @@ namespace swoosh
     /**
      @brief This function properly terminates an active segue and pushes the next activity onto the stack
    */
-    void endSegue(swoosh::Segue *segue)
+    void executePopSegue(swoosh::Segue *segue)
     {
       pending_raii _(hasPendingChanges);
 
@@ -835,7 +928,11 @@ namespace swoosh
 
       swoosh::Activity *next = segue->next;
 
-      if (segueAction == SegueAction::pop || segueAction == SegueAction::replace)
+      const bool popLike = segueAction == SegueAction::pop
+        || segueAction == SegueAction::replace
+        || segueAction == SegueAction::rewind;
+
+      if (popLike)
       {
         // We're removing an item from the stack
         swoosh::Activity *last = segue->last;
@@ -857,6 +954,12 @@ namespace swoosh
         {
           activities.pop(); // remove last
         }
+        else if (segueAction == SegueAction::pop) {
+          // Pop invokes thenables
+          last->handleThenable();
+        }
+        // else if rewind
+        // ... Thenable is invalidated
 
         delete last;
       }
@@ -885,6 +988,9 @@ namespace swoosh
 
       if (activities.size() > 0)
         activities.top()->onResume();
+
+      // Handle our thenable
+      activity->handleThenable();
 
       delete activity;
     }
@@ -915,8 +1021,8 @@ namespace swoosh
         delete current;
       }
 
+      segueAction = SegueAction::none;
       stackAction = StackAction::none;
-      willLeave = false;
     }
 
     /**
@@ -1056,4 +1162,10 @@ namespace swoosh
     template <sf::Int64 val = 0>
     using micro = microseconds<val>;
   }
+
+  // Initialize static mem.
+  template<typename ActivityT>
+  ActivityController::Thenable<ActivityT> 
+    ActivityController::Thenable<ActivityT>::dummy = 
+    ActivityController::Thenable<ActivityT>(nullptr);
 }

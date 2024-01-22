@@ -2,6 +2,7 @@
 #include <Swoosh/Events/Events.h>
 #include <SFML/Graphics.hpp>
 #include <list>
+#include <type_traits>
 
 using swoosh::events::IDispatcher;
 using swoosh::events::ISubscriber;
@@ -99,11 +100,11 @@ namespace swoosh {
 
   // shorthand SFNAE for Swoosh render events
   template<typename T>
-  using is_render_event = std::is_base_of<RenderSource, T>;
+  constexpr bool is_render_event_v = std::is_base_of<RenderSource, std::remove_pointer_t<T>>::value;
 
   // shorthand SFNAE for SFML primitives
   template<typename T>
-  using is_sfml_primitive = std::is_base_of<sf::Drawable, T>;
+  constexpr bool is_sfml_primitive_v = std::is_base_of<sf::Drawable, std::remove_pointer_t<T>>::value;
 
   /**
     @class ClonedSource
@@ -172,12 +173,11 @@ namespace swoosh {
   public:
     virtual ~IRenderer() { }
 
-
     /**
       @brief Submits a custom render event
       @param event A custom event object to be handled by the renderer
     */
-    template<typename Event, typename use = std::enable_if_t<is_render_event<Event>::value>>
+    template<typename Event, typename use = std::enable_if_t<(is_render_event_v<Event> || !is_sfml_primitive_v<Event>)>>
     void submit(const Event& event) {
       IDispatcher::submit(event);
     }
@@ -190,6 +190,7 @@ namespace swoosh {
     void submit(const sf::Drawable* drawable, const sf::RenderStates& states = sf::RenderStates()) {
       IDispatcher::submit(RenderSource(drawable, states));
     }
+
 
     /**
       @brief Implementation defined. The ActivityController draw step invokes this callback.
@@ -241,16 +242,16 @@ namespace swoosh {
     /**
       @brief forwards the broadcasted render event to through the ISubscriber<> implementation
     */
-    void broadcast(const char* name, void* src) override {
-      this->redirect(name, src);
+    void broadcast(const char* name, void* src, bool is_base) override {
+      this->redirect(name, src, is_base);
     }
 
     /**
-      @brief Built-in event handler for cloned source events that unpacks and re-submits contained event data
+      @brief Built-in event handler for cloned render source events that unpacks and re-submits contained data
     */
     void onEvent(const ClonedSource& event) override {
       ClonedSource& ref = clonedMem.emplace_back(std::move(event));
-      this->redirect(ref.name, ref.mem);
+      this->redirect(ref.name, ref.mem, true);
     }
 
     /**

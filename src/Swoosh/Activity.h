@@ -6,6 +6,23 @@ namespace swoosh {
   class ActivityController; /* forward decl */
 
   /**
+  @brief Base class for Thenables
+  */
+  class IThenable {
+    friend class Activity;
+
+  public:
+    virtual ~IThenable() { ; }
+
+  protected:
+    // Memory is owned by ActivityController!
+    Activity* activity{ nullptr };
+
+    // Execute impl. defined
+    virtual void exec() = 0;
+  };
+
+  /**
   @class Activity
   @brief An activity is an isolated screen with content drawn onto it or a unique scene in a game
 
@@ -27,7 +44,15 @@ namespace swoosh {
     friend class ActivityController;
 
   private:
+
     bool started{}; //!< Flag denotes if an activity should call onStart() or onResume()
+    IThenable* myThenable{ nullptr }; //!< Callback to return to the scene which created it
+
+    // shorthand-util for invoking thenables
+    void handleThenable() {
+      if (!myThenable) return;
+      myThenable->exec();
+    }
 
   protected:
     ActivityController* controller{ nullptr }; //!< Pointer to the activity controller
@@ -50,7 +75,7 @@ namespace swoosh {
     virtual void onEnd() = 0;
     virtual void onUpdate(double elapsed) = 0;
     virtual void onDraw(IRenderer& renderer) = 0;
-    virtual ~Activity() { ; }
+    virtual ~Activity() { if(myThenable) delete myThenable; }
     void setView(const sf::View& view) { this->view = view; }
     void setView(const sf::Vector2u& size) { this->view = sf::View(sf::FloatRect(0.0f, 0.0f, (float)size.x, (float)size.y)); }
     void setView(const sf::FloatRect& rect) { this->view = sf::View(rect); }

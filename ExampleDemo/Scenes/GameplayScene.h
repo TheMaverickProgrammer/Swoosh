@@ -4,7 +4,7 @@
 #include "../TextureLoader.h"
 #include "../Particle.h"
 #include "../ResourcePaths.h"
-#include "../SaveFile.h"
+#include "HiScoreScene.h"
 
 #include <Segues/Checkerboard.h>
 #include <Swoosh/ActivityController.h>
@@ -213,7 +213,11 @@ public:
       // Some segues can be customized like Checkerboard effect
       using custom = CheckerboardCustom<40, 40>;
       using effect = segue<custom, milli<900>>;
-      getController().push<effect::to<HiScoreScene>>(savefile);
+      getController().push<effect::to<HiScoreScene>>(savefile).then([this](HiScoreScene& scene) {
+        std::cout << "uh oh!" << std::endl;
+        this->resetPlayer();
+        scene.hiscore;
+      });
     }
 
     for (auto& m : meteors) {
@@ -240,7 +244,12 @@ public:
     for (auto& t : trails) {
       t.sprite.setPosition(t.pos);
       t.sprite.setScale((float)(t.life / t.lifetime), (float)(t.life / t.lifetime));
-      t.sprite.setColor(sf::Color(t.sprite.getColor().r, t.sprite.getColor().g, t.sprite.getColor().b, (sf::Uint8)(10.0f * (t.life / t.lifetime))));
+      t.sprite.setColor(sf::Color(
+        t.sprite.getColor().r, 
+        t.sprite.getColor().g, 
+        t.sprite.getColor().b, 
+        (sf::Uint8)(10.0f * (t.life / t.lifetime))
+      ));
       t.life -= elapsed;
 
       if (t.life <= 0) {
@@ -542,7 +551,11 @@ public:
         const float alpha = std::max(0.f, (float)(e.life / e.lifetime));
         const float beta = 1.0f - alpha;
         const sf::Uint8 ch = sf::Uint8(alpha*255);
-        renderer.submit(Light(100.0f + (200.0f*beta), WithZ(e.sprite.getPosition(), 100.0f), sf::Color(255, ch, 0, ch), 10.0f, 0.5f));
+        renderer.submit(Light(
+          100.0f + (200.0f*beta),
+          WithZ(e.sprite.getPosition(), 100.0f), 
+          sf::Color(255, ch, 0, ch), 10.0f, 0.5f)
+        );
       }
     }
 
@@ -550,7 +563,11 @@ public:
       renderer.submit(Draw3D(&l.sprite, nullptr, laserTexture).WithZ(-1.0f));
 
       if (isCustomRenderer) {
-        renderer.submit(Light(100.0, WithZ(l.sprite.getPosition(), 9.0f), sf::Color(0, 215, 0, 255), 20.0f));
+        renderer.submit(Light(
+          100.0, 
+          WithZ(l.sprite.getPosition(), 9.0f), 
+          sf::Color(0, 215, 0, 255), 20.0f)
+        );
       }
     }
     

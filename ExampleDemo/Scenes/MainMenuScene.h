@@ -172,18 +172,28 @@ public:
         if (b.text == PLAY_OPTION) {
           using segue = segue<HorizontalOpen>;
           using intent = segue::to<GameplayScene>;
-          getController().push<intent>(savefile);
+          getController().push<intent>(savefile).then([this](GameplayScene& scene) {
+            std::cout << "GameplayScene thenable" << std::endl;
+            this->getController();
+          });
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
           using segue = segue<RadialCCW, sec<2>>;
           using intent = segue::to<HiScoreScene>;
-          getController().push<intent>(savefile);
+          getController().push<intent>(savefile).then([this](HiScoreScene& scene) {
+            std::cout << "Top hiscore was: " << scene.hiscore.scores.front() << std::endl;
+            this->getController();
+          });
         }
         else if (b.text == ABOUT_OPTION) {
           using segue = segue<PageTurn, sec<2>>;
           using intent = segue::to<AboutScene>;
-          getController().push<intent>();
+          getController().push<intent>().then([this](AboutScene& scene) {
+            std::cout << "AboutScene thenable" << std::endl;
+            scene.getController();
+            this->getController();
+          });
         }
       }
     }
@@ -227,7 +237,10 @@ public:
 
       particle p;
       p.sprite = sf::Sprite(*starTexture);
-      p.pos = sf::Vector2f((float)(rand() % getController().getVirtualWindowSize().x), (float)(getController().getVirtualWindowSize().y));
+      p.pos = sf::Vector2f(
+        (float)(rand() % getController().getVirtualWindowSize().x), 
+        (float)(getController().getVirtualWindowSize().y)
+      );
       p.speed = sf::Vector2f((float)randSpeedX, (float)-randSpeedY);
       p.friction = sf::Vector2f(0.99999f, 0.9999f);
       p.life = 3.0;
