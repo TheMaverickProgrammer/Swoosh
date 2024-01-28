@@ -3,9 +3,13 @@
 #include <fstream>
 #include <iostream>
 
-struct save {
+struct SaveFile {
   std::vector<std::string> names;
   std::vector<int> scores;
+
+  ~SaveFile() {
+    std::cout << "inside dconstructor!" << std::endl;
+  }
 
   const bool empty() { return names.empty(); }
 

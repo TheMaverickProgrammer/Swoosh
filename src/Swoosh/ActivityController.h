@@ -6,7 +6,6 @@
 #include <SFML/Graphics.hpp>
 #include <stack>
 #include <list>
-#include <functional>
 #include <utility>
 #include <cstddef>
 #include <assert.h>
@@ -128,43 +127,7 @@ namespace swoosh
     {
       executeClearStackSafely();
     }
-
-    /**
-    @brief A construct to handle pop()'d activities
-    */
-    template<typename ActivityT>
-    class Thenable : public IThenable {
-      friend class ActivityController;
-
-      template<typename T, typename DurationType>
-      friend class segue;
-
-      using CallbackFn = std::function<void(ActivityT&)>;
-      CallbackFn callback;
-
-      explicit Thenable(ActivityT* ptr) {
-        activity = ptr;
-      }
-
-      // No copies
-      Thenable(const Thenable&) = delete;
-
-      // No moves
-      Thenable(Thenable&&) = delete;
-
-      void exec() override {
-        if (!(callback && activity)) return;
-        callback(*dynamic_cast<ActivityT*>(activity));
-      }
-
-    public:
-      static Thenable<ActivityT> dummy;
-
-      void then(const CallbackFn& fn) {
-        callback = fn;
-      }
-    };
-
+    
     /**
       @brief Returns the virtual window size set at construction
     */
@@ -266,7 +229,7 @@ namespace swoosh
       if (iter == rendererEntries.end())
         return nullptr;
 
-      return *iter;
+      return &iter->renderer;
     }
 
     /**
@@ -337,7 +300,8 @@ namespace swoosh
 
         e.g. queuePop<segue<FadeOut>>(); // will transition from the current scene to the last with a fadeout effect
       */
-      void delegateActivityPop(ActivityController &owner)
+      template<typename... Args>
+      void delegateActivityPop(ActivityController& owner, Args&&... args)
       {
         pending_raii _(owner.hasPendingChanges);
 
@@ -346,6 +310,8 @@ namespace swoosh
 
         swoosh::Activity *next = owner.activities.top();
         owner.activities.pop();
+
+        next->yieldable.context = Context(std::forward<Args>(args)...);
 
         swoosh::Segue *effect = new T(DurationType::value(), last, next);
         sf::Vector2u windowSize = owner.getVirtualWindowSize();
@@ -357,6 +323,7 @@ namespace swoosh
         effect->onStart();
         effect->started = true;
         owner.activities.push(effect);
+
       }
 
       /**
@@ -377,7 +344,7 @@ namespace swoosh
           @brief This will start a PUSH state for the activity controller and creates a segue object onto the stack
         */
         template <typename... Args>
-        IThenable* delegateActivityPush(ActivityController &owner, Args &&...args)
+        Yieldable* delegateActivityPush(ActivityController &owner, Args&&... args)
         {
           pending_raii _(owner.hasPendingChanges);
 
@@ -397,8 +364,7 @@ namespace swoosh
           effect->started = true;
           owner.activities.push(effect);
 
-          next->myThenable = new Thenable<U>((U*)next);
-          return next->myThenable;
+          return &last->yieldable;
         }
 
         /**
@@ -410,7 +376,7 @@ namespace swoosh
           If the target ativity is found, the traverse activities are deleted.
         */
         template <typename... Args>
-        bool delegateActivityRewind(ActivityController &owner, Args &&...args)
+        bool delegateActivityRewind(ActivityController &owner, Args&&... args)
         {
           pending_raii _(owner.hasPendingChanges);
 
@@ -476,6 +442,8 @@ namespace swoosh
           effect->started = true;
           owner.activities.push(effect);
 
+          next->yieldable.context = Context(std::forward<Args>(args)...);
+
           return true;
         }
       };
@@ -517,20 +485,20 @@ namespace swoosh
     {
       using activity_type = typename T::activity_type;
 
-      IThenable* ithenable{ nullptr };
+      Yieldable* yieldable{ nullptr };
 
       template <typename... Args>
       ResolvePushSegueIntent(ActivityController &owner, Args &&...args)
       {
         if (owner.segueAction != SegueAction::none) {
-          ithenable = &Thenable<activity_type>::dummy;
+          yieldable = &Yieldable::dummy;
           return;
         }
 
         owner.segueAction = SegueAction::push;
         T segueResolve;
 
-        ithenable = segueResolve.delegateActivityPush(owner, std::forward<Args>(args)...);
+        yieldable = &segueResolve.delegateActivityPush(owner, std::forward<Args>(args)...)->reset();
       }
     };
 
@@ -543,13 +511,13 @@ namespace swoosh
     {
       using activity_type = T;
 
-      IThenable* ithenable{ nullptr };
+      Yieldable* yieldable{ nullptr };
 
       template <typename... Args>
       ResolvePushSegueIntent(ActivityController &owner, Args &&...args)
       {
         if (owner.segueAction != SegueAction::none) {
-          ithenable = &Thenable<T>::dummy;
+          yieldable = &Yeildable::dummy;
           return;
         }
 
@@ -564,8 +532,7 @@ namespace swoosh
         owner.activities.push(next);
         owner.stackAction = StackAction::push;
 
-        next->myThenable = new Thenable<T>(next);
-        ithenable = next->myThenable;
+        yieldable = &owner.last->yieldable.reset();
       }
     };
 
@@ -577,17 +544,17 @@ namespace swoosh
       @brief Immediately pushes a segue or activity onto the stack depending on the resolved class type
     */
     template <typename T, typename... Args>
-    Thenable<typename Intent<T>::activity_type>& push(Args &&...args)
+    Yieldable& push(Args&&... args)
     {
       Intent<T> intent(*this, std::forward<Args>(args)...);
-      return *((Thenable<typename Intent<T>::activity_type>*)intent.ithenable);
+      return *(intent.yieldable);
     }
 
     /**
     @brief Immediately replaces the current activity on the stack with a segue or activity depending on the resolved class type
     */
     template <typename T, typename... Args>
-    void replace(Args &&...args)
+    void replace(Args&&...args)
     {
       const size_t before = activities.size();
       ResolvePushSegueIntent<T, IsSegueType<T>::value> intent(*this, std::forward<Args>(args)...);
@@ -614,8 +581,8 @@ namespace swoosh
       @brief Tries to pop the activity of the stack that may be replaced with a segue to transition to the previous activity on the stack
       @return true if we are able to pop, false if there less than 1 item on the stack or in the middle of a segue effect
     */
-    template <typename T>
-    const bool pop()
+    template <typename T, typename... Args>
+    const bool pop(Args&&... args)
     {
       // Have to have more than 1 on the stack to have a transition effect...
       const size_t activity_len = activities.size();
@@ -625,7 +592,7 @@ namespace swoosh
 
       segueAction = SegueAction::pop;
       T segueResolve;
-      segueResolve.delegateActivityPop(*this);
+      segueResolve.delegateActivityPop(*this, std::forward<Args>(args)...);
 
       return true;
     }
@@ -634,16 +601,16 @@ namespace swoosh
      @brief Tries to pop the activity of the stack
      @return true if we are able to pop, false if there are no more items on the stack or in the middle of a segue effect
    */
-    const bool pop()
+    template<typename... Args>
+    const bool pop(Args&&... args)
     {
       const bool hasMore = (activities.size() > 0);
 
       if (!hasMore || segueAction != SegueAction::none)
-        return false;
+        return;
 
+      last->yieldable.context = Context(std::forward<Args>(args)...);
       stackAction = StackAction::pop;
-
-      return true;
     }
 
     /**
@@ -726,8 +693,10 @@ namespace swoosh
           return;
         }
 
+        next->yieldable.context = Context(std::forward<Args>(args)...);
+        next->handleYieldable();
+
         // Cleanup memory
-        // All thenables are invalidated
         while (original.size() > 0) {
           Activity* top = original.top();
           top->onEnd();
@@ -745,7 +714,7 @@ namespace swoosh
      @return true if we are able to rewind (activity found), false if not found or in the middle of a transition
     */
     template <typename T, typename... Args>
-    bool rewind(Args &&...args)
+    bool rewind(Args&&... args)
     {
       if (activities.size() <= 1)
         return false;
@@ -954,12 +923,10 @@ namespace swoosh
         {
           activities.pop(); // remove last
         }
-        else if (segueAction == SegueAction::pop) {
-          // Pop invokes thenables
-          last->handleThenable();
+        else if (segueAction == SegueAction::pop || segueAction == SegueAction::rewind) {
+          // invokes yeild
+          next->handleYieldable();
         }
-        // else if rewind
-        // ... Thenable is invalidated
 
         delete last;
       }
@@ -981,16 +948,16 @@ namespace swoosh
     {
       pending_raii _(hasPendingChanges);
 
-      swoosh::Activity *activity = activities.top();
+      swoosh::Activity* activity = activities.top();
 
       activity->onEnd();
       activities.pop();
 
-      if (activities.size() > 0)
+      if (activities.size() > 0) {
+        // Handle our yeild
+        activities.top()->handleYieldable();
         activities.top()->onResume();
-
-      // Handle our thenable
-      activity->handleThenable();
+      }
 
       delete activity;
     }
@@ -1149,7 +1116,6 @@ namespace swoosh
 
     /*
     shorthand notations*/
-
     template <typename T, typename DurationType = seconds<1>>
     using segue = ActivityController::segue<T, DurationType>;
 
@@ -1162,10 +1128,4 @@ namespace swoosh
     template <sf::Int64 val = 0>
     using micro = microseconds<val>;
   }
-
-  // Initialize static mem.
-  template<typename ActivityT>
-  ActivityController::Thenable<ActivityT> 
-    ActivityController::Thenable<ActivityT>::dummy = 
-    ActivityController::Thenable<ActivityT>(nullptr);
 }

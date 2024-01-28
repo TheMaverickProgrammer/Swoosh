@@ -119,7 +119,7 @@ public:
           };
 
           using effect = segue<Cube3D<direction::right>, sec<2>>;
-          getController().pop<effect>();
+          getController().pop<effect>("Goodbye from the AboutScene!");
         }
         else {
           goback.text = "FIN";

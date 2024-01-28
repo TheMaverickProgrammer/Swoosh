@@ -76,7 +76,7 @@ private:
   bool fadeMusic;
 
   Timer timer; // for onscreen effects. Or we could have stored the total elapsed from the update function
-  save savefile;
+  SaveFile savefile;
 
 public:
   MainMenuScene(ActivityController& controller) : Activity(&controller) {
@@ -172,27 +172,26 @@ public:
         if (b.text == PLAY_OPTION) {
           using segue = segue<HorizontalOpen>;
           using intent = segue::to<GameplayScene>;
-          getController().push<intent>(savefile).then([this](GameplayScene& scene) {
-            std::cout << "GameplayScene thenable" << std::endl;
-            this->getController();
-          });
+          getController().push<intent>(savefile);
+
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
           using segue = segue<RadialCCW, sec<2>>;
           using intent = segue::to<HiScoreScene>;
-          getController().push<intent>(savefile).then([this](HiScoreScene& scene) {
-            std::cout << "Top hiscore was: " << scene.hiscore.scores.front() << std::endl;
-            this->getController();
+          getController().push<intent>(savefile).yield([this](Context& context) {
+            if (!context.is<SaveFile>()) return;
+            SaveFile& s = context.as<SaveFile>();
+
+            std::cout << "Recent hiscore was: " << s.scores.back() << std::endl;
           });
         }
         else if (b.text == ABOUT_OPTION) {
           using segue = segue<PageTurn, sec<2>>;
           using intent = segue::to<AboutScene>;
-          getController().push<intent>().then([this](AboutScene& scene) {
-            std::cout << "AboutScene thenable" << std::endl;
-            scene.getController();
-            this->getController();
+          getController().push<intent>().yield([](Context& context) {
+            if (!context.is<std::string>()) return;
+            std::cout << context.as<std::string>();
           });
         }
       }

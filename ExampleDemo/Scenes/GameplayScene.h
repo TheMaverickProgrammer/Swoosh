@@ -82,9 +82,9 @@ private:
   bool mouseRelease;
   bool inFocus;
 
-  save& savefile;
+  SaveFile& savefile;
 public:
-  GameplayScene(ActivityController& controller, save& savefile) : savefile(savefile), Activity(&controller) { 
+  GameplayScene(ActivityController& controller, SaveFile& savefile) : savefile(savefile), Activity(&controller) { 
     mousePressed = mouseRelease = inFocus = isExtraLifeSpawned = false;
 
     ingameMusic.openFromFile(INGAME_MUSIC_PATH);
@@ -213,10 +213,8 @@ public:
       // Some segues can be customized like Checkerboard effect
       using custom = CheckerboardCustom<40, 40>;
       using effect = segue<custom, milli<900>>;
-      getController().push<effect::to<HiScoreScene>>(savefile).then([this](HiScoreScene& scene) {
-        std::cout << "uh oh!" << std::endl;
-        this->resetPlayer();
-        scene.hiscore;
+      getController().push<effect::to<HiScoreScene>>(savefile).yield([this](Context& context) {
+        std::cout << "GamePlayScene yield with type: " << context.type() << std::endl;
       });
     }
 

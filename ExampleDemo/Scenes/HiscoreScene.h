@@ -42,11 +42,11 @@ private:
 
   bool inFocus;
 public:
-  save& hiscore;
+  SaveFile& saveFile;
 
-  HiScoreScene(ActivityController& controller, save& data) : hiscore(data), Activity(&controller) {
+  HiScoreScene(ActivityController& controller, SaveFile& save) : saveFile(save), Activity(&controller) {
     // Proof that this is the same save file in memory as it is passed around the scenes
-    std::cout << "savefile address is " << &data << std::endl;
+    std::cout << "savefile address is " << &save << std::endl;
 
     // keep our window size dimensions consistent based on the initial window size when the AC was created
     auto windowSize = getController().getVirtualWindowSize();
@@ -69,9 +69,9 @@ public:
     screenMid = windowSize.x / 2.0f;
     screenDiv = windowSize.x / 4.0f;
 
-    if (hiscore.empty()) {
-      hiscore.writeToFile(SAVE_FILE_PATH);
-      hiscore.loadFromFile(SAVE_FILE_PATH);
+    if (saveFile.empty()) {
+      saveFile.writeToFile(SAVE_FILE_PATH);
+      saveFile.loadFromFile(SAVE_FILE_PATH);
     }
 
     waitTime.start();
@@ -100,7 +100,7 @@ public:
 
       // Rewind lets us pop back to a particular scene in our stack history
       using effect = segue<CircleClose, sec<1>>;
-      bool found = getController().rewind<effect::to<MainMenuScene>>();
+      bool found = getController().rewind<effect::to<MainMenuScene>>(saveFile);
 
       // should never happen
       // but your games may need to check so here it is an example
@@ -111,7 +111,7 @@ public:
     if (waitTime.getElapsed().asSeconds() > 3) {
 
       // If the scroll offset is greater than the height of all drawn scores
-      if (scrollOffset > 200 + (hiscore.names.size() * 100)) {
+      if (scrollOffset > 200 + (saveFile.names.size() * 100)) {
         // We hit them all, reset
         scrollOffset = 0;
         waitTime.reset();
@@ -192,9 +192,9 @@ public:
 
     text.setFillColor(sf::Color::White);
 
-    for (int i = 0; i < hiscore.names.size(); i++) {
-      std::string name = hiscore.names[i];
-      int score = hiscore.scores[i];
+    for (int i = 0; i < saveFile.names.size(); i++) {
+      std::string name = saveFile.names[i];
+      int score = saveFile.scores[i];
 
       text.setString(name);
       text.setPosition(sf::Vector2f((float)(screenDiv), (float)(200 + (i*100) - scrollOffset)));

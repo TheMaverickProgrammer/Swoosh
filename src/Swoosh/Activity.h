@@ -1,26 +1,122 @@
 #pragma once
 #include <Swoosh/Renderers/Renderer.h>
 #include <SFML/Graphics.hpp>
+#include <functional>
 
 namespace swoosh {
   class ActivityController; /* forward decl */
 
+    // Forward decl.
+  class Yieldable;
+
   /**
-  @brief Base class for Thenables
+  * @class Context
+  * @brief When push intents product data, it lives in Context as the exact type
   */
-  class IThenable {
-    friend class Activity;
+  class Context {
+    friend class Yieldable;
+
+    void* data{ nullptr };
+    std::string typenameStr;
+
+    template<typename T>
+    void init(const T& copyable) {
+      data = malloc(sizeof(T));
+      T* ptr = new (data) T;
+      *ptr = copyable;
+      typenameStr = typeid(T).name();
+    }
 
   public:
-    virtual ~IThenable() { ; }
+    Context() = default;
 
-  protected:
-    // Memory is owned by ActivityController!
-    Activity* activity{ nullptr };
+    Context(const char* str) {
+      init(std::string(str));
+    }
 
-    // Execute impl. defined
-    virtual void exec() = 0;
+    template<typename T>
+    Context(const T& copyable) {
+      init(copyable);
+    }
+
+    Context(Context&& rhs) noexcept {
+      *this = std::move(rhs);
+    }
+
+    ~Context() {
+      if (typenameStr.empty()) return;
+      free(data);
+    }
+
+    Context& operator=(Context&& rhs) noexcept {
+      std::swap(typenameStr, rhs.typenameStr);
+      std::swap(data, rhs.data);
+
+      rhs.typenameStr.clear();
+      rhs.data = nullptr;
+
+      return *this;
+    }
+
+    const std::string& type() {
+      return typenameStr;
+    }
+
+    template<typename T>
+    const bool is() const {
+      return typenameStr == typeid(T).name();
+    }
+
+    template<typename T>
+    T& as() const {
+      return *((T*)data);
+    }
+
+    const bool empty() const {
+      return data == nullptr;
+    }
   };
+
+  /**
+  * @class Yeildable
+  * @brief A construct to handle returning to activities with data
+  */
+  class Yieldable {
+    friend class ActivityController;
+    friend class Activity;
+
+    using CallbackFn = std::function<void(Context&)>;
+    CallbackFn callback;
+
+    static Yieldable dummy;
+
+    Context context;
+
+    // No special constructor
+    Yieldable() = default;
+
+    // No copies
+    Yieldable(const Yieldable&) = delete;
+
+    // No moves
+    Yieldable(Yieldable&&) = delete;
+
+    void exec() {
+      if (!callback) return;
+      callback(context);
+    }
+
+    Yieldable& reset() {
+      callback = nullptr;
+      return *this;
+    }
+
+  public:
+    void yield(const CallbackFn& fn) {
+      callback = fn;
+    }
+  };
+
 
   /**
   @class Activity
@@ -46,12 +142,11 @@ namespace swoosh {
   private:
 
     bool started{}; //!< Flag denotes if an activity should call onStart() or onResume()
-    IThenable* myThenable{ nullptr }; //!< Callback to return to the scene which created it
+    Yieldable yieldable; //!< Callback handle when returning
 
-    // shorthand-util for invoking thenables
-    void handleThenable() {
-      if (!myThenable) return;
-      myThenable->exec();
+    // shorthand-util for invoking yieldable
+    void handleYieldable() {
+      yieldable.exec();
     }
 
   protected:
@@ -75,7 +170,7 @@ namespace swoosh {
     virtual void onEnd() = 0;
     virtual void onUpdate(double elapsed) = 0;
     virtual void onDraw(IRenderer& renderer) = 0;
-    virtual ~Activity() { if(myThenable) delete myThenable; }
+    virtual ~Activity() { }
     void setView(const sf::View& view) { this->view = view; }
     void setView(const sf::Vector2u& size) { this->view = sf::View(sf::FloatRect(0.0f, 0.0f, (float)size.x, (float)size.y)); }
     void setView(const sf::FloatRect& rect) { this->view = sf::View(rect); }
@@ -84,4 +179,7 @@ namespace swoosh {
     const sf::Color getBGColor() const { return this->bgColor; }
     ActivityController& getController() { return *controller; }
   };
+
+  // Dummy
+  Yieldable Yieldable::dummy = Yieldable();
 }
