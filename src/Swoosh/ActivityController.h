@@ -311,7 +311,7 @@ namespace swoosh
         swoosh::Activity *next = owner.activities.top();
         owner.activities.pop();
 
-        next->yieldable.context = Context(std::forward<Args>(args)...);
+        next->yieldable.reset(std::forward<Args>(args)...);
 
         swoosh::Segue *effect = new T(DurationType::value(), last, next);
         sf::Vector2u windowSize = owner.getVirtualWindowSize();
@@ -344,7 +344,7 @@ namespace swoosh
           @brief This will start a PUSH state for the activity controller and creates a segue object onto the stack
         */
         template <typename... Args>
-        Yieldable* delegateActivityPush(ActivityController &owner, Args&&... args)
+        const Yieldable* delegateActivityPush(ActivityController &owner, Args&&... args)
         {
           pending_raii _(owner.hasPendingChanges);
 
@@ -442,7 +442,7 @@ namespace swoosh
           effect->started = true;
           owner.activities.push(effect);
 
-          next->yieldable.context = Context(std::forward<Args>(args)...);
+          next->yieldable.reset(std::forward<Args>(args)...);
 
           return true;
         }
@@ -485,13 +485,13 @@ namespace swoosh
     {
       using activity_type = typename T::activity_type;
 
-      Yieldable* yieldable{ nullptr };
+      const Yieldable* yieldable{ nullptr };
 
       template <typename... Args>
       ResolvePushSegueIntent(ActivityController &owner, Args &&...args)
       {
         if (owner.segueAction != SegueAction::none) {
-          yieldable = &Yieldable::dummy;
+          yieldable = &Yieldable::dummy();
           return;
         }
 
@@ -511,28 +511,30 @@ namespace swoosh
     {
       using activity_type = T;
 
-      Yieldable* yieldable{ nullptr };
+      const Yieldable* yieldable{ nullptr };
 
       template <typename... Args>
       ResolvePushSegueIntent(ActivityController &owner, Args &&...args)
       {
+        yieldable = &Yieldable::dummy();
+
         if (owner.segueAction != SegueAction::none) {
-          yieldable = &Yeildable::dummy;
           return;
         }
 
         swoosh::Activity *next = new T(owner, std::forward<Args>(args)...);
 
-        if (owner.last == nullptr && owner.activities.size() != 0)
-        {
+        if (owner.last != nullptr) {
+          yieldable = &owner.last->yieldable.reset();
+        }
+        else if (owner.activities.size() > 0) {
           owner.last = owner.activities.top();
+          yieldable = &owner.last->yieldable.reset();
         }
 
         pending_raii _(owner.hasPendingChanges);
         owner.activities.push(next);
         owner.stackAction = StackAction::push;
-
-        yieldable = &owner.last->yieldable.reset();
       }
     };
 
@@ -544,7 +546,7 @@ namespace swoosh
       @brief Immediately pushes a segue or activity onto the stack depending on the resolved class type
     */
     template <typename T, typename... Args>
-    Yieldable& push(Args&&... args)
+    const Yieldable& push(Args&&... args)
     {
       Intent<T> intent(*this, std::forward<Args>(args)...);
       return *(intent.yieldable);
@@ -602,14 +604,14 @@ namespace swoosh
      @return true if we are able to pop, false if there are no more items on the stack or in the middle of a segue effect
    */
     template<typename... Args>
-    const bool pop(Args&&... args)
+    const void pop(Args&&... args)
     {
       const bool hasMore = (activities.size() > 0);
 
       if (!hasMore || segueAction != SegueAction::none)
         return;
 
-      last->yieldable.context = Context(std::forward<Args>(args)...);
+      last->yieldable.reset(std::forward<Args>(args)...);
       stackAction = StackAction::pop;
     }
 
@@ -693,8 +695,8 @@ namespace swoosh
           return;
         }
 
-        next->yieldable.context = Context(std::forward<Args>(args)...);
-        next->handleYieldable();
+        next->yieldable.reset(std::forward<Args>(args)...);
+        next->yieldable.exec();
 
         // Cleanup memory
         while (original.size() > 0) {
@@ -925,7 +927,7 @@ namespace swoosh
         }
         else if (segueAction == SegueAction::pop || segueAction == SegueAction::rewind) {
           // invokes yeild
-          next->handleYieldable();
+          next->yieldable.exec();
         }
 
         delete last;
@@ -955,7 +957,7 @@ namespace swoosh
 
       if (activities.size() > 0) {
         // Handle our yeild
-        activities.top()->handleYieldable();
+        activities.top()->yieldable.exec();
         activities.top()->onResume();
       }
 
