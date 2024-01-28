@@ -311,7 +311,7 @@ namespace swoosh
         swoosh::Activity *next = owner.activities.top();
         owner.activities.pop();
 
-        next->yieldable.reset(std::forward<Args>(args)...);
+        next->yieldable.resolve(std::forward<Args>(args)...);
 
         swoosh::Segue *effect = new T(DurationType::value(), last, next);
         sf::Vector2u windowSize = owner.getVirtualWindowSize();
@@ -344,7 +344,7 @@ namespace swoosh
           @brief This will start a PUSH state for the activity controller and creates a segue object onto the stack
         */
         template <typename... Args>
-        const Yieldable* delegateActivityPush(ActivityController &owner, Args&&... args)
+        Yieldable* delegateActivityPush(ActivityController &owner, Args&&... args)
         {
           pending_raii _(owner.hasPendingChanges);
 
@@ -364,7 +364,7 @@ namespace swoosh
           effect->started = true;
           owner.activities.push(effect);
 
-          return &last->yieldable;
+          return &last->yieldable.reset();
         }
 
         /**
@@ -442,7 +442,7 @@ namespace swoosh
           effect->started = true;
           owner.activities.push(effect);
 
-          next->yieldable.reset(std::forward<Args>(args)...);
+          next->yieldable.resolve(std::forward<Args>(args)...);
 
           return true;
         }
@@ -485,7 +485,7 @@ namespace swoosh
     {
       using activity_type = typename T::activity_type;
 
-      const Yieldable* yieldable{ nullptr };
+      Yieldable* yieldable{ nullptr };
 
       template <typename... Args>
       ResolvePushSegueIntent(ActivityController &owner, Args &&...args)
@@ -511,7 +511,7 @@ namespace swoosh
     {
       using activity_type = T;
 
-      const Yieldable* yieldable{ nullptr };
+      Yieldable* yieldable{ nullptr };
 
       template <typename... Args>
       ResolvePushSegueIntent(ActivityController &owner, Args &&...args)
@@ -546,7 +546,7 @@ namespace swoosh
       @brief Immediately pushes a segue or activity onto the stack depending on the resolved class type
     */
     template <typename T, typename... Args>
-    const Yieldable& push(Args&&... args)
+    Yieldable& push(Args&&... args)
     {
       Intent<T> intent(*this, std::forward<Args>(args)...);
       return *(intent.yieldable);
@@ -611,7 +611,7 @@ namespace swoosh
       if (!hasMore || segueAction != SegueAction::none)
         return;
 
-      last->yieldable.reset(std::forward<Args>(args)...);
+      last->yieldable.resolve(std::forward<Args>(args)...);
       stackAction = StackAction::pop;
     }
 
@@ -695,7 +695,7 @@ namespace swoosh
           return;
         }
 
-        next->yieldable.reset(std::forward<Args>(args)...);
+        next->yieldable.resolve(std::forward<Args>(args)...);
         next->yieldable.exec();
 
         // Cleanup memory
@@ -926,7 +926,7 @@ namespace swoosh
           activities.pop(); // remove last
         }
         else if (segueAction == SegueAction::pop || segueAction == SegueAction::rewind) {
-          // invokes yeild
+          // invokes yield()
           next->yieldable.exec();
         }
 

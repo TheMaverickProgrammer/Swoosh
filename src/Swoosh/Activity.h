@@ -58,7 +58,7 @@ namespace swoosh {
       return *this;
     }
 
-    const std::string& type() {
+    const std::string& type() const {
       return typenameStr;
     }
 
@@ -85,10 +85,10 @@ namespace swoosh {
     friend class ActivityController;
     friend class Activity;
 
-    using CallbackFn = std::function<void(const Context&)>;
-    mutable CallbackFn callback;
+    using CallbackFn = std::function<void(Context&)>;
+    CallbackFn callback;
 
-    static const Yieldable& dummy() {
+    static Yieldable& dummy() {
       static Yieldable _; return _;
     }
 
@@ -103,19 +103,20 @@ namespace swoosh {
     // No moves
     Yieldable(Yieldable&&) = delete;
 
-    void exec() const {
+    void exec() {
       if (!callback) return;
       callback(context);
     }
 
-    const Yieldable& reset() const {
+    Yieldable& reset() {
+      context = Context();
       callback = nullptr;
       return *this;
     }
 
     template<typename... Args>
-    const Yieldable& reset(Args&&... args) const {
-      callback = Context(std::forward<Args>(args)...);
+    Yieldable& resolve(Args&&... args) {
+      context = Context(std::forward<Args>(args)...);
       return *this;
     }
 
@@ -149,7 +150,7 @@ namespace swoosh {
 
   private:
     bool started{}; //!< Flag denotes if an activity should call onStart() or onResume()
-    const Yieldable yieldable; //!< Callback handle when returning
+    Yieldable yieldable; //!< Callback handle when returning
 
   protected:
     ActivityController* controller{ nullptr }; //!< Pointer to the activity controller

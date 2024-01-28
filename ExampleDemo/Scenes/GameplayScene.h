@@ -213,7 +213,7 @@ public:
       // Some segues can be customized like Checkerboard effect
       using custom = CheckerboardCustom<40, 40>;
       using effect = segue<custom, milli<900>>;
-      getController().push<effect::to<HiScoreScene>>(savefile).yield([this](Context& context) {
+      getController().push<effect::to<HiScoreScene>>(savefile).yield([this](const Context& context) {
         std::cout << "GamePlayScene yield with type: " << context.type() << std::endl;
       });
     }
