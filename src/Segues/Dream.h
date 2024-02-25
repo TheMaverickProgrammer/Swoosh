@@ -22,32 +22,32 @@ private:
   bool firstPass{ true };
 
 public:
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
     const bool optimized = getController().getRequestedQuality() == quality::mobile;
     const bool useShader = getController().isShadersEnabled();
 
-    sf::Texture temp, temp2;
+    static sf::Texture temp, temp2;
 
     if (firstPass || !optimized) {
-      surface.clear(this->getLastActivityBGColor());
-      this->drawLastActivity(surface);
+      renderer.clear(this->getLastActivityBGColor());
+      this->drawLastActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
-      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      renderer.display(); // flip and ready the buffer
+      last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp = last;
     }
 
     if (firstPass || !optimized) {
-      surface.clear(this->getNextActivityBGColor());
-      this->drawNextActivity(surface);
+      renderer.clear(this->getNextActivityBGColor());
+      this->drawNextActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
-      next = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      renderer.display(); // flip and ready the buffer
+      next = temp2 = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp2 = next;
@@ -63,8 +63,8 @@ public:
       states.shader = &shader;
     }
 
-    sf::Sprite sprite(temp2); // dummy. we just need something with the screen size to draw with
-    surface.draw(sprite, states);
+    static sf::Sprite sprite(temp2); // dummy. we just need something with the screen size to draw with
+    renderer.submit(sprite, states);
 
     firstPass = false;
   }

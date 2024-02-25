@@ -16,16 +16,16 @@ template<types::direction direction>
 class SlideIn : public Segue {
 public:
 
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
 
-    this->drawLastActivity(surface);
+    this->drawLastActivity(renderer);
 
-    surface.display(); // flip and ready the buffer
+    renderer.display(); // flip and ready the buffer
 
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture temp(renderer.getTexture()); // Make a copy of the source texture
 
     sf::Sprite left(temp); 
 
@@ -37,18 +37,18 @@ public:
     if (direction == direction::up   ) ud = -1;
     if (direction == direction::down ) ud = 1;
 
-    surface.clear();
+    renderer.clear();
 
-    this->drawNextActivity(surface);
+    this->drawNextActivity(renderer);
 
-    surface.display(); // flip and ready the buffer
-    sf::Texture temp2(surface.getTexture());
+    renderer.display(); // flip and ready the buffer
+    sf::Texture temp2(renderer.getTexture());
     sf::Sprite right(temp2);
 
     right.setPosition((float)-lr * (1.0f-(float)alpha) * right.getTexture()->getSize().x, (float)-ud * (1.0f-(float)alpha) * right.getTexture()->getSize().y);
 
-    surface.draw(left);
-    surface.draw(right);
+    renderer.submit(Immediate(&left));
+    renderer.submit(Immediate(&right));
   }
 
   SlideIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) { 

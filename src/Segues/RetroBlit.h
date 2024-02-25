@@ -7,24 +7,17 @@
 using namespace swoosh;
 
 /**
- @class RetroBlitCustom
- @param krows. Compile-time constant of the kernel size vertically. Higher row count = bigger cells and better performance but lower quality.
- @param kcols. Compile-time constant of the kernel size horizontally. Higher col count = "" 
- 
- krows and kcols determine kernel size that each is interpolated over. 
- It can be thought of as color tolerance
- For a dithering and dissolving effect, using high krows and kcols
- For a retro and blocky effect, use less
+ @class RetroBlit
+ Reduces the color channel bit rate over time to give the impression of dithering out like some older games
 */
-template<int krows, int kcols>
-class RetroBlitCustom : public Segue {
+class RetroBlit: public Segue {
 private:
   glsl::RetroBlit shader;
   sf::Texture last, next;
   bool firstPass{ true };
   bool secondPass{ true };
 public:
-  virtual void onDraw(sf::RenderTexture& surface) {
+  virtual void onDraw(IRenderer& renderer) {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
@@ -35,12 +28,12 @@ public:
 
     if (alpha <= 0.5) {
       if (firstPass || !optimized) {
-        this->drawLastActivity(surface);
+        this->drawLastActivity(renderer);
 
-        surface.display(); // flip and ready the buffer
+        renderer.display(); // flip and ready the buffer
 
-        last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
-        surface.clear(this->getLastActivityBGColor());
+        last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
+        renderer.clear(this->getLastActivityBGColor());
       }
       else {
         temp = last;
@@ -50,21 +43,21 @@ public:
       shader.setAlpha((0.5f - (float)alpha)/0.5f);
 
       if(useShader) {
-        shader.apply(surface);
+        shader.apply(renderer);
       }
 
       firstPass = false;
     }
     else {
       if (secondPass || !optimized) {
-        this->drawNextActivity(surface);
+        this->drawNextActivity(renderer);
 
-        surface.display(); // flip and ready the buffer
+        renderer.display(); // flip and ready the buffer
 
-        next = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        next = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
         sf::Sprite sprite(temp);
 
-        surface.clear(this->getNextActivityBGColor());
+        renderer.clear(this->getNextActivityBGColor());
       }
       else {
         temp = next;
@@ -74,21 +67,17 @@ public:
       shader.setAlpha(((float)alpha - 0.5f) / 0.5f);
 
       if(useShader) {
-        shader.apply(surface);
+        shader.apply(renderer);
       }
 
       secondPass = false;
     }
   }
 
-  RetroBlitCustom(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next),
-    shader(kcols, krows) {
+  RetroBlit(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next),
+    shader() {
     /* ... */;
   }
 
-  ~RetroBlitCustom() { ; }
+  ~RetroBlit() { ; }
 };
-
-
-//!< Shorthand to use configured RetroBlit with kcols and krows of 10
-using RetroBlit = RetroBlitCustom<10, 10>;

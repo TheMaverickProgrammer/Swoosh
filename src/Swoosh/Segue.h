@@ -1,8 +1,7 @@
 #pragma once
+#include <Swoosh/Timer.h>
+#include <Swoosh/Activity.h>
 #include <SFML/Graphics.hpp>
-
-#include "Timer.h"
-#include "Activity.h"
 
 namespace swoosh {
   class ActivityController;
@@ -31,14 +30,14 @@ namespace swoosh {
     friend class ActivityController;
 
   private:
-    Activity* last;
-    Activity* next;
+    Activity* last{ nullptr };
+    Activity* next{ nullptr };
     sf::Time duration;
     Timer timer;
 
     // Hack to make this lib header-only
-    void (ActivityController::*setActivityViewFunc)(sf::RenderTexture& surface, swoosh::Activity* activity);
-    void (ActivityController::*resetViewFunc)(sf::RenderTexture& surface);
+    void (ActivityController::*setActivityViewFunc)(IRenderer& renderer, Activity* activity);
+    void (ActivityController::*resetViewFunc)(IRenderer& renderer);
 
   protected:
     const sf::Time getDuration() const { return duration; }
@@ -46,20 +45,22 @@ namespace swoosh {
     const sf::Color getLastActivityBGColor() const { return last->getBGColor(); }
     const sf::Color getNextActivityBGColor() const { return next->getBGColor(); }
 
-    void drawLastActivity(sf::RenderTexture& surface) {
+    void drawLastActivity(IRenderer& renderer) {
       if (last) {
-        (this->getController().*setActivityViewFunc)(surface, last);
-        surface.clear(last->getBGColor());
-        last->onDraw(surface);
-        (this->getController().*resetViewFunc)(surface);
+        (this->getController().*setActivityViewFunc)(renderer, last);
+        renderer.clear(last->getBGColor());
+        last->onDraw(renderer);
+        renderer.draw();
+        (this->getController().*resetViewFunc)(renderer);
       }
     }
 
-    void drawNextActivity(sf::RenderTexture& surface) {
-      (this->getController().*setActivityViewFunc)(surface, next);
-      surface.clear(next->getBGColor());
-      next->onDraw(surface);
-      (this->getController().*resetViewFunc)(surface);
+    void drawNextActivity(IRenderer& renderer) {
+      (this->getController().*setActivityViewFunc)(renderer, next);
+      renderer.clear(next->getBGColor());
+      next->onDraw(renderer);
+      renderer.draw();
+      (this->getController().*resetViewFunc)(renderer);
     }
 
   public:
@@ -76,7 +77,7 @@ namespace swoosh {
     void onExit() override final { ; }
     void onEnter() override final { ; }
     void onResume() override final { timer.reset(); timer.start(); }
-    virtual void onDraw(sf::RenderTexture& surface) = 0;
+    virtual void onDraw(IRenderer& renderer) = 0;
     void onEnd() override final { last->onExit(); }
 
     Segue() = delete;

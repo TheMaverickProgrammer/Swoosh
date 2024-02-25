@@ -18,26 +18,26 @@ class SwipeIn : public Segue {
 private:
   sf::Vector2u windowSize;
 public:
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
 
-    surface.clear(this->getLastActivityBGColor());
-    this->drawLastActivity(surface);
+    renderer.clear(this->getLastActivityBGColor());
+    this->drawLastActivity(renderer);
 
-    surface.display(); // flip and ready the buffer
+    renderer.display(); // flip and ready the buffer
 
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture temp(renderer.getTexture()); // Make a copy of the source texture
 
     sf::Sprite bottom(temp); 
-    surface.clear();
+    renderer.clear();
 
-    surface.clear(this->getLastActivityBGColor());
-    this->drawNextActivity(surface);
+    renderer.clear(this->getLastActivityBGColor());
+    this->drawNextActivity(renderer);
 
-    surface.display(); // flip and ready the buffer
-    sf::Texture temp2(surface.getTexture());
+    renderer.display(); // flip and ready the buffer
+    sf::Texture temp2(renderer.getTexture());
     sf::Sprite top(temp2);
 
     int l = 0;
@@ -46,7 +46,7 @@ public:
     int d = 0;
 
     // left
-    if (direction == direction::left) {
+    if (direction == types::direction::left) {
       r = bottom.getTexture()->getSize().x;
       l = (int)(r - (alpha * (double)r));
       u = 0;
@@ -57,7 +57,7 @@ public:
     }
 
     // right
-    if (direction == direction::right) {
+    if (direction == types::direction::right) {
       r = (int)((double)bottom.getTexture()->getSize().x * alpha);
       l = 0;
       u = 0;
@@ -65,7 +65,7 @@ public:
     }
 
     // up
-    if (direction == direction::up) {
+    if (direction == types::direction::up) {
       r = bottom.getTexture()->getSize().x;
       l = 0;
       d = bottom.getTexture()->getSize().y;
@@ -75,7 +75,7 @@ public:
     }
 
     // down 
-    if (direction == direction::down) {
+    if (direction == types::direction::down) {
       r = bottom.getTexture()->getSize().x;
       l = 0;
       u = 0;
@@ -84,9 +84,9 @@ public:
 
     top.setTextureRect(sf::IntRect(l, u, r, d));
 
-    surface.clear();
-    surface.draw(bottom);
-    surface.draw(top);
+    renderer.clear();
+    renderer.submit(Immediate(&bottom));
+    renderer.submit(Immediate(&top));
   }
 
   SwipeIn(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {

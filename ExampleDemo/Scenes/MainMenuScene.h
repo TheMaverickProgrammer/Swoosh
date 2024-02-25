@@ -3,6 +3,7 @@
 #include "GameplayScene.h"
 #include "HiscoreScene.h"
 #include "AboutScene.h"
+#include "../CustomRenderer.h"
 #include "../TextureLoader.h"
 #include "../Particle.h"
 #include "../Button.h"
@@ -54,7 +55,7 @@ using namespace swoosh::types;
 
 class MainMenuScene : public Activity {
 private:
-  sf::Texture* bgTexture;
+  sf::Texture* bgTexture, *bgNormal;
   sf::Texture* starTexture;
   sf::Texture* blueButton, *redButton, *greenButton;
 
@@ -75,7 +76,7 @@ private:
   bool fadeMusic;
 
   Timer timer; // for onscreen effects. Or we could have stored the total elapsed from the update function
-  save savefile;
+  SaveFile savefile;
 
 public:
   MainMenuScene(ActivityController& controller) : Activity(&controller) {
@@ -87,6 +88,7 @@ public:
     fadeMusic = false;
 
     bgTexture = loadTexture(MENU_BG_PATH);
+    bgNormal = loadTexture(MENU_BG_N_PATH);
     bg = sf::Sprite(*bgTexture);
 
     starTexture = loadTexture(STAR_PATH);
@@ -132,10 +134,10 @@ public:
   }
 
   void onUpdate(double elapsed) override {
-    timer.update(sf::seconds(elapsed));
+    timer.update(sf::seconds((float)elapsed));
 
     if (!inFocus && fadeMusic) {
-      themeMusic.setVolume(themeMusic.getVolume() * 0.90f); // fades out the music
+      themeMusic.setVolume(themeMusic.getVolume() * 0.98f); // fades out the music
     }
 
     int i = 0;
@@ -168,17 +170,29 @@ public:
         selectFX.play();
 
         if (b.text == PLAY_OPTION) {
-          getController().push<segue<DreamCustom<50>, sec<3>>::to<GameplayScene>>(savefile);
+          using segue = segue<HorizontalOpen>;
+          using intent = segue::to<GameplayScene>;
+          getController().push<intent>(savefile);
+
           fadeMusic = true;
         }
         else if (b.text == SCORE_OPTION) {
-          using segue = segue<BlurFadeIn, sec<2>>;
+          using segue = segue<RadialCCW, sec<2>>;
           using intent = segue::to<HiScoreScene>;
+          getController().push<intent>(savefile).yield([this](Context& context) {
+            if (!context.is<SaveFile>()) return;
+            SaveFile& s = context.as<SaveFile>();
 
-          getController().push<intent>(savefile);
+            std::cout << "Recent hiscore was: " << s.scores.back() << std::endl;
+          });
         }
         else if (b.text == ABOUT_OPTION) {
-          getController().push<segue<VerticalSlice, sec<2>>::to<AboutScene>>();
+          using segue = segue<PageTurn, sec<2>>;
+          using intent = segue::to<AboutScene>;
+          getController().push<intent>().yield([](Context& context) {
+            if (!context.is<std::string>()) return;
+            std::cout << context.as<std::string>();
+          });
         }
       }
     }
@@ -199,13 +213,9 @@ public:
 
   void onEnter() override {
     std::cout << "MainMenuScene OnEnter called" << std::endl;
-
   }
 
-
   void onResume() override {
-    timer.reset();
-
     inFocus = true;
 
     // If fadeMusic == true, then we were coming from demo, the music changes
@@ -218,7 +228,7 @@ public:
 
     std::cout << "MainMenuScene OnResume called" << std::endl;
 
-    for (int i = 100; i > 0; i--) {
+    for (int i = 50; i > 0; i--) {
       int randNegative = rand() % 2 == 0 ? -1 : 1;
       int randSpeedX = rand() % 80;
       randSpeedX *= randNegative;
@@ -226,31 +236,34 @@ public:
 
       particle p;
       p.sprite = sf::Sprite(*starTexture);
-      p.pos = sf::Vector2f((float)(rand() % getController().getVirtualWindowSize().x), (float)(getController().getVirtualWindowSize().y));
+      p.pos = sf::Vector2f(
+        (float)(rand() % getController().getVirtualWindowSize().x), 
+        (float)(getController().getVirtualWindowSize().y)
+      );
       p.speed = sf::Vector2f((float)randSpeedX, (float)-randSpeedY);
       p.friction = sf::Vector2f(0.99999f, 0.9999f);
       p.life = 3.0;
       p.lifetime = 3.0;
       p.sprite.setPosition(p.pos);
+      setOrigin(p.sprite, 0.5, 0.5);
 
       particles.push_back(p);
     }
   }
 
-  void onDraw(sf::RenderTexture& surface) override {
-    sf::RenderWindow& window = getController().getWindow();
-
-    surface.draw(bg);
+  void onDraw(IRenderer& renderer) override {
+    const bool isCustomRenderer = getController().getCurrentRendererName() == "custom";
+    renderer.submit(Draw3D(&bg, bgNormal));
 
     for (auto& p : particles) {
-      surface.draw(p.sprite);
+      renderer.submit(&p.sprite);
     }
 
     int i = 0;
     menuText.setFillColor(sf::Color::Black);
 
     for (auto& b : buttons) {
-      b.draw(surface, menuText, screenMid, (float)(200 + (i++*100)));
+      b.draw(renderer, menuText, screenMid, (float)(200 + (i++*100)));
     }
 
     // First set the text as the it would render as a full string
@@ -265,13 +278,16 @@ public:
     double offset = 0;
 
     // For each letter in the string, make it jump while preserving placement
-    for (int i = 0; i < strlen(GAME_TITLE); i++) {
+    size_t len = strlen(GAME_TITLE);
+    double frequency = swoosh::ease::pi * 2.0 / len;
+    double dt = timer.getElapsed().asSeconds();
+    for (int i = 0; i < len; i++) {
       menuText.setFillColor(sf::Color::White);
       menuText.setString(GAME_TITLE[i]);
       setOrigin(menuText, 0.5, 0.5); // origin is in the center of the letter
 
       // This creates our wave over all letters
-      double ratio = (ease::pi) / strlen(GAME_TITLE);
+      double ratio = (ease::pi) / len;
       double wave = (std::sin(timer.getElapsed().asSeconds()*2.0+((i+1)*ratio)));
 
       // Only add the peaks
@@ -288,7 +304,16 @@ public:
       if (menuText.getString() == ' ') { offset += menuText.getCharacterSize(); }
 
       menuText.setPosition(sf::Vector2f((float)(startX + offset), (float)startY));
-      surface.draw(menuText);
+      renderer.submit(Clone(menuText));
+
+      if (isCustomRenderer) {
+
+        sf::Uint8 r = sf::Uint8(((sin(frequency * i + 2 + dt) + 1.0) / 2.0) * 255U);
+        sf::Uint8 g = sf::Uint8(((sin(frequency * i + 0 + dt) + 1.0) / 2.0) * 255U);
+        sf::Uint8 b = sf::Uint8(((sin(frequency * i + 4 + dt) + 1.0) / 2.0) * 255U);
+
+        renderer.submit(Light(160.0, WithZ(menuText.getPosition(), 50.0f), sf::Color(r, g, b, 255), 0.1f));
+      }
     }
   }
 

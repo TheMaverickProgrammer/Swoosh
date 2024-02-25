@@ -19,12 +19,12 @@ namespace swoosh {
     friend class ConditionalBranchListAction;
 
   protected:
-    bool isBlocking;
+    bool isBlocking{};
 
   private:
-    bool isDoneFlag;
-    std::size_t index;
-    ActionList *list;
+    bool isDoneFlag{};
+    std::size_t index{};
+    ActionList* list{ nullptr };
 
   public:
     ActionItem() { isBlocking = isDoneFlag = false; index = -1; list = nullptr; }
@@ -82,7 +82,7 @@ namespace swoosh {
     friend class ConditionalBranchListAction;
   private:
     std::vector<ActionItem*> items;
-    bool clearFlag;
+    bool clearFlag{};
   public:
     void updateIndexesFrom(std::size_t pos) {
       for (pos; pos < items.size(); pos++) {
@@ -282,7 +282,7 @@ namespace swoosh {
     friend class ActionList;
 
   private:
-    ActionList *branchIfTrue, *branchIfFalse;
+    ActionList* branchIfTrue{ nullptr }, * branchIfFalse{ nullptr };
     std::function<bool()> condition;
   public:
     ConditionalBranchListAction(std::function<bool()> condition, ActionList *branchIfTrue, ActionList *branchIfFalse)

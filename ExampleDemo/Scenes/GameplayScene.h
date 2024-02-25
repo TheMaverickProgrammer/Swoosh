@@ -1,9 +1,10 @@
 #pragma once
 
+#include "../CustomRenderer.h"
 #include "../TextureLoader.h"
 #include "../Particle.h"
 #include "../ResourcePaths.h"
-#include "../SaveFile.h"
+#include "HiScoreScene.h"
 
 #include <Segues/Checkerboard.h>
 #include <Swoosh/ActivityController.h>
@@ -21,17 +22,25 @@ using namespace swoosh::types;
 
 class GameplayScene : public Activity {
 private:
-  sf::Texture* bgTexture;
+  sf::Texture* btn;
+  sf::Texture* bgTexture, * bgNormal, * bgEmissive;
   sf::Sprite bg;
 
   sf::Texture* playerTexture;
+  sf::Texture* playerNormal;
+  sf::Texture* playerEsm;
   particle player;
+
+  sf::Texture* trailTexture;
   std::vector<particle> trails;
 
   sf::Texture* enemyTexture;
+  sf::Texture* enemyNormal;
+  sf::Texture* enemyEsm;
   std::vector<particle> enemies;
 
-  sf::Texture * meteorBig, *meteorMed, *meteorSmall, *meteorTiny, *btn;
+  sf::Texture * meteorBigN, *meteorMedN, *meteorSmallN, *meteorTinyN;
+  sf::Texture* meteorBig, * meteorMed, * meteorSmall, * meteorTiny;
   std::vector<particle> meteors;
 
   sf::Texture *laserTexture;
@@ -55,8 +64,10 @@ private:
   sf::SoundBuffer shieldFX;
   sf::SoundBuffer gameOverFX;
   sf::SoundBuffer extraLifeFX;
+  sf::SoundBuffer explodeFX;
   sf::Sound laserChannel;
   sf::Sound shieldChannel;
+  sf::Sound explodeChannel;
   sf::Sound extraLifeChannel;
   sf::Sound gameOverChannel;
   sf::Music ingameMusic;
@@ -71,9 +82,9 @@ private:
   bool mouseRelease;
   bool inFocus;
 
-  save& savefile;
+  SaveFile& savefile;
 public:
-  GameplayScene(ActivityController& controller, save& savefile) : savefile(savefile), Activity(&controller) { 
+  GameplayScene(ActivityController& controller, SaveFile& savefile) : savefile(savefile), Activity(&controller) { 
     mousePressed = mouseRelease = inFocus = isExtraLifeSpawned = false;
 
     ingameMusic.openFromFile(INGAME_MUSIC_PATH);
@@ -84,17 +95,23 @@ public:
     shieldFX.loadFromFile(SHIELD_DOWN_SFX_PATH);
     gameOverFX.loadFromFile(LOSE_SFX_PATH);
     extraLifeFX.loadFromFile(TWO_TONE_SFX_PATH);
+    explodeFX.loadFromFile(EXPLODE_SFX_PATH);
 
     laserChannel.setBuffer(laserFX);
     shieldChannel.setBuffer(shieldFX);
     gameOverChannel.setBuffer(gameOverFX);
     extraLifeChannel.setBuffer(extraLifeFX);
+    explodeChannel.setBuffer(explodeFX);
 
     sf::Vector2u windowSize = getController().getVirtualWindowSize();
     setView(windowSize);
 
-    bgTexture = loadTexture(PURPLE_BG_PATH);
+    bgTexture = loadTexture(GAME_BG_PATH);
     bgTexture->setRepeated(true);
+    bgNormal = loadTexture(GAME_BG_N_PATH);
+    bgNormal->setRepeated(true);
+    bgEmissive = loadTexture(GAME_BG_E_PATH);
+    bgEmissive->setRepeated(true);
     bg = sf::Sprite(*bgTexture);
     bg.setTextureRect({ 0, 0, (int)windowSize.x, (int)windowSize.y });
 
@@ -103,18 +120,28 @@ public:
     meteorSmall = loadTexture(METEOR_SMALL_PATH);
     meteorTiny = loadTexture(METEOR_TINY_PATH);
 
+    meteorBigN = loadTexture(METEOR_BIG_N_PATH);
+    meteorMedN = loadTexture(METEOR_MED_N_PATH);
+    meteorSmallN = loadTexture(METEOR_SMALL_N_PATH);
+    meteorTinyN = loadTexture(METEOR_TINY_N_PATH);
+
     laserTexture = loadTexture(LASER_BEAM_PATH);
     shieldTexture = loadTexture(SHIELD_LOW_PATH);
     enemyTexture = loadTexture(ENEMY_PATH);
-    extraLifeTexture = loadTexture(EXTRA_LIFE_PATH);
+    enemyNormal = loadTexture(ENEMY_N_PATH);
+    enemyEsm = loadTexture(ENEMY_E_PATH);
 
+    extraLifeTexture = loadTexture(EXTRA_LIFE_PATH);
     star = sf::Sprite(*extraLifeTexture);
     setOrigin(star, 0.5, 0.5);
 
     playerTexture = loadTexture(PLAYER_PATH);
+    playerNormal = loadTexture(PLAYER_N_PATH);
+    playerEsm = loadTexture(PLAYER_E_PATH);
     player.sprite = sf::Sprite(*playerTexture);
-
     setOrigin(player.sprite, 0.5, 0.5);
+
+    trailTexture = loadTexture(PLAYER_TRAIL_PATH);
 
     shield = sf::Sprite(*shieldTexture);
     setOrigin(shield, 0.5, 0.5);
@@ -166,6 +193,7 @@ public:
     player.speed = sf::Vector2f(0, 0);
     player.sprite.setPosition(player.pos);
     player.friction = sf::Vector2f(0.96f, 0.96f);
+    setOrigin(player.sprite, 0.5, 0.5);
     alpha = 0;
     hasShield = true;
   }
@@ -185,20 +213,41 @@ public:
       // Some segues can be customized like Checkerboard effect
       using custom = CheckerboardCustom<40, 40>;
       using effect = segue<custom, milli<900>>;
-      getController().push<effect::to<HiScoreScene>>(savefile);
+      getController().push<effect::to<HiScoreScene>>(savefile).yield([this](const Context& context) {
+        std::cout << "GamePlayScene yield with type: " << context.type() << std::endl;
+      });
     }
 
     for (auto& m : meteors) {
       m.pos += sf::Vector2f(m.speed.x * (float)elapsed, m.speed.y * (float)elapsed);
       m.sprite.setPosition(m.pos);
       m.sprite.setRotation(m.pos.x);
+
+      const sf::Vector2u window = getController().getVirtualWindowSize();
+      if (m.pos.x > window.x + 100) {
+        m.pos.x = -50.0f;
+      } else if (m.pos.x < -100) {
+        m.pos.x = (float)window.x + 50.f;
+      }
+
+      if (m.pos.y > (float)window.y + 100) {
+        m.pos.y = -50.0f;
+      }
+      else if (m.pos.y < -100) {
+        m.pos.y = (float)window.y + 50.0f;
+      }
     }
 
     int i = 0;
     for (auto& t : trails) {
       t.sprite.setPosition(t.pos);
       t.sprite.setScale((float)(t.life / t.lifetime), (float)(t.life / t.lifetime));
-      t.sprite.setColor(sf::Color(t.sprite.getColor().r, t.sprite.getColor().g, t.sprite.getColor().b, (sf::Uint8)(10.0f * (t.life / t.lifetime))));
+      t.sprite.setColor(sf::Color(
+        t.sprite.getColor().r, 
+        t.sprite.getColor().g, 
+        t.sprite.getColor().b, 
+        (sf::Uint8)(10.0f * (t.life / t.lifetime))
+      ));
       t.life -= elapsed;
 
       if (t.life <= 0) {
@@ -218,8 +267,9 @@ public:
           if (e.lifetime != 0) break; // Reward player once
           if (doesCollide(l.sprite, e.sprite)) {
             l.life = 0;
-            e.lifetime = 1; // trigger scale out
+            e.lifetime = 1.0; // trigger scale out
             score += 1000;
+            explodeChannel.play();
           }
         }
       }
@@ -280,11 +330,6 @@ public:
       l.sprite.setPosition(l.pos);
       l.life -= elapsed;
 
-      double ratio = 3*l.life / l.lifetime;
-      ratio = std::min(ratio, 1.0);
-
-      l.sprite.setColor(sf::Color((sf::Uint8)(ratio*l.sprite.getColor().r), (sf::Uint8)(ratio*l.sprite.getColor().g), (sf::Uint8)(ratio*l.sprite.getColor().b), 255));
-
       if (l.life <= 0) {
         lasers.erase(lasers.begin() + i);
         continue;
@@ -293,7 +338,7 @@ public:
       i++;
     }
 
-    if (rand() % 50 == 0 && enemies.size() < 10 && inFocus) {
+    if (rand() % 50 == 0 && enemies.size() < 20 && inFocus) {
       spawnEnemy();
 
       if (rand() % 30 == 0 && !isExtraLifeSpawned) {
@@ -333,6 +378,8 @@ public:
       player.speed = delta;
 
       particle trail = player;
+      trail.sprite.setTexture(*trailTexture, true);
+      setOrigin(trail.sprite, 0.5, 0.5);
       trail.life = trail.lifetime = 1.0; // secs
       trails.insert(trails.begin(), trail);
     }
@@ -389,6 +436,10 @@ public:
 
     if(hasShield && killShield)
       hasShield = false;
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num0)) {
+      getController().clearStackSafely();
+    }
   }
 
   void onLeave() override {
@@ -451,29 +502,73 @@ public:
 
   }
 
-  void onDraw(sf::RenderTexture& surface) override {
+  void onDraw(IRenderer& renderer) override {
+    const bool isCustomRenderer = getController().getCurrentRendererName() == "custom";
     sf::RenderWindow& window = getController().getWindow();
+    auto windowSize = getController().getVirtualWindowSize();
 
-    surface.draw(bg);
+    // Track the mouse and create a light source for this pass on the mouse!
+    sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+    // We can filter what we submit to the renderer by checking the current renderer's name or ID
+    if (isCustomRenderer) {
+      // Draw a light tracking the cursor
+      renderer.submit(Light(256.0f, WithZ(mousepos, 10.f), sf::Color(100U, 100U, 150U), 1.0));
+
+      // Draw a light in the scene so we can see everything
+      sf::Vector2f center = sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f);
+      renderer.submit(Light(1000.0f, WithZ(center, 100.0f), sf::Color(255U, 205U, 255U, 150U)));
+    }
+
+    renderer.submit(Draw3D(&bg, bgNormal).WithZ(-100));
 
     for (auto& t : trails) {
-      surface.draw(t.sprite);
+      renderer.submit(Draw3D(&t.sprite, nullptr, trailTexture));
     }
 
     for (auto& m : meteors) {
-      surface.draw(m.sprite);
+      sf::Texture* normal = meteorTinyN;
+      const sf::Texture* spriteTexture = m.sprite.getTexture();
+      if (spriteTexture == meteorBig) {
+        normal = meteorBigN;
+      } else if (spriteTexture == meteorMed) {
+        normal = meteorMedN;
+      }
+      else if (spriteTexture == meteorSmall) {
+        normal = meteorSmallN;
+      }
+      // else - handled by default value of `normal`
+
+      renderer.submit(Draw3D(&m.sprite, normal).WithZ(-50));
     }
 
     for (auto& e : enemies) {
-      surface.draw(e.sprite);
+      renderer.submit(Draw3D(&e.sprite, enemyNormal, enemyEsm));
+
+      if (e.lifetime > 0) {
+        const float alpha = std::max(0.f, (float)(e.life / e.lifetime));
+        const float beta = 1.0f - alpha;
+        const sf::Uint8 ch = sf::Uint8(alpha*255);
+        renderer.submit(Light(
+          100.0f + (200.0f*beta),
+          WithZ(e.sprite.getPosition(), 100.0f), 
+          sf::Color(255, ch, 0, ch), 10.0f, 0.5f)
+        );
+      }
     }
 
     for (auto& l : lasers) {
-      surface.draw(l.sprite);
+      renderer.submit(Draw3D(&l.sprite, nullptr, laserTexture).WithZ(-1.0f));
+
+      if (isCustomRenderer) {
+        renderer.submit(Light(
+          100.0, 
+          WithZ(l.sprite.getPosition(), 9.0f), 
+          sf::Color(0, 215, 0, 255), 20.0f)
+        );
+      }
     }
     
-    auto windowSize = getController().getVirtualWindowSize();
-
     text.setString(std::string("score: ") + std::to_string(score));
     setOrigin(text, 1, 0);
     text.setPosition(sf::Vector2f((float)windowSize.x - 50.0f, 0.0f));
@@ -485,30 +580,34 @@ public:
       text.setFillColor(sf::Color::White);
     }
 
-    surface.draw(text);
+    renderer.submit(&text);
 
-    if (isExtraLifeSpawned) surface.draw(star);
+    if (isExtraLifeSpawned) renderer.submit(&star);
 
 
     if (lives >= 0) {
-      surface.draw(player.sprite);
+      renderer.submit(Draw3D(&player.sprite, playerNormal, playerEsm, 0.5f));
 
       if (hasShield) {
         shield.setPosition(player.pos);
         shield.setRotation(player.sprite.getRotation());
-        surface.draw(shield);
+        renderer.submit(&shield);
       }
 
       numeral = sf::Sprite(*numeralTexture[10]); // X
       numeral.setPosition(player.pos.x, player.pos.y - 100);
-      surface.draw(numeral);
+
+      // NOTE: `numeral` sprie is re-used so we clone its current state before submitting!
+      renderer.submit(Clone(numeral));
 
       numeral = sf::Sprite(*numeralTexture[lives]);
       numeral.setPosition(player.pos.x + 20, player.pos.y - 100);
-      surface.draw(numeral);
+
+      // NOTE: The original `numeral` sprite is submitted without changing the cloned copies!
+      renderer.submit(&numeral);
 
       playerLife.setPosition(player.pos.x - 40, player.pos.y - 100);
-      surface.draw(playerLife);
+      renderer.submit(&playerLife);
     }
   }
 

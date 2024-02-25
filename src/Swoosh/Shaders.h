@@ -1,4 +1,7 @@
 #pragma once
+#include <Swoosh/Ease.h>
+#include <Swoosh/Renderers/Renderer.h>
+#include <Swoosh/EmbedGLSL.h>
 #include <SFML/Graphics.hpp>
 #include <cassert>
 
@@ -24,7 +27,7 @@ namespace swoosh {
       const sf::Shader& getShader() const { return shader; }
       virtual ~Shader() { ; }
 
-      virtual void apply(sf::RenderTexture& surface) = 0;
+      virtual void apply(IRenderer& renderer) = 0;
     };
     /**
       @class FastGaussianBlur
@@ -34,8 +37,8 @@ namespace swoosh {
     class FastGaussianBlur final : public Shader {
     private:
       std::string FAST_BLUR_SHADER;
-      sf::Texture* texture;
-      float power;
+      sf::Texture* texture{ nullptr };
+      float power{};
     public:
       void setPower(float power) { this->power = power; shader.setUniform("power", power); }
 
@@ -49,7 +52,7 @@ namespace swoosh {
         shader.setUniform("textureSizeH", (float)texture->getSize().y);
       }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!texture) return;
 
         sf::RenderStates states;
@@ -58,7 +61,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture);
 
-        surface.draw(sprite, states);
+        renderer.submit(Immediate(&sprite, states));
       }
 
       FastGaussianBlur(int numOfKernels) {
@@ -143,10 +146,10 @@ namespace swoosh {
     class Checkerboard final : public Shader {
     private:
       std::string CHECKERBOARD_SHADER;
-      float alpha;
-      int cols, rows;
-      float smoothness;
-      sf::Texture *texture1, *texture2;
+      float alpha{};
+      int cols{}, rows{};
+      float smoothness{};
+      sf::Texture* texture1{ nullptr }, * texture2{ nullptr };
 
     public:
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", (float)alpha); }
@@ -156,7 +159,7 @@ namespace swoosh {
       void setTexture1(sf::Texture* tex) { if (!tex) return;  this->texture1 = tex; shader.setUniform("texture",  *texture1); }
       void setTexture2(sf::Texture* tex) { if (!tex) return;  this->texture2 = tex; shader.setUniform("texture2", *texture2); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(texture1 && texture2)) return;
 
         sf::RenderStates states;
@@ -165,7 +168,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        surface.draw(sprite, states);
+        renderer.submit(Immediate(&sprite, states));
       }
 
       Checkerboard(int cols = 10, int rows = 10) {
@@ -210,16 +213,16 @@ namespace swoosh {
     class CircleMask final : public Shader {
     private:
       std::string CIRCLE_MASK_SHADER;
-      sf::Texture* texture;
-      float alpha; 
-      float aspectRatio;
+      sf::Texture* texture{ nullptr };
+      float alpha{};
+      float aspectRatio{};
 
     public:
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("time", (float)alpha); }
       void setAspectRatio(float aspectRatio) { this->aspectRatio = aspectRatio;  shader.setUniform("ratio", aspectRatio); }
       void setTexture(sf::Texture* tex) { if (!tex) return; this->texture = tex; shader.setUniform("texture", *texture); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!texture) return;
 
         sf::RenderStates states;
@@ -228,7 +231,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture);
 
-        surface.draw(sprite, states);
+        renderer.submit(Immediate(&sprite, states));
       }
 
       CircleMask() {
@@ -278,17 +281,14 @@ namespace swoosh {
     class RetroBlit final : public Shader {
     private:
       std::string RETRO_BLIT_SHADER;
-      int kernelCols, kernelRows;
-      float alpha;
-      sf::Texture* texture;
+      float alpha{};
+      sf::Texture* texture{ nullptr };
 
     public:
       void setTexture(sf::Texture* tex) { if (!tex) return; texture = tex; shader.setUniform("texture", *texture); }
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", alpha); }
-      void setKernelCols(int kcols) { this->kernelCols = kcols; shader.setUniform("cols", kernelCols); }
-      void setKernelRows(int krows) { this->kernelRows = krows; shader.setUniform("rows", kernelRows); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!texture) return;
 
         sf::RenderStates states;
@@ -297,35 +297,30 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture);
 
-        surface.draw(sprite, states);
+        renderer.submit(Immediate(&sprite, states));
       }
 
-      RetroBlit(int kcols = 10, int krows = 10) {
+      RetroBlit() {
         this->RETRO_BLIT_SHADER = GLSL(
           110,
           uniform sampler2D texture;
           uniform float progress;
-          uniform int cols;
-          uniform int rows;
 
-          float rand(vec2 co) {
-            return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+          vec4 channelBitrate(vec4 inColor, int bit) { 
+            float bitDepth = pow(2.0, abs(float(bit))); 
+            vec4 outColor = floor(inColor * bitDepth) / bitDepth; 
+            return outColor; 
           }
 
           void main() {
             vec2 p = gl_TexCoord[0].xy;
-            vec2 size = vec2(cols, rows);
             vec4 color = texture2D(texture, p.xy);
-            float r = rand(floor(vec2(size) * color.xy));
-            float m = smoothstep(0.0, 0.0, r - (progress * (1.0)));
-            gl_FragColor = mix(color, vec4(0.0, 0.0, 0.0, 0.0), m);
+            gl_FragColor = channelBitrate(color,int(8.0*progress));
           }
         );
 
         shader.loadFromMemory(this->RETRO_BLIT_SHADER, sf::Shader::Fragment);
 
-        kernelCols = kcols;
-        kernelRows = krows;
         texture = nullptr;
         alpha = 0;
       }
@@ -341,9 +336,9 @@ namespace swoosh {
     class CrossZoom final : public Shader {
     private:
       std::string CROSS_ZOOM_SHADER;
-      sf::Texture* texture1, *texture2;
-      float power;
-      float alpha;
+      sf::Texture* texture1{ nullptr }, * texture2{ nullptr };
+      float power{};
+      float alpha{};
 
     public:
       void setTexture1(sf::Texture* tex) { if (!tex) return; texture1 = tex; shader.setUniform("texture", *texture1); }
@@ -351,7 +346,7 @@ namespace swoosh {
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("progress", (float)alpha); }
       void setPower(float power) { this->power = power; shader.setUniform("strength", power); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(texture1 && texture2)) return;
 
         sf::RenderStates states;
@@ -360,7 +355,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        surface.draw(sprite, states);
+        renderer.submit(Immediate(&sprite, states));
       }
 
       CrossZoom() {
@@ -456,9 +451,9 @@ namespace swoosh {
     class Morph final : public Shader {
     private:
       std::string MORPH_SHADER;
-      sf::Texture* texture1, *texture2;
-      float strength;
-      float alpha;
+      sf::Texture* texture1{ nullptr }, * texture2{ nullptr };
+      float strength{};
+      float alpha{};
     public:
 
       void setTexture1(sf::Texture* tex) { if (!tex) return; texture1 = tex; shader.setUniform("texture", *texture1); }
@@ -466,7 +461,7 @@ namespace swoosh {
       void setAlpha(float alpha) { this->alpha = alpha; shader.setUniform("alpha", (float)alpha); }
       void setStrength(float strength) { this->strength = strength; shader.setUniform("strength", strength); }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(texture1 && texture2)) return;
 
         sf::RenderStates states;
@@ -475,7 +470,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        surface.draw(sprite, states);
+        renderer.submit(Immediate(&sprite, states));
       }
 
       Morph() {
@@ -531,9 +526,9 @@ namespace swoosh {
     */
     class PageTurn final : public Shader {
     private:
-      sf::Texture* texture;
+      sf::Texture* texture{ nullptr };
       sf::Vector2u size;
-      float alpha;
+      float alpha{};
 
       std::string TURN_PAGE_VERT_SHADER, TURN_PAGE_FRAG_SHADER;
       sf::VertexArray buffer;
@@ -629,14 +624,14 @@ namespace swoosh {
         shader.setUniform("rho", (float)rho);
       }
 
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(this->texture)) return;
 
         sf::RenderStates states;
         states.shader = &shader;
 
-        surface.clear(sf::Color::Transparent);
-        surface.draw(buffer, states);
+        renderer.clear(sf::Color::Transparent);
+        renderer.submit(Immediate(&buffer, states));
       }
 
       PageTurn(sf::Vector2u size, const int cellSize = 10) {
@@ -707,11 +702,11 @@ namespace swoosh {
     class Pixelate final : public Shader {
     private:
       std::string PIXELATE_SHADER;
-      sf::Texture* texture;
-      float threshold;
+      sf::Texture* texture{ nullptr };
+      float threshold{};
 
     public:
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!this->texture) return;
         
         sf::RenderStates states;
@@ -720,7 +715,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*this->texture);
 
-        surface.draw(sprite, states);
+        renderer.submit(Immediate(&sprite, states));
       }
 
       void setTexture(sf::Texture* tex) { if (!tex) return; this->texture = tex; shader.setUniform("texture", *this->texture); }
@@ -756,12 +751,12 @@ namespace swoosh {
     class RadialCCW final : public Shader {
     private:
       std::string RADIAL_CCW_SHADER;
-      sf::Texture* texture1;
-      sf::Texture* texture2;
-      float alpha;
+      sf::Texture* texture1{ nullptr };
+      sf::Texture* texture2{ nullptr };
+      float alpha{};
 
     public:
-      void apply(sf::RenderTexture& surface) override {
+      void apply(IRenderer& renderer) override {
         if (!(this->texture1 && this->texture2)) return;
 
         sf::RenderStates states;
@@ -770,7 +765,7 @@ namespace swoosh {
         sf::Sprite sprite;
         sprite.setTexture(*texture1);
 
-        surface.draw(sprite, states);
+        renderer.submit(Immediate(&sprite, states));
       }
 
       void setTexture1(sf::Texture* tex) { if (!tex) return; this->texture1 = tex; shader.setUniform("texture", *texture1); }
@@ -806,5 +801,382 @@ namespace swoosh {
 
       ~RadialCCW() { ; }
     };
+
+    /**
+      @namespace deferred
+      @brief Using extra input textures, light parameters, and destination textures: draws a scene with 3D lighting
+    */
+    namespace deferred {
+      struct MeshData {
+        sf::Sprite* sprite{ nullptr };
+        sf::Texture* normal{ nullptr };
+        sf::Texture* esm{ nullptr }; // Emissive (R), Specular (G), Metallic (B)
+        float metallic{};
+        float specular{};
+        float z{};
+
+        MeshData WithZ(float z) {
+          this->z = z;
+          return *this;
+        }
+
+        sf::Glsl::Vec3 getPosition3D() {
+          sf::Vector2f pos2D = sprite->getPosition();
+          return sf::Glsl::Vec3(pos2D.x, pos2D.y, z);
+        }
+      };
+
+      class MeshPass final : public Shader {
+      private:
+        std::string SHADER_FRAG;
+        sf::RenderTexture* diffuse{ nullptr }, * normal{ nullptr }, * esm{ nullptr };
+        MeshData meshData;
+
+      public:
+        void apply(IRenderer& renderer) override {
+          if (!(diffuse && normal && esm && meshData.sprite)) return;
+
+          sf::RenderStates states;
+          states.shader = &shader;
+
+          sf::Sprite& sprite = *meshData.sprite;
+          shader.setUniform("normal", sf::Shader::CurrentTexture);
+          shader.setUniform("rotation", sprite.getRotation());
+
+          // draw the albedo/diffuse pass (normal sprite)
+          diffuse->draw(sprite);
+
+          // next, draw the normals
+
+          // store the original texture in temp
+          const sf::Texture* temp = sprite.getTexture();
+          // use the normal texture and draw
+          sprite.setTexture(*meshData.normal);
+
+          normal->draw(sprite, states);
+
+          // next, draw the esm
+          if (meshData.esm) {
+            // use the emissive texture and draw
+            sprite.setTexture(*meshData.esm);
+            esm->draw(sprite);
+          }
+
+          // restore original texture
+          sprite.setTexture(*temp);
+        }
+
+        void configure(sf::RenderTexture* diffuseIn, sf::RenderTexture* normalIn, sf::RenderTexture* esmIn) {
+          diffuse = diffuseIn;
+          normal = normalIn;
+          esm = esmIn;
+        }
+
+        void setMeshData(const MeshData& data) {
+          meshData = data;
+        }
+
+        MeshPass() {
+          /**
+            fragment shader
+          **/
+          SHADER_FRAG = GLSL(
+            110,
+            uniform sampler2D normal;
+            uniform float rotation;
+
+            // rotates in 2D only
+            vec4 rotate(vec4 v, float angle) {
+              float r = radians(angle);
+              return vec4(cos(r) * v.x, sin(r) * v.y, v.zw);
+            }
+
+            void main()
+            {
+              vec4 pxNormal = texture2D(normal, gl_TexCoord[0].xy);
+              vec4 n = rotate(pxNormal * 2.0 - 1.0, rotation);
+              gl_FragColor = (n + 1.0) / 2.0;
+            }
+          );
+
+          shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
+        }
+
+        ~MeshPass() { ; }
+      };
+
+      class LightPass final : public Shader {
+      private:
+        std::string SHADER_FRAG;
+        sf::RenderTexture* position{ nullptr }, * diffuse{ nullptr }, * normal{ nullptr }, * esm{ nullptr };
+
+        struct light_t {
+          float radius{};
+          sf::Glsl::Vec3 position{};
+          sf::Glsl::Vec4 color{ sf::Color::White };
+          float specular{};
+          float cutoff{};
+        };
+
+        std::list<light_t> lights;
+
+      public:
+        void apply(IRenderer& renderer) override {
+          if (!(position && diffuse && normal && esm)) return;
+
+          diffuse->display();
+          normal->display();
+          esm->display();
+          position->display();
+          const sf::Texture texDiffuse = diffuse->getTexture();
+          const sf::Texture texNormal = normal->getTexture();
+          const sf::Texture texESM = esm->getTexture();
+          const sf::Texture texPosition = position->getTexture();
+
+          // prepare the renderer for drawing
+          renderer.clear();
+
+          shader.setUniform("accumulation", sf::Shader::CurrentTexture);
+          shader.setUniform("screenpos", texPosition);
+          shader.setUniform("diffuse", texDiffuse);
+          shader.setUniform("normal", texNormal);
+          shader.setUniform("esm", texESM);
+          sf::RenderStates states;
+          states.shader = &shader;
+
+          for (auto& light : lights) {
+            shader.setUniform("lightPos", light.position);
+            shader.setUniform("lightColor", light.color);
+            shader.setUniform("lightRadius", light.radius);
+            shader.setUniform("lightSpecular", light.specular);
+            shader.setUniform("lightCutoff", light.cutoff);
+
+            renderer.display();
+            const sf::Texture out = renderer.getTexture();
+
+            sf::Sprite temp(out);
+            renderer.submit(Immediate(&temp, states));
+          }
+        }
+
+        void clearLights() {
+          lights.clear();
+        }
+
+        void addLight(float radius, sf::Glsl::Vec3 pos, sf::Glsl::Vec4 color, float specular, float cutoff) {
+          lights.push_back({ radius, pos, color, specular, cutoff });
+        }
+
+        void configure(sf::View view, 
+        sf::RenderTexture* positionIn, 
+        sf::RenderTexture* diffuseIn, 
+        sf::RenderTexture* normalIn, 
+        sf::RenderTexture* esmIn) {
+          shader.setUniform("InvProj", sf::Glsl::Mat4(view.getInverseTransform().getMatrix()));
+          position = positionIn;
+          diffuse = diffuseIn;
+          normal = normalIn;
+          esm = esmIn;
+        }
+
+        LightPass() {
+          /**
+            fragment shader
+          **/
+          SHADER_FRAG = GLSL(
+            110,
+            uniform vec3 lightPos; // TODO: use structs (UBO) in SFML?
+            uniform vec4 lightColor;
+            uniform float lightRadius;
+            uniform float lightSpecular;
+            uniform float lightCutoff;
+            uniform mat4 InvProj;
+            uniform sampler2D accumulation;
+            uniform sampler2D screenpos;
+            uniform sampler2D diffuse;
+            uniform sampler2D normal;
+            uniform sampler2D esm;
+
+            void main()
+            {
+              vec2 xy = gl_TexCoord[0].xy;
+              vec4 pxOut = texture2D(accumulation, xy);
+              vec4 pxDiffuse = texture2D(diffuse, xy);
+              vec4 pxNormal = texture2D(normal, xy);
+              vec4 pxESM = texture2D(esm, xy);
+              vec4 pxScreenPos = texture2D(screenpos, xy);
+
+              float depth = pxScreenPos.z;
+              depth = depth * 2.0 - 1.0;
+
+              float emissive = pxESM.r; // emissive surface component
+              float specular = pxESM.g; // specular surface component
+              float metallic = pxESM.b; // reflective metal surface component
+
+              vec2 flippedXY = vec2(xy.x, 1.0 - xy.y); // NOTE: why am I having to do this? SFML quirk? 11/12/2022
+              vec4 position = vec4(flippedXY * 2.0 - 1.0, depth, 1.0);
+              position = InvProj * position;
+              position /= position.w;
+
+              vec3 Normal = normalize(pxNormal.rgb * 2.0 - 1.0);
+              
+              vec3 Light = lightPos - position.xyz;
+              vec3 LightDir = normalize(Light);
+
+              float distance = length(Light);
+              float d = max(distance - lightRadius, 0.0);
+              Light /= d;
+              float denom = d/lightRadius + 1.0;
+              float attenuation = 1.0 / (denom*denom);
+
+              // apply cutoff
+              attenuation = (attenuation - lightCutoff) / (1.0 - lightCutoff);
+              attenuation = max(attenuation, 0.0);
+
+              // calculate bump + diffuse
+              float NdotLD = clamp(dot(Normal, LightDir), 0.0, 1.0);
+
+              vec3 metal_i = texture2D(diffuse, xy + NdotLD).rgb * metallic;
+              vec3 diffuse_i = NdotLD * lightColor.rgb * pxDiffuse.rgb;
+
+              // combine with diffuse
+              diffuse_i = (metallic * metal_i) + ((1.0 - metallic) * diffuse_i);
+
+              // calculate specular
+              vec3 halfwayDir = normalize(LightDir + normalize(vec3(0.5, 0.5, 1.0) - vec3(flippedXY, depth)));
+              float specularIntensity = pow(max(dot(Normal, halfwayDir), 0.0), 16.0) * specular;
+              vec3 specular_i = lightColor.rgb * specularIntensity * lightSpecular;
+
+              // combine all lights
+              gl_FragColor =  vec4(pxOut.rgb + (attenuation * (diffuse_i + specular_i)) * lightColor.a, pxDiffuse.a);
+            }
+          );
+
+          shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
+        }
+
+        ~LightPass() { ; }
+      };
+
+      class EmissivePass final : public Shader {
+      private:
+        std::string SHADER_FRAG;
+        sf::RenderTexture* diffuse{ nullptr }, * esm{ nullptr };
+
+      public:
+        void apply(IRenderer& renderer) override {
+          if (!(diffuse && esm)) return;
+
+          sf::RenderStates states;
+          states.shader = &shader;
+
+          shader.setUniform("esm", esm);
+          shader.setUniform("diffuse", diffuse);
+
+          renderer.display();
+          const sf::Texture out = renderer.getTexture();
+
+          sf::Sprite temp(out);
+          renderer.submit(Immediate(&temp, states));
+        }
+
+        void configure(sf::RenderTexture* diffuseIn, sf::RenderTexture* esmIn) {
+          diffuse = diffuseIn;
+          esm = esmIn;
+        }
+
+        EmissivePass() {
+          /**
+            fragment shader
+          **/
+          SHADER_FRAG = GLSL(
+            110,
+            uniform sampler2D diffuse;
+            uniform sampler2D esm;
+
+            void main()
+            {
+              vec2 px = gl_TexCoord[0].xy;
+              vec4 pxESM = texture2D(esm, px);
+              gl_FragColor = gl_FragColor.rgba + (pxESM.r*texture2D(diffuse, px));
+            }
+          );
+
+          shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
+        }
+
+        ~EmissivePass() { ; }
+      };
+
+      class PositionPass final : public Shader {
+      private:
+        std::string SHADER_FRAG;
+        sf::RenderTexture* position{ nullptr };
+        MeshData meshData;
+        float nearZ{-1}, farZ{1};
+        sf::View view;
+      public:
+        void setMeshData(const MeshData& data) {
+          meshData = data;
+        }
+
+        void apply(IRenderer& renderer) override {
+          if (!position) return;
+
+          sf::RenderStates states;
+          states.shader = &shader;
+
+          sf::Sprite& sprite = *meshData.sprite;
+          sf::Glsl::Vec3 screenPos = meshData.getPosition3D();
+          screenPos.x /= view.getSize().x;
+          screenPos.y /= view.getSize().y;
+          screenPos.z = (screenPos.z-nearZ)/(farZ-nearZ);
+
+          // clamp values for shader programs
+          screenPos.x = std::clamp(screenPos.x, 0.0f, 1.0f);
+          screenPos.y = std::clamp(screenPos.y, 0.0f, 1.0f);
+          screenPos.z = std::clamp(screenPos.z, 0.0f, 1.0f);
+
+          shader.setUniform("position", screenPos);
+          shader.setUniform("diffuse", sf::Shader::CurrentTexture);
+
+          position->draw(sprite, states);
+        }
+
+        void configure(float nearZIn, 
+        float farZIn, 
+        sf::View viewIn, 
+        sf::RenderTexture* positionIn) {
+          position = positionIn;
+          farZ = farZIn;
+          nearZ = nearZIn;
+          view = viewIn;
+        }
+
+        PositionPass() {
+          /**
+            fragment shader
+          **/
+          SHADER_FRAG = GLSL(
+            110,
+            uniform sampler2D diffuse;
+            uniform vec3 position;
+
+            void main()
+            {
+              vec2 px = gl_TexCoord[0].xy;
+              if(texture2D(diffuse, px).a == 0.0) discard;
+              if(gl_FragColor.z > position.z) discard;
+
+              gl_FragColor = vec4(position, 1.0);
+            }
+          );
+
+          shader.loadFromMemory(SHADER_FRAG, sf::Shader::Fragment);
+        }
+
+        ~PositionPass() { ; }
+      };
+    }
   }
 }

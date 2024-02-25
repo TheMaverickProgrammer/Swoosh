@@ -1,7 +1,6 @@
 #pragma once
-
-#include <SFML/Graphics.hpp>
 #include <Swoosh/Ease.h>
+#include <SFML/Graphics.hpp>
 
 /****
  * This file is a collection of common SFML-related utilities that speed up prototyping
@@ -54,11 +53,11 @@ namespace swoosh {
     }
 
     static void setOrigin(sf::Sprite& sprite, double fx, double fy) {
-      sprite.setOrigin(sf::Vector2f(sprite.getGlobalBounds().width * (float)fx, sprite.getGlobalBounds().height * (float)fy));
+      sprite.setOrigin(sf::Vector2f(sprite.getLocalBounds().width * (float)fx, sprite.getLocalBounds().height * (float)fy));
     }
 
     static void setOrigin(sf::Text& text, double fx, double fy) {
-      text.setOrigin(sf::Vector2f(text.getGlobalBounds().width * (float)fx, text.getGlobalBounds().height * (float)fy));
+      text.setOrigin(sf::Vector2f(text.getLocalBounds().width * (float)fx, text.getLocalBounds().height * (float)fy));
     }
   }
 }

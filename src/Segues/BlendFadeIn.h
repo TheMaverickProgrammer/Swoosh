@@ -16,7 +16,7 @@ private:
   sf::Texture last, next;
   bool firstPass{ true };
 public:
-  void onDraw(sf::RenderTexture& surface) override {
+  void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
@@ -24,12 +24,12 @@ public:
     sf::Texture temp, temp2;
 
     if (firstPass || !optimized) {
-      surface.clear(this->getLastActivityBGColor());
-      this->drawLastActivity(surface);
+      renderer.clear(this->getLastActivityBGColor());
+      this->drawLastActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
+      renderer.display(); // flip and ready the buffer
 
-      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp = last;
@@ -38,11 +38,11 @@ public:
     sf::Sprite left(temp);
 
     if (firstPass || !optimized) {
-      surface.clear(this->getNextActivityBGColor());
-      this->drawNextActivity(surface);
+      renderer.clear(this->getNextActivityBGColor());
+      this->drawNextActivity(renderer);
 
-      surface.display(); // flip and ready the buffer
-      next = temp2 = sf::Texture(surface.getTexture());
+      renderer.display(); // flip and ready the buffer
+      next = temp2 = sf::Texture(renderer.getTexture());
     }
     else {
       temp2 = next;
@@ -53,8 +53,8 @@ public:
     left.setColor(sf::Color(255, 255, 255, (sf::Uint8)((1.0-alpha) * 255.0)));
     right.setColor(sf::Color(255, 255, 255, (sf::Uint8)(alpha * 255.0)));
 
-    surface.draw(left);
-    surface.draw(right);
+    renderer.submit(Immediate(&left));
+    renderer.submit(Immediate(&right));
 
     firstPass = false;
   }

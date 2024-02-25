@@ -24,7 +24,7 @@ struct button {
     }
   }
 
-  void draw(sf::RenderTexture& surface, sf::Text& sftext, float x, float y) {
+  void draw(IRenderer& renderer, sf::Text& sftext, float x, float y) {
     if (isHovering) {
       sprite.setColor(sf::Color(200, 200, 200));
     }
@@ -34,12 +34,12 @@ struct button {
 
     sprite.setPosition(sf::Vector2f(x, y));
     sprite.setOrigin(sprite.getGlobalBounds().width / 2.0f, sprite.getGlobalBounds().height / 2.0f);
-    surface.draw(sprite);
+    renderer.submit(Clone(sprite));
 
     sftext.setString(text);
     sftext.setOrigin(sftext.getGlobalBounds().width / 2.0f, sftext.getGlobalBounds().height / 2.0f);
     sftext.setPosition(sf::Vector2f(x, y - sftext.getGlobalBounds().height / 2.0f));
-    surface.draw(sftext);
+    renderer.submit(Clone(sftext));
   }
 };
 

@@ -19,7 +19,7 @@ private:
   bool firstPass{ true };
   bool secondPass{ true };
 public:
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::wideParabola(elapsed, duration, 1.0);
@@ -30,10 +30,10 @@ public:
 
     if (elapsed <= duration * 0.5) {
       if (firstPass || !optimized) {
-        surface.clear(this->getLastActivityBGColor());
-        this->drawLastActivity(surface);
-        surface.display();
-        last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        renderer.clear(this->getLastActivityBGColor());
+        this->drawLastActivity(renderer);
+        renderer.display();
+        last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
 
         firstPass = false;
       }
@@ -43,10 +43,10 @@ public:
     }
     else {
       if (secondPass || !optimized) {
-        surface.clear(this->getNextActivityBGColor());
-        this->drawNextActivity(surface);
-        surface.display();
-        next = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+        renderer.clear(this->getNextActivityBGColor());
+        this->drawNextActivity(renderer);
+        renderer.display();
+        next = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
 
         secondPass = false;
       }
@@ -60,7 +60,7 @@ public:
     shader.setThreshold((float)alpha/15.0f);
 
     if(useShader) {
-      shader.apply(surface);
+      shader.apply(renderer);
     }
 
     // 10% of segue is a pixelate before darkening
@@ -69,9 +69,9 @@ public:
       double alpha = ease::wideParabola(elapsed - delay, duration - delay, 1.0);
 
       sf::RectangleShape blackout;
-      blackout.setSize(sf::Vector2f((float)surface.getTexture().getSize().x, (float)surface.getTexture().getSize().y));
+      blackout.setSize(sf::Vector2f((float)renderer.getTexture().getSize().x, (float)renderer.getTexture().getSize().y));
       blackout.setFillColor(sf::Color(0, 0, 0, (sf::Uint8)(alpha * (double)255)));
-      surface.draw(blackout);
+      renderer.submit(Immediate(&blackout));
     }
   }
 

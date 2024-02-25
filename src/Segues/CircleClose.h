@@ -18,7 +18,7 @@ private:
   sf::Texture last, next;
   bool firstPass{ true };
 public:
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = ease::linear(elapsed, duration, 1.0);
@@ -28,20 +28,20 @@ public:
     sf::Texture temp, temp2;
 
     if (firstPass || !optimized) {
-      surface.clear(this->getLastActivityBGColor());
-      this->drawLastActivity(surface);
-      surface.display(); // flip and ready the buffer
-      last = temp = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      renderer.clear(this->getLastActivityBGColor());
+      this->drawLastActivity(renderer);
+      renderer.display(); // flip and ready the buffer
+      last = temp = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp = last;
     }
 
     if (firstPass || !optimized) {
-      surface.clear(this->getNextActivityBGColor());
-      this->drawNextActivity(surface);
-      surface.display(); // flip and ready the buffer
-      next = temp2 = sf::Texture(surface.getTexture()); // Make a copy of the source texture
+      renderer.clear(this->getNextActivityBGColor());
+      this->drawNextActivity(renderer);
+      renderer.display(); // flip and ready the buffer
+      next = temp2 = sf::Texture(renderer.getTexture()); // Make a copy of the source texture
     }
     else {
       temp2 = next;
@@ -55,17 +55,17 @@ public:
     shader.setTexture(&temp);
 
     if(useShader) {
-      shader.apply(surface);
+      shader.apply(renderer);
     }
 
-    surface.display();
-    sf::Texture temp3(surface.getTexture());
+    renderer.display();
+    sf::Texture temp3(renderer.getTexture());
 
     sf::Sprite left(temp2);
     sf::Sprite right(temp3);
 
-    surface.draw(left);
-    surface.draw(right);
+    renderer.submit(Immediate(&left));
+    renderer.submit(Immediate(&right));
 
     firstPass = false;
   }

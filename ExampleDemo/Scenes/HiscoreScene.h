@@ -16,6 +16,7 @@
 
 using namespace swoosh;
 using namespace swoosh::types;
+using namespace swoosh::game;
 
 class MainMenuScene;
 
@@ -32,10 +33,6 @@ private:
   sf::SoundBuffer buffer;
   sf::Sound selectFX;
 
-  save& hiscore;
-
-  int lives;
-
   float screenDiv;
   float screenMid;
   float screenBottom;
@@ -45,9 +42,11 @@ private:
 
   bool inFocus;
 public:
-  HiScoreScene(ActivityController& controller, save& data) : hiscore(data), Activity(&controller) {
+  SaveFile& saveFile;
+
+  HiScoreScene(ActivityController& controller, SaveFile& save) : saveFile(save), Activity(&controller) {
     // Proof that this is the same save file in memory as it is passed around the scenes
-    std::cout << "savefile address is " << &data << std::endl;
+    std::cout << "savefile address is " << &save << std::endl;
 
     // keep our window size dimensions consistent based on the initial window size when the AC was created
     auto windowSize = getController().getVirtualWindowSize();
@@ -70,9 +69,9 @@ public:
     screenMid = windowSize.x / 2.0f;
     screenDiv = windowSize.x / 4.0f;
 
-    if (hiscore.empty()) {
-      hiscore.writeToFile(SAVE_FILE_PATH);
-      hiscore.loadFromFile(SAVE_FILE_PATH);
+    if (saveFile.empty()) {
+      saveFile.writeToFile(SAVE_FILE_PATH);
+      saveFile.loadFromFile(SAVE_FILE_PATH);
     }
 
     waitTime.start();
@@ -92,7 +91,7 @@ public:
   }
 
   void onUpdate(double elapsed) override {
-    waitTime.update(sf::seconds(elapsed));
+    waitTime.update(sf::seconds((float)elapsed));
 
     goback.update(getController().getWindow());
 
@@ -101,7 +100,7 @@ public:
 
       // Rewind lets us pop back to a particular scene in our stack history
       using effect = segue<CircleClose, sec<1>>;
-      bool found = getController().rewind<effect::to<MainMenuScene>>();
+      bool found = getController().rewind<effect::to<MainMenuScene>>(saveFile);
 
       // should never happen
       // but your games may need to check so here it is an example
@@ -112,7 +111,7 @@ public:
     if (waitTime.getElapsed().asSeconds() > 3) {
 
       // If the scroll offset is greater than the height of all drawn scores
-      if (scrollOffset > 200 + (hiscore.names.size() * 100)) {
+      if (scrollOffset > 200 + (saveFile.names.size() * 100)) {
         // We hit them all, reset
         scrollOffset = 0;
         waitTime.reset();
@@ -178,38 +177,38 @@ public:
   void onResume() override {
   }
 
-  void onDraw(sf::RenderTexture& surface) override {
+  void onDraw(IRenderer& renderer) override {
     sf::RenderWindow& window = getController().getWindow();
 
     for (auto& m : meteors) {
-      surface.draw(m.sprite);
+      renderer.submit(&m.sprite);
     }
 
     text.setFillColor(sf::Color::Yellow);
     text.setPosition(sf::Vector2f(screenMid, 100));
     text.setString("Hi Scores");
     setOrigin(text, 0.5, 0.5);
-    surface.draw(text);
+    renderer.submit(Immediate(&text));
 
     text.setFillColor(sf::Color::White);
 
-    for (int i = 0; i < hiscore.names.size(); i++) {
-      std::string name = hiscore.names[i];
-      int score = hiscore.scores[i];
+    for (int i = 0; i < saveFile.names.size(); i++) {
+      std::string name = saveFile.names[i];
+      int score = saveFile.scores[i];
 
       text.setString(name);
       text.setPosition(sf::Vector2f((float)(screenDiv), (float)(200 + (i*100) - scrollOffset)));
       setOrigin(text, 0.5, 0.5);
-      surface.draw(text);
+      renderer.submit(Immediate(&text));
 
       text.setString(std::to_string(score));
       text.setPosition(sf::Vector2f((float)(screenDiv * 3), (float)(200 + (i*100) - scrollOffset)));
       setOrigin(text, 0.5, 0.5);
-      surface.draw(text);
+      renderer.submit(Immediate(&text));
     }
 
     text.setFillColor(sf::Color::Black);
-    goback.draw(surface, text, screenMid, screenBottom - 40);
+    goback.draw(renderer, text, screenMid, screenBottom - 40);
   }
 
   void onEnd() override {

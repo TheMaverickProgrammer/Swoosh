@@ -16,16 +16,16 @@ private:
   sf::Vector2u windowSize;
   int direction;
 public:
- void onDraw(sf::RenderTexture& surface) override {
+ void onDraw(IRenderer& renderer) override {
     double elapsed = getElapsed().asMilliseconds();
     double duration = getDuration().asMilliseconds();
     double alpha = 1.0 - ease::bezierPopOut(elapsed, duration);
 
-    this->drawLastActivity(surface);
+    this->drawLastActivity(renderer);
 
-    surface.display(); // flip and ready the buffer
+    renderer.display(); // flip and ready the buffer
 
-    sf::Texture temp(surface.getTexture()); // Make a copy of the source texture
+    sf::Texture temp(renderer.getTexture()); // Make a copy of the source texture
 
     sf::Sprite top(temp); 
     top.setTextureRect(sf::IntRect(0, 0, windowSize.x, windowSize.y / 2));
@@ -35,18 +35,18 @@ public:
     bottom.setTextureRect(sf::IntRect(0, windowSize.y / 2, windowSize.x, windowSize.y));
     bottom.setPosition((float)(direction * -alpha * bottom.getTexture()->getSize().x), (float)(windowSize.y/2.0f));
 
-    surface.clear();
+    renderer.clear();
 
-    this->drawNextActivity(surface);
+    this->drawNextActivity(renderer);
 
-    surface.display(); // flip and ready the buffer
+    renderer.display(); // flip and ready the buffer
 
-    sf::Texture temp2(surface.getTexture());
+    sf::Texture temp2(renderer.getTexture());
     sf::Sprite right(temp2);
 
-    surface.draw(right);
-    surface.draw(top);
-    surface.draw(bottom);
+    renderer.submit(Immediate(&right));
+    renderer.submit(Immediate(&top));
+    renderer.submit(Immediate(&bottom));
   }
 
   HorizontalSlice(sf::Time duration, Activity* last, Activity* next) : Segue(duration, last, next) {
