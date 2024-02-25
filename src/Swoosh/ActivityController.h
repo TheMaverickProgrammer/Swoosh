@@ -219,7 +219,7 @@ namespace swoosh
     */
     template<typename RendererT>
     RendererT* getRenderer() {
-      auto query = [this](RendererEntry& entry) {
+      auto query = [this](const RendererEntry& entry) {
         return typeid(entry.renderer) == typeid(RendererT);
       };
 
@@ -229,7 +229,7 @@ namespace swoosh
       if (iter == rendererEntries.end())
         return nullptr;
 
-      return &iter->renderer;
+      return (RendererT*)&iter->renderer;
     }
 
     /**
@@ -600,19 +600,21 @@ namespace swoosh
     }
 
     /**
-     @brief Tries to pop the activity of the stack
-     @return true if we are able to pop, false if there are no more items on the stack or in the middle of a segue effect
-   */
+      @brief Tries to pop the activity of the stack
+      @return true if we are able to pop, false if there are no more items on the stack or in the middle of a segue effect
+    */
     template<typename... Args>
-    const void pop(Args&&... args)
+    const bool pop(Args&&... args)
     {
       const bool hasMore = (activities.size() > 0);
 
       if (!hasMore || segueAction != SegueAction::none)
-        return;
+        return false;
 
       last->yieldable.resolve(std::forward<Args>(args)...);
       stackAction = StackAction::pop;
+
+      return true;
     }
 
     /**
@@ -648,11 +650,11 @@ namespace swoosh
     };
 
     /**
-    @class ResolveRewindSegueIntent<T, false>
-    @brief If type is not a segue, looks for the matching activity. If it is not found, it does not rewind to that activity.
+      @class ResolveRewindSegueIntent<T, false>
+      @brief If type is not a segue, looks for the matching activity. If it is not found, it does not rewind to that activity.
 
-    If a rewind is successful, all spanned activities are deleted.
-  */
+      If a rewind is successful, all spanned activities are deleted.
+    */
     template <typename T>
     struct ResolveRewindSegueIntent<T, false>
     {
@@ -712,11 +714,11 @@ namespace swoosh
     };
 
     /**
-     @brief Tries to rewind the activity to a target activity type T in the stack
-     @return true if we are able to rewind (activity found), false if not found or in the middle of a transition
+      @brief Tries to rewind the activity to a target activity type T in the stack
+      @return true if we are able to rewind (activity found), false if not found or in the middle of a transition
     */
     template <typename T, typename... Args>
-    bool rewind(Args&&... args)
+    const bool rewind(Args&&... args)
     {
       if (activities.size() <= 1)
         return false;
@@ -728,7 +730,16 @@ namespace swoosh
     /**
       @brief Returns the current activity pointer. Nullptr if no acitivty exists on the stack.
     */
-    const swoosh::Activity *getCurrentActivity() const
+    swoosh::Activity *getCurrentActivity()
+    {
+      if (getStackSize() > 0)
+        return activities.top();
+
+      return nullptr;
+    }
+
+    // const-qualified
+    const swoosh::Activity* getCurrentActivity() const
     {
       if (getStackSize() > 0)
         return activities.top();
